@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>فكّر كالأغنياء — لعبة القرارات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#241804; --lapis-deep:#160F02; --lapis-panel:#3D2A08;
+    --gold:#E0A93B; --gold-bright:#F3C96B; --sand:#F3EDE0; --sand-dim:#C7B991;
+    --ember:#D2674E; --reed:#5FB389; --amber:#D69A2E; --amber-deep:#A3741C; --amber-bright:#F0BD5C;
+    --shadow:0 12px 32px rgba(13,9,1,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:'Tajawal',sans-serif;background:radial-gradient(1200px 600px at 50% -10%, #56400D 0%, transparent 60%),linear-gradient(180deg, var(--lapis-night) 0%, #0E0A02 100%);color:var(--sand);min-height:100vh;line-height:1.7}
+  body::after{content:"";position:fixed;inset:auto 0 0 0;height:3px;z-index:5;background:linear-gradient(90deg, transparent 0, var(--amber) 30%, var(--gold-bright) 50%, var(--amber) 70%, transparent 100%);box-shadow:0 -4px 16px rgba(214,154,46,.35);opacity:.9}
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+  .ledger{position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:14px 18px 12px;background:linear-gradient(180deg, rgba(36,24,4,.97) 70%, rgba(36,24,4,.85));border-bottom:1px solid rgba(214,154,46,.45);backdrop-filter:blur(6px)}
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .ledger-label{font-size:.78rem;color:var(--sand-dim);font-weight:500}
+  .ledger-amount{font-family:'Cairo',sans-serif;font-weight:800;font-size:1.4rem;color:var(--gold-bright);letter-spacing:.3px;white-space:nowrap}
+  .ledger-amount small{font-size:.82rem;color:var(--sand-dim);font-family:'Tajawal',sans-serif;font-weight:500;margin-right:4px}
+  .ledger-amount.neg{color:var(--ember)}
+  .dots{display:flex;gap:6px;margin-top:8px;justify-content:center}
+  .dot{width:26px;height:4px;border-radius:99px;background:rgba(243,237,224,.16);transition:background .4s}
+  .dot.on{background:var(--amber)}
+  .dot.now{background:var(--amber-bright);box-shadow:0 0 8px rgba(240,189,92,.8)}
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;color:var(--amber-bright);border:1px solid rgba(214,154,46,.55);border-radius:99px;padding:4px 14px;margin-bottom:14px;letter-spacing:.3px;background:rgba(214,154,46,.1)}
+  h1{font-family:'Cairo',sans-serif;font-size:2.2rem;font-weight:900;line-height:1.3;color:var(--gold-bright);margin-bottom:6px}
+  h2.situation{font-family:'Tajawal',sans-serif;font-size:1.4rem;line-height:1.75;color:var(--sand);font-weight:700;margin-bottom:22px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+  .card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(214,154,46,.32);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow)}
+  .choice{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;background:rgba(22,15,2,.6);border:1px solid rgba(243,237,224,.16);border-radius:14px;padding:15px 16px;margin-bottom:12px;color:var(--sand);font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.65;cursor:pointer;transition:border-color .2s, background .2s, transform .15s}
+  .choice:hover,.choice:focus-visible{border-color:var(--amber);background:rgba(214,154,46,.12);transform:translateY(-1px)}
+  .choice:focus-visible{outline:2px solid var(--amber-bright);outline-offset:2px}
+  .badge{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(214,154,46,.18);border:1px solid rgba(214,154,46,.55);color:var(--amber-bright);font-weight:800;font-size:.95rem;margin-top:2px}
+  .verdict{border-radius:14px;padding:18px;margin-bottom:16px;border:1px solid}
+  .verdict.best{background:rgba(95,179,137,.14);border-color:rgba(95,179,137,.6)}
+  .verdict.ok{background:rgba(214,154,46,.12);border-color:rgba(214,154,46,.55)}
+  .verdict.bad{background:rgba(210,103,78,.14);border-color:rgba(210,103,78,.6)}
+  .verdict-title{font-family:'Cairo',sans-serif;font-size:1.22rem;font-weight:800;margin-bottom:8px}
+  .verdict.best .verdict-title{color:#8FE0B6}
+  .verdict.ok .verdict-title{color:var(--gold-bright)}
+  .verdict.bad .verdict-title{color:#F0987C}
+  .verdict p{font-size:.98rem}
+  .timeline{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+  .t-row{display:flex;gap:12px;align-items:flex-start;background:rgba(22,15,2,.55);border-radius:12px;padding:12px 14px;border:1px solid rgba(243,237,224,.12)}
+  .t-when{flex:0 0 auto;font-weight:800;color:var(--amber-bright);font-size:.85rem;border-left:1px solid rgba(214,154,46,.4);padding-left:12px;min-width:74px}
+  .t-what{font-size:.95rem;color:var(--sand)}
+  .delta{display:inline-flex;align-items:center;gap:8px;font-family:'Cairo',sans-serif;font-weight:800;font-size:1.3rem;border-radius:12px;padding:8px 16px;margin-bottom:18px}
+  .delta.up{background:rgba(95,179,137,.16);color:#8FE0B6;border:1px solid rgba(95,179,137,.5)}
+  .delta.down{background:rgba(210,103,78,.16);color:#F0987C;border:1px solid rgba(210,103,78,.5)}
+  .delta.flat{background:rgba(243,237,224,.08);color:var(--sand-dim);border:1px solid rgba(243,237,224,.22)}
+  .btn{display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;color:#241804;background:linear-gradient(180deg,var(--amber-bright),var(--amber-deep));border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(163,116,28,.4)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(163,116,28,.5)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(214,154,46,.55);box-shadow:none;margin-top:10px}
+  .final-amount{font-family:'Cairo',sans-serif;font-size:3rem;font-weight:900;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
+  .final-amount.neg{color:var(--ember)}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{text-align:center;font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800;color:var(--sand);margin-bottom:6px}
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:22px}
+  .principles{list-style:none;margin-bottom:22px}
+  .principles li{display:flex;gap:10px;align-items:center;padding:10px 14px;margin-bottom:8px;background:rgba(22,15,2,.55);border-radius:12px;border:1px solid rgba(243,237,224,.12);font-size:.95rem}
+  .p-mark{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+  .p-mark.yes{background:rgba(95,179,137,.2);color:#8FE0B6;border:1px solid rgba(95,179,137,.6)}
+  .p-mark.no{background:rgba(210,103,78,.2);color:#F0987C;border:1px solid rgba(210,103,78,.6)}
+  .quote{font-family:'Cairo',sans-serif;font-size:1.16rem;font-weight:700;line-height:1.85;text-align:center;color:var(--gold-bright);border-top:1px solid rgba(214,154,46,.35);border-bottom:1px solid rgba(214,154,46,.35);padding:18px 6px;margin-bottom:22px}
+  .quote span{display:block;font-family:'Tajawal',sans-serif;font-size:.85rem;font-weight:500;color:var(--sand-dim);margin-top:8px}
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--amber);display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:radial-gradient(circle at 35% 30%, rgba(214,154,46,.3), rgba(214,154,46,.05));box-shadow:0 0 30px rgba(214,154,46,.3)}
+  .intro-list{margin:0 0 26px;padding:0;list-style:none}
+  .intro-list li{display:block;position:relative;padding-right:22px;color:var(--sand);font-size:.98rem;margin-bottom:10px}
+  .intro-list li::before{content:"◆";color:var(--amber);font-size:.7rem;position:absolute;right:0;top:.5em}
+  @media (max-width:420px){h1{font-size:1.85rem}h2.situation{font-size:1.25rem}.final-amount{font-size:2.4rem}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div>
+        <div class="ledger-label">رصيد عقلية الأغنياء</div>
+        <div class="ledger-amount" id="wealth">0 <small>نقطة</small></div>
+      </div>
+      <div style="font-size:1.6rem">💭</div>
+    </div>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <section class="screen active" id="intro">
+    <div class="intro-seal">💭</div>
+    <div style="text-align:center">
+      <div class="eyebrow">لعبة قرارات · كتاب «كيف يفكر الأغنياء»</div>
+      <h1>فكّر كالأغنياء</h1>
+      <p class="sub">30 عاماً من مقابلات الأثرياء كشفت 100 تباينٍ بين عقلية الطبقة المتوسّطة وعقلية الأغنياء.</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>ستواجه <b>6 مواقف</b> على أبحاث ستيف سيبولد في «كيف يفكر الأغنياء».</li>
+        <li>كل قرارٍ يرفع أو يخفض <b>رصيد عقلية الأغنياء</b> لديك.</li>
+        <li>المبدأ: <b>الأغنياء يتعاملون مع المال كأداةٍ منطقية، ويركّزون على زيادة الدخل لا فقط تقليل الإنفاق</b>.</li>
+        <li>اجمع أعلى رصيدٍ ممكن… حتى تستبدل عقلية الطبقة المتوسّطة بعقلية الأغنياء.</li>
+      </ul>
+      <button class="btn" onclick="startGame()">ابدأ إعادة البرمجة ▸</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="eyebrow" id="g-eyebrow"></div>
+    <h2 class="situation" id="g-situation"></h2>
+    <div id="g-choices"></div>
+  </section>
+
+  <section class="screen" id="feedback">
+    <div class="card">
+      <div class="verdict" id="f-verdict">
+        <div class="verdict-title" id="f-title"></div>
+        <p id="f-text"></p>
+      </div>
+      <div class="timeline">
+        <div class="t-row"><div class="t-when">بعد سنة</div><div class="t-what" id="f-y1"></div></div>
+        <div class="t-row"><div class="t-when">بعد 5 سنوات</div><div class="t-what" id="f-y5"></div></div>
+      </div>
+      <div style="text-align:center"><span class="delta" id="f-delta"></span></div>
+      <button class="btn" id="f-next" onclick="nextScenario()">متابعة ←</button>
+    </div>
+  </section>
+
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow">اكتملت الجلسة</div></div>
+    <div class="card">
+      <div class="final-label">رصيد عقلية الأغنياء</div>
+      <div class="final-amount" id="r-amount">0</div>
+      <div class="final-label">نقطة &nbsp;·&nbsp; من أصل 116</div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <ul class="principles" id="r-principles"></ul>
+      <div class="quote">«الطبقة المتوسّطة تعتقد أن المال يأتي من العمل الجادّ؛ الأغنياء يعرفون أنه يأتي من الرافعة»<span>— ستيف سيبولد</span></div>
+      <button class="btn" onclick="restart()">أعد المحاولة 🔄</button>
+      <button class="btn ghost" onclick="restart()">اقرأ الملخص مرة أخرى 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const SCENARIOS = [
+  {
+    cure:"المبدأ · المال أداةٌ منطقية لا علاقةٌ عاطفية",
+    short:"التعامل مع المال بمنطقٍ هادئ لا بخوفٍ أو قلق",
+    situation:"تتلقّى فاتورةً غير متوقَّعة وتشعر بموجة قلقٍ وخوفٍ فورية تجاه وضعك المالي.",
+    choices:[
+      {t:"أتعامل مع الفاتورة كمسألةٍ حسابية تحتاج حلاً منطقياً (مراجعة الميزانية، خياراتٍ بديلة)، بدل الاستغراق في القلق العاطفي", q:"best", d:20,
+       fb:"سيبولد يوضح أن الطبقة المتوسّطة تبني علاقةً عاطفية بالمال (خوفٌ، قلقٌ)، بينما الأغنياء يتعاملون معه كأداةٍ منطقية تحتاج حساباً وإدارة لا عاطفة.",
+       y1:"حلٌّ عمليٌّ للمشكلة دون استنزافٍ عاطفي", y5:"عادة تعاملٍ هادئة ومنطقية مع كل أزمةٍ مالية"},
+      {t:"أشعر بالقلق لساعاتٍ طويلة قبل أن أبدأ بالتفكير في حلٍّ عملي", q:"ok", d:5,
+       fb:"السماح للقلق العاطفي بالسيطرة أولاً يؤخّر الحلّ العملي ويستنزف طاقةً ذهنية كان يمكن توجيهها للحل.",
+       y1:"حلٌّ متأخّرٌ بعد استنزافٍ عاطفي", y5:"نمط تفكيرٍ عاطفيٌّ متكرّر مع كل أزمة"},
+      {t:"أتجنّب التعامل مع الفاتورة كلياً بسبب القلق الشديد وأؤجّلها دون أي حلٍّ", q:"bad", d:-8,
+       fb:"التجنّب الكامل بدافع القلق العاطفي يؤجّل المشكلة فقط ويزيد تكلفتها المحتملة لاحقاً.",
+       y1:"مشكلةٌ متفاقمة بسبب التجنّب", y5:"تكلفةٌ أعلى نتيجة التأجيل المستمر"}
+    ]
+  },
+  {
+    cure:"المبدأ · زيادة الدخل لا فقط تقليل الإنفاق",
+    short:"التركيز على حلّ مشكلاتٍ أكبر بدل توفير القروش فقط",
+    situation:"تراجع ميزانيتك الشهرية وتجد نفسك تركّز فقط على تقليص نفقاتٍ صغيرة (القهوة، الترفيه) دون أي تفكيرٍ في زيادة دخلك.",
+    choices:[
+      {t:"أوازن بين الانضباط في الإنفاق والتفكير الجادّ في زيادة دخلي عبر حلّ مشكلاتٍ أكبر للسوق", q:"best", d:19,
+       fb:"سيبولد يوضح أن الطبقة المتوسّطة تركّز على الادّخار وتقليص النفقات، بينما الأغنياء يركّزون على زيادة الدخل عبر حلّ مشكلاتٍ أكبر تخدم قيمةً أعلى.",
+       y1:"مصدر دخلٍ إضافي بدأ يتشكّل", y5:"نموٌّ ماليٌّ يتجاوز حدود تقليص النفقات فقط"},
+      {t:"أركّز فقط على تقليص النفقات الصغيرة دون أي تفكيرٍ في زيادة الدخل", q:"ok", d:5,
+       fb:"تقليص النفقات الصغيرة له سقفٌ محدود؛ زيادة الدخل تفتح إمكانياتٍ أكبر بكثير لتحسين الميزانية.",
+       y1:"وفرٌ صغيرٌ محدود التأثير", y5:"سقفٌ ماليٌّ ثابتٌ رغم الانضباط في الإنفاق"},
+      {t:"أتجاهل الميزانية تماماً ولا أفعل شيئاً حيال التراجع المالي", q:"bad", d:-7,
+       fb:"تجاهل المشكلة كلياً يسمح بتفاقم التراجع المالي دون أي محاولةٍ للتحسّن من أي جهة.",
+       y1:"تراجعٌ ماليٌّ مستمرٌّ دون أي تدخّل", y5:"وضعٌ ماليٌّ أسوأ نتيجة التجاهل"}
+    ]
+  },
+  {
+    cure:"المبدأ · الرافعة لا العمل الجادّ وحده",
+    short:"الأنظمة والفرق والاستثمارات تعمل لصالحك",
+    situation:"تعمل ساعاتٍ طويلة جداً كل يوم، وتشعر أن دخلك محدودٌ بعدد الساعات التي تستطيع العمل فيها بنفسك.",
+    choices:[
+      {t:"أبدأ بالتفكير في بناء رافعةٍ (نظامٍ، فريقٍ صغير، أو استثمارٍ) يعمل لصالحي حتى عندما لا أعمل بنفسي مباشرة", q:"best", d:19,
+       fb:"سيبولد يوضح أن الطبقة المتوسّطة تعتقد أن العمل الجادّ وحده يصنع الثروة، بينما الأغنياء يبنون رافعةً (أنظمة، فرقاً، استثمارات) تعمل لصالحهم دون مبادلة مباشرة للوقت.",
+       y1:"بداية رافعةٍ تخفّف الاعتماد الكامل على وقتك", y5:"دخلٌ ينمو دون مضاعفة ساعات العمل المباشر"},
+      {t:"أزيد ساعات عملي أكثر معتقداً أن هذا هو الحلّ الوحيد لزيادة الدخل", q:"ok", d:5,
+       fb:"زيادة ساعات العمل المباشر لها سقفٌ بيولوجيٌّ وزمنيٌّ محدود، بعكس الرافعة التي يمكن أن تنمو دون هذا القيد.",
+       y1:"دخلٌ إضافيٌّ محدودٌ بساعاتٍ إضافية", y5:"استنزافٌ جسديٌّ دون نموٍّ حقيقيٍّ في الرافعة"},
+      {t:"أستمر بنفس الوتيرة دون أي تفكيرٍ في الرافعة أو في حدود وقتي المحدود", q:"bad", d:-7,
+       fb:"الاستمرار بلا أي تفكيرٍ في الرافعة يُبقيك حبيس معادلة الوقت مقابل المال إلى الأبد.",
+       y1:"لا تغيير في نموذج الدخل", y5:"سقفٌ ماليٌّ ثابتٌ بسبب غياب الرافعة"}
+    ]
+  },
+  {
+    cure:"المبدأ · توقّعاتٌ مرتفعة لا منخفضة لتجنّب الخيبة",
+    short:"التعامل مع العقبات كتكلفةٍ طبيعية للطريق لا كفشلٍ نهائي",
+    situation:"تفكّر في هدفٍ مالي طموح، وتشعر برغبةٍ في تخفيض توقّعاتك «لتجنّب أي خيبة أملٍ محتملة».",
+    choices:[
+      {t:"أحافظ على توقّعاتٍ مرتفعة وأتعامل مع أي عقبةٍ كـ«تكلفةٍ طبيعية» للوصول للهدف، لا كفشلٍ نهائي يستدعي التراجع", q:"best", d:18,
+       fb:"سيبولد يوضح أن الطبقة المتوسّطة تخفّض توقّعاتها لتجنّب الخيبة، بينما الأغنياء يحافظون على توقّعاتٍ مرتفعة ويعتبرون العقبات جزءاً طبيعياً من الطريق لا فشلاً.",
+       y1:"استمراريةٌ رغم العقبات المتوقَّعة", y5:"تقدّمٌ ثابتٌ نحو الهدف الطموح الأصلي"},
+      {t:"أخفّض توقّعاتي إلى مستوى متوسّط «لأكون واقعياً وأتجنّب خيبة الأمل»", q:"ok", d:5,
+       fb:"التخفيض الاحترازي للتوقّعات يحدّ من النتيجة المحتملة حتى لو كانت القدرة الفعلية تسمح بأكثر من ذلك.",
+       y1:"تقدّمٌ متوسّطٌ يطابق التوقّع المتوسّط", y5:"نتيجةٌ محدودة بسقفٍ ذاتيٍّ منخفض"},
+      {t:"أتخلّى عن الهدف كلياً عند أول عقبةٍ معتبراً ذلك «دليلاً على أن الهدف غير واقعي»", q:"bad", d:-8,
+       fb:"اعتبار أول عقبةٍ دليلاً على الفشل النهائي يتناقض مع منطق الأغنياء الذين يرون العقبات تكلفةً طبيعية للطريق.",
+       y1:"تراجعٌ كاملٌ عن الهدف الطموح", y5:"عودةٌ لتفكيرٍ محدودٍ بعد طموحٍ مبدئي"}
+    ]
+  },
+  {
+    cure:"المبدأ · الراحة مع عدم الارتياح لا الراحة الدائمة",
+    short:"السعي المتكرّر للتحدّيات بدل الروتين المألوف",
+    situation:"تُعرَض عليك فرصةٌ مهنية تتطلّب خروجاً واضحاً من منطقة راحتك المعتادة، وتشعر برغبةٍ قوية في رفضها للبقاء في الروتين المألوف.",
+    choices:[
+      {t:"أقبل التحدّي رغم عدم الارتياح المبدئي، فالأغنياء يصبحون مرتاحين مع عدم الراحة ويسعون للتحدّيات بانتظامٍ كمصدرٍ للنموّ", q:"best", d:18,
+       fb:"سيبولد يوضح أن الطبقة المتوسّطة تُعطي الأولوية للراحة والروتين المألوف، بينما الأغنياء يصبحون مرتاحين مع عدم الارتياح ويسعون للتحدّيات بانتظام.",
+       y1:"نموٌّ شخصيٌّ ومهنيٌّ بفعل التحدّي المقبول", y5:"فرصٌ أكبر فُتحت بفضل الخروج من الروتين"},
+      {t:"أقبل التحدّي جزئياً لكنني أبقى متمسّكاً بأغلب روتيني المألوف", q:"ok", d:5,
+       fb:"القبول الجزئي يحدّ من فرصة النموّ الكاملة التي يقدّمها الخروج الكامل من منطقة الراحة.",
+       y1:"نموٌّ محدودٌ بسبب التمسّك الجزئي بالروتين", y5:"فرصٌ جزئية فقط استُغلّت"},
+      {t:"أرفض التحدّي كلياً وأبقى في روتيني المألوف بحجة «الاستقرار أهمّ»", q:"bad", d:-7,
+       fb:"الرفض الكامل للتحدّي يحرمك من فرصة النموّ التي يصفها سيبولد كمصدرٍ أساسي لتوسيع القدرات المالية والمهنية.",
+       y1:"لا نموٌّ إضافي في القدرات أو الفرص", y5:"بقاءٌ في نفس السقف المهني والمالي"}
+    ]
+  },
+  {
+    cure:"المبدأ · المال هدفه الحرّية لا المظهر الاجتماعي",
+    short:"بناء الأصول والاستقلالية بدل شراء الانطباع",
+    situation:"حصلتَ على مبلغٍ إضافي من دخلك، وتفكّر بين إنفاقه على سلعةٍ تعكس مكانةً اجتماعية، أو توجيهه لأصلٍ يبني استقلاليتك المالية.",
+    choices:[
+      {t:"أوجّه المبلغ لأصلٍ يبني حرّيتي ووقتي واستقلاليتي المستقبلية، بدل سلعةٍ تعكس مكانةً اجتماعية مؤقّتة", q:"best", d:19,
+       fb:"سيبولد يوضح أن الطبقة المتوسّطة ترى المال كأداةٍ للمكانة والانطباع الاجتماعي، بينما الأغنياء يرونه أداةً لبناء الحرّية: الوقت، والخيارات، والاستقلالية.",
+       y1:"أصلٌ يبني استقلاليةً مستقبلية", y5:"حرّيةٌ ماليةٌ متراكمة بفضل التوجيه الذكي"},
+      {t:"أوزّع المبلغ مناصفةً بين سلعةٍ استعراضية وأصلٍ بسيط دون أولويةٍ واضحة", q:"ok", d:5,
+       fb:"التوزيع المتساوي بلا أولويةٍ واضحة يقلّل الفائدة الكاملة من توجيه المال نحو الحرّية المستقبلية.",
+       y1:"تقدّمٌ جزئيٌّ نحو الاستقلالية", y5:"نتيجةٌ متوسّطة بين الاستعراض والبناء"},
+      {t:"أنفق المبلغ بالكامل على سلعةٍ تعكس مكانةً اجتماعية فورية", q:"bad", d:-8,
+       fb:"الإنفاق الكامل على المكانة الاجتماعية يستهلك فرصةً كانت يمكن أن تبني حرّيةً مالية مستقبلية حقيقية.",
+       y1:"مظهرٌ اجتماعيٌّ مؤقّت دون بناء أصول", y5:"لا تقدّم نحو الاستقلالية المالية الحقيقية"}
+    ]
+  }
+];
+
+const VERDICTS = {
+  best:{title:"💭 عقلية الأغنياء — هكذا يصف سيبولد التفكير الثري", cls:"best"},
+  ok:{title:"⚖️ مقبول… لكن عقلية الطبقة المتوسّطة تتسلّل", cls:"ok"},
+  bad:{title:"🌀 عقلية الطبقة المتوسّطة تحدّ من نتائجك", cls:"bad"}
+};
+
+let idx = 0, wealth = 0, mastered = [];
+const $ = id => document.getElementById(id);
+
+function fmt(n){
+  const s = Math.abs(n).toLocaleString('en-US').replace(/,/g,'٬');
+  return (n<0?'−':'')+s;
+}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function renderDots(){
+  $('dots').innerHTML = SCENARIOS.map((_,i)=>`<div class="dot ${i<idx?'on':''} ${i===idx?'now':''}"></div>`).join('');
+}
+function renderWealth(animateFrom){
+  const el = $('wealth');
+  el.classList.toggle('neg', wealth<0);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(animateFrom===undefined || reduce){ el.innerHTML = fmt(wealth)+' <small>نقطة</small>'; return; }
+  const start = animateFrom, diff = wealth-start, dur = 900, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    el.innerHTML = fmt(Math.round(start+diff*e))+' <small>نقطة</small>';
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function startGame(){
+  idx = 0; wealth = 0; mastered = [];
+  $('ledger').style.display = 'block';
+  renderWealth(); renderDots(); renderScenario(); show('game');
+}
+function renderScenario(){
+  const s = SCENARIOS[idx];
+  $('g-eyebrow').textContent = `الموقف ${idx+1} من ${SCENARIOS.length} · ${s.cure}`;
+  $('g-situation').textContent = s.situation;
+  const letters = ['أ','ب','ج'];
+  $('g-choices').innerHTML = s.choices.map((c,i)=>
+    `<button class="choice" onclick="choose(${i})"><span class="badge">${letters[i]}</span><span>${c.t}</span></button>`).join('');
+  renderDots();
+}
+function choose(ci){
+  const s = SCENARIOS[idx], c = s.choices[ci];
+  const before = wealth;
+  wealth += c.d;
+  mastered.push(c.q === 'best');
+  const v = VERDICTS[c.q];
+  $('f-verdict').className = 'verdict '+v.cls;
+  $('f-title').textContent = v.title;
+  $('f-text').textContent = c.fb;
+  $('f-y1').textContent = c.y1;
+  $('f-y5').textContent = c.y5;
+  const dEl = $('f-delta');
+  dEl.className = 'delta '+(c.d>0?'up':c.d<0?'down':'flat');
+  dEl.textContent = (c.d>0?'📈 +':c.d<0?'📉 −':'⏳ ')+(c.d===0?'لا تغيير':Math.abs(c.d)+' نقطة');
+  $('f-next').textContent = (idx === SCENARIOS.length-1) ? 'اكشف نتيجتك النهائية 💭' : 'الموقف التالي ←';
+  show('feedback');
+  renderWealth(before);
+}
+function nextScenario(){
+  idx++;
+  if(idx < SCENARIOS.length){ renderScenario(); show('game'); }
+  else showResults();
+}
+function rankOf(w){
+  if(w>=95) return {r:"💭 تفكّر بعقلية الأغنياء بإتقان", n:"تطبّق مبادئ سيبولد بإتقان: المال كأداةٍ منطقية، والرافعة، والتوقّعات المرتفعة، والراحة مع عدم الارتياح. طبّقها على حياتك الحقيقية الآن."};
+  if(w>=60) return {r:"🌤️ عقليتك تتحوّل تدريجياً", n:"تمتلك معظم المبادئ. راجع ما أخطأت فيه أدناه ورسّخه."};
+  if(w>=25) return {r:"⏳ بدأتَ تتجاوز عقلية الطبقة المتوسّطة", n:"وضعتَ أولى لبنات عقلية الأغنياء. أعد قراءة الفصول ثم عُد."};
+  return {r:"🌀 عقلية الطبقة المتوسّطة تقود قراراتك", n:"لا بأس — الوعي أول خطوة. ابدأ بسؤالٍ واحد: «هل أتعامل مع المال بعاطفةٍ أم بمنطق؟»"};
+}
+function showResults(){
+  $('ledger').style.display = 'none';
+  const rk = rankOf(wealth);
+  const amountEl = $('r-amount');
+  amountEl.classList.toggle('neg', wealth<0);
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n;
+  $('r-principles').innerHTML = SCENARIOS.map((s,i)=>
+    `<li><span class="p-mark ${mastered[i]?'yes':'no'}">${mastered[i]?'✓':'✗'}</span><span>${s.short}</span></li>`).join('');
+  show('results');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ amountEl.textContent = fmt(wealth); return; }
+  const dur = 1400, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    amountEl.textContent = fmt(Math.round(wealth*e));
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function restart(){ $('ledger').style.display = 'none'; show('intro'); }
+</script>
+</body>
+</html>

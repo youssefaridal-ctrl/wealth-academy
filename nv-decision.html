@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اطلب الثروة لا المال أو المكانة — لعبة القرارات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#06222A; --lapis-deep:#03141A; --lapis-panel:#0E3946;
+    --gold:#D9A23B; --gold-bright:#F0C36B; --sand:#E8F4F6; --sand-dim:#9DBFC6;
+    --ember:#D2674E; --reed:#5FB389; --teal:#2C9CB0; --teal-deep:#1D7282; --teal-bright:#5FC4D6;
+    --shadow:0 12px 32px rgba(1,10,13,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:'Tajawal',sans-serif;background:radial-gradient(1200px 600px at 50% -10%, #144D5C 0%, transparent 60%),linear-gradient(180deg, var(--lapis-night) 0%, #02090C 100%);color:var(--sand);min-height:100vh;line-height:1.7}
+  body::after{content:"";position:fixed;inset:auto 0 0 0;height:3px;z-index:5;background:linear-gradient(90deg, transparent 0, var(--teal) 30%, var(--gold-bright) 50%, var(--teal) 70%, transparent 100%);box-shadow:0 -4px 16px rgba(44,156,176,.35);opacity:.9}
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+  .ledger{position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:14px 18px 12px;background:linear-gradient(180deg, rgba(6,34,42,.97) 70%, rgba(6,34,42,.85));border-bottom:1px solid rgba(44,156,176,.45);backdrop-filter:blur(6px)}
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .ledger-label{font-size:.78rem;color:var(--sand-dim);font-weight:500}
+  .ledger-amount{font-family:'Cairo',sans-serif;font-weight:800;font-size:1.4rem;color:var(--gold-bright);letter-spacing:.3px;white-space:nowrap}
+  .ledger-amount small{font-size:.82rem;color:var(--sand-dim);font-family:'Tajawal',sans-serif;font-weight:500;margin-right:4px}
+  .ledger-amount.neg{color:var(--ember)}
+  .dots{display:flex;gap:6px;margin-top:8px;justify-content:center}
+  .dot{width:26px;height:4px;border-radius:99px;background:rgba(232,244,246,.16);transition:background .4s}
+  .dot.on{background:var(--teal)}
+  .dot.now{background:var(--teal-bright);box-shadow:0 0 8px rgba(95,196,214,.8)}
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;color:var(--teal-bright);border:1px solid rgba(44,156,176,.55);border-radius:99px;padding:4px 14px;margin-bottom:14px;letter-spacing:.3px;background:rgba(44,156,176,.1)}
+  h1{font-family:'Cairo',sans-serif;font-size:2.2rem;font-weight:900;line-height:1.3;color:var(--gold-bright);margin-bottom:6px}
+  h2.situation{font-family:'Tajawal',sans-serif;font-size:1.4rem;line-height:1.75;color:var(--sand);font-weight:700;margin-bottom:22px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+  .card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(44,156,176,.32);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow)}
+  .choice{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;background:rgba(3,20,26,.6);border:1px solid rgba(232,244,246,.16);border-radius:14px;padding:15px 16px;margin-bottom:12px;color:var(--sand);font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.65;cursor:pointer;transition:border-color .2s, background .2s, transform .15s}
+  .choice:hover,.choice:focus-visible{border-color:var(--teal);background:rgba(44,156,176,.12);transform:translateY(-1px)}
+  .choice:focus-visible{outline:2px solid var(--teal-bright);outline-offset:2px}
+  .badge{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(44,156,176,.18);border:1px solid rgba(44,156,176,.55);color:var(--teal-bright);font-weight:800;font-size:.95rem;margin-top:2px}
+  .verdict{border-radius:14px;padding:18px;margin-bottom:16px;border:1px solid}
+  .verdict.best{background:rgba(95,179,137,.14);border-color:rgba(95,179,137,.6)}
+  .verdict.ok{background:rgba(217,162,59,.12);border-color:rgba(217,162,59,.55)}
+  .verdict.bad{background:rgba(210,103,78,.14);border-color:rgba(210,103,78,.6)}
+  .verdict-title{font-family:'Cairo',sans-serif;font-size:1.22rem;font-weight:800;margin-bottom:8px}
+  .verdict.best .verdict-title{color:#8FE0B6}
+  .verdict.ok .verdict-title{color:var(--gold-bright)}
+  .verdict.bad .verdict-title{color:#F0987C}
+  .verdict p{font-size:.98rem}
+  .timeline{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+  .t-row{display:flex;gap:12px;align-items:flex-start;background:rgba(3,20,26,.55);border-radius:12px;padding:12px 14px;border:1px solid rgba(232,244,246,.12)}
+  .t-when{flex:0 0 auto;font-weight:800;color:var(--teal-bright);font-size:.85rem;border-left:1px solid rgba(44,156,176,.4);padding-left:12px;min-width:74px}
+  .t-what{font-size:.95rem;color:var(--sand)}
+  .delta{display:inline-flex;align-items:center;gap:8px;font-family:'Cairo',sans-serif;font-weight:800;font-size:1.3rem;border-radius:12px;padding:8px 16px;margin-bottom:18px}
+  .delta.up{background:rgba(95,179,137,.16);color:#8FE0B6;border:1px solid rgba(95,179,137,.5)}
+  .delta.down{background:rgba(210,103,78,.16);color:#F0987C;border:1px solid rgba(210,103,78,.5)}
+  .delta.flat{background:rgba(232,244,246,.08);color:var(--sand-dim);border:1px solid rgba(232,244,246,.22)}
+  .btn{display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;color:#06222A;background:linear-gradient(180deg,var(--teal-bright),var(--teal-deep));border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(29,114,130,.4)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(29,114,130,.5)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(217,162,59,.55);box-shadow:none;margin-top:10px}
+  .final-amount{font-family:'Cairo',sans-serif;font-size:3rem;font-weight:900;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
+  .final-amount.neg{color:var(--ember)}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{text-align:center;font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800;color:var(--sand);margin-bottom:6px}
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:22px}
+  .principles{list-style:none;margin-bottom:22px}
+  .principles li{display:flex;gap:10px;align-items:center;padding:10px 14px;margin-bottom:8px;background:rgba(3,20,26,.55);border-radius:12px;border:1px solid rgba(232,244,246,.12);font-size:.95rem}
+  .p-mark{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+  .p-mark.yes{background:rgba(95,179,137,.2);color:#8FE0B6;border:1px solid rgba(95,179,137,.6)}
+  .p-mark.no{background:rgba(210,103,78,.2);color:#F0987C;border:1px solid rgba(210,103,78,.6)}
+  .quote{font-family:'Cairo',sans-serif;font-size:1.16rem;font-weight:700;line-height:1.85;text-align:center;color:var(--gold-bright);border-top:1px solid rgba(217,162,59,.35);border-bottom:1px solid rgba(217,162,59,.35);padding:18px 6px;margin-bottom:22px}
+  .quote span{display:block;font-family:'Tajawal',sans-serif;font-size:.85rem;font-weight:500;color:var(--sand-dim);margin-top:8px}
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--teal);display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:radial-gradient(circle at 35% 30%, rgba(44,156,176,.3), rgba(217,162,59,.05));box-shadow:0 0 30px rgba(44,156,176,.3)}
+  .intro-list{margin:0 0 26px;padding:0;list-style:none}
+  .intro-list li{display:block;position:relative;padding-right:22px;color:var(--sand);font-size:.98rem;margin-bottom:10px}
+  .intro-list li::before{content:"◆";color:var(--teal);font-size:.7rem;position:absolute;right:0;top:.5em}
+  @media (max-width:420px){h1{font-size:1.85rem}h2.situation{font-size:1.25rem}.final-amount{font-size:2.4rem}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div>
+        <div class="ledger-label">رصيد الثروة لا المال أو المكانة</div>
+        <div class="ledger-amount" id="wealth">0 <small>نقطة</small></div>
+      </div>
+      <div style="font-size:1.6rem">⚓</div>
+    </div>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <section class="screen active" id="intro">
+    <div class="intro-seal">⚓</div>
+    <div style="text-align:center">
+      <div class="eyebrow">لعبة قرارات · كتاب «تقويم نافال رافيكانت»</div>
+      <h1>اطلب الثروة لا المال أو المكانة</h1>
+      <p class="sub">الثروة تكسبها وأنت نائم؛ المال ينقل الثروة عبر الزمن؛ المكانة لعبةٌ صفرية.</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>ستواجه <b>6 مواقف</b> على حكمة نافال رافيكانت في «التقويم».</li>
+        <li>كل قرارٍ يرفع أو يخفض <b>رصيد الثروة لا المال أو المكانة</b> لديك.</li>
+        <li>المبدأ: <b>الدخل = الحكم الصائب × الرافعة</b> — قرارٌ واحدٌ صائب على رافعةٍ كبيرة يتجاوز سنواتٍ من الكدّ.</li>
+        <li>اجمع أعلى رصيدٍ ممكن… حتى تملك حصّةً لا تؤجّر وقتك فقط.</li>
+      </ul>
+      <button class="btn" onclick="startGame()">ابدأ البناء ▸</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="eyebrow" id="g-eyebrow"></div>
+    <h2 class="situation" id="g-situation"></h2>
+    <div id="g-choices"></div>
+  </section>
+
+  <section class="screen" id="feedback">
+    <div class="card">
+      <div class="verdict" id="f-verdict">
+        <div class="verdict-title" id="f-title"></div>
+        <p id="f-text"></p>
+      </div>
+      <div class="timeline">
+        <div class="t-row"><div class="t-when">بعد سنة</div><div class="t-what" id="f-y1"></div></div>
+        <div class="t-row"><div class="t-when">بعد 5 سنوات</div><div class="t-what" id="f-y5"></div></div>
+      </div>
+      <div style="text-align:center"><span class="delta" id="f-delta"></span></div>
+      <button class="btn" id="f-next" onclick="nextScenario()">متابعة ←</button>
+    </div>
+  </section>
+
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow">اكتملت الجلسة</div></div>
+    <div class="card">
+      <div class="final-label">رصيد الثروة لا المال أو المكانة</div>
+      <div class="final-amount" id="r-amount">0</div>
+      <div class="final-label">نقطة &nbsp;·&nbsp; من أصل 116</div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <ul class="principles" id="r-principles"></ul>
+      <div class="quote">«لن تصبح غنياً بتأجير وقتك؛ يجب أن تملك حصّة من عملٍ»<span>— نافال رافيكانت</span></div>
+      <button class="btn" onclick="restart()">أعد المحاولة 🔄</button>
+      <button class="btn ghost" onclick="restart()">اقرأ الملخص مرة أخرى 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const SCENARIOS = [
+  {
+    cure:"المبدأ · اطلب الثروة لا المال أو المكانة",
+    short:"الثروة أصولٌ تعمل وأنت نائم؛ المكانة لعبةٌ صفرية",
+    situation:"تُعرَض عليك ترقيةٌ تمنحك لقباً ومكانةً أعلى في الشركة، لكنها لا تمنحك أي حصّةٍ أو ملكيةٍ حقيقية في قيمة ما تبنيه.",
+    choices:[
+      {t:"أُقيّم الفرصة بناءً على ما تمنحني من ملكيةٍ أو أصلٍ ينتج عائداً، لا فقط اللقب والمكانة، فالثروة تُبنى بالأصول لا بالألقاب", q:"best", d:20,
+       fb:"نافال يميّز بوضوح: الثروة أصولٌ تكسبها وأنت نائم، والمكانة موقعٌ في تراتبيةٍ اجتماعية. لعبة المكانة لعبةٌ صفرية؛ بناء الثروة لعبةٌ جمعية المحصّلة تنفع الجميع.",
+       y1:"تقييمٌ واضح بين المكانة والثروة الحقيقية", y5:"قراراتٌ موجَّهةٌ نحو بناء أصولٍ حقيقية"},
+      {t:"أقبل الترقية فوراً لمجرّد اللقب والمكانة الأعلى دون تقييم الملكية الفعلية", q:"ok", d:5,
+       fb:"المكانة وحدها دون ملكيةٍ حقيقية لا تبني ثروةً تعمل لصالحك على المدى الطويل.",
+       y1:"مكانةٌ أعلى لكن أصلٌ لم يتغيّر", y5:"وضعٌ ماليٌّ لم يتحسّن رغم اللقب الجديد"},
+      {t:"أرفض كل الفرص التي لا تأتي بلقبٍ فاخر، حتى لو منحتني ملكيةً حقيقية", q:"bad", d:-8,
+       fb:"التركيز الحصري على المكانة والألقاب، على حساب الملكية الحقيقية، يُبقيك بعيداً عن بناء الثروة الفعلية.",
+       y1:"فرص ملكيةٍ حقيقية رُفضت لمجرّد غياب اللقب", y5:"ثروةٌ لم تُبنَ بسبب الأولوية الخاطئة"}
+    ]
+  },
+  {
+    cure:"المبدأ · لا تُؤجِّر وقتك، امتلك حصّة",
+    short:"الدخل الخطّي يتوقّف حين تتوقّف عن العمل",
+    situation:"لديك فرصة عملٍ بساعاتٍ إضافية مقابل أجرٍ ثابت، وفرصةٌ أخرى تمنحك حصّةً صغيرة من مشروعٍ ناشئ بأجرٍ أقلّ في البداية.",
+    choices:[
+      {t:"أختار الحصّة في المشروع الناشئ، فالملكية تنمو مع نموّ النظام، بعكس الدخل الخطّي الذي يتوقّف فور توقّفي عن العمل", q:"best", d:19,
+       fb:"نافال يؤكّد: «لن تصبح غنياً بتأجير وقتك». الدخل الخطّي محدودٌ بساعاتك؛ الملكية تنمو مع النظام دون مبادلةٍ مباشرة لكل ساعةٍ إضافية.",
+       y1:"حصّةٌ بدأت تنمو مع نموّ المشروع", y5:"عائدٌ غير مرتبطٍ مباشرةً بساعات عملي"},
+      {t:"أختار الأجر الثابت الأعلى فوراً لأنه «مضمونٌ أكثر حالياً»", q:"ok", d:5,
+       fb:"الأجر الثابت مريحٌ مؤقّتاً، لكنه يبقيك ضمن معادلة تأجير الوقت بسقفٍ محدود.",
+       y1:"دخلٌ ثابتٌ لكن بلا نموٍّ إضافي", y5:"سقفٌ دخلٍ لم يتغيّر رغم الجهد المستمر"},
+      {t:"أرفض كلا العرضين وأنتظر فرصةً «مثالية» تجمع بين الأجر العالي والملكية الكاملة فوراً", q:"bad", d:-7,
+       fb:"انتظار الفرصة المثالية يعني عدم البدء أبداً؛ كل ملكيةٍ كبيرة بدأت بحصّةٍ صغيرة في البداية.",
+       y1:"لا فرصةٌ استُغلّت", y5:"موقعٌ لم يتغيّر منذ البداية"}
+    ]
+  },
+  {
+    cure:"المبدأ · المعرفة المتخصّصة لا يمكن تعليمها بسهولة",
+    short:"تقاطع الموهبة والشغف والخبرة الفريدة",
+    situation:"تفكّر في تطوير مهارةٍ جديدة، وتتساءل بين تعلّم مهارةٍ يمكن لأي شخصٍ تعلّمها بسهولة، أو تطوير مزيجٍ فريدٍ من موهبتك وشغفك الحقيقي.",
+    choices:[
+      {t:"أركّز على تطوير «معرفةٍ متخصّصة» تنبع من تقاطع موهبتي الطبيعية وشغفي الحقيقي وخبرتي الفريدة، فهذه لا يمكن تعليمها بسهولة ولا تنافسها أي مهارةٍ قياسية", q:"best", d:19,
+       fb:"نافال يوضح أن المعرفة المتخصّصة لا تُدرَّس؛ إن كانت قابلةً للتعليم وُجِد منافسٌ أرخص. تظهر عند تقاطع الموهبة والفضول والخبرة الفريدة، وتضعك خارج المنافسة المباشرة.",
+       y1:"مهارةٌ فريدة بدأت تتشكّل خارج المنافسة", y5:"موضعٌ متفوّقٌ بفضل المعرفة غير القابلة للتقليد"},
+      {t:"أتعلّم مهارةً قياسية شائعة لأنها «أسهل وأسرع للتعلّم»", q:"ok", d:5,
+       fb:"المهارات القياسية القابلة للتعلّم بسهولة تواجه منافسةً كبيرة وتُسعَّر بأقلّ قيمة في السوق.",
+       y1:"مهارةٌ شائعة بقيمةٍ سوقيةٍ محدودة", y5:"منافسةٌ مستمرّة على نفس المهارة المتاحة لكثيرين"},
+      {t:"أتجاهل تطوير أي مهارةٍ وأعتمد فقط على ما أعرفه حالياً دون أي تطوّر", q:"bad", d:-7,
+       fb:"التوقّف عن التطوّر يُبقيك دون أي ميزةٍ تنافسية جديدة في سوقٍ يتغيّر باستمرار.",
+       y1:"لا تطوّر في القدرات أو الفرص", y5:"موضعٌ تنافسيٌّ متراجعٌ مع مرور الوقت"}
+    ]
+  },
+  {
+    cure:"المبدأ · تحمّل المسؤولية علناً",
+    short:"المخاطرة الشخصية الواضحة تجلب مكافآتٍ أكبر",
+    situation:"تطوّر فكرة منتجٍ أو مشروعٍ، وتتساءل بين تقديمه باسمك الشخصي بشكلٍ علني، أو العمل عليه بشكلٍ خفيٍّ ومجهول لتجنّب أي مخاطرةٍ على سمعتك.",
+    choices:[
+      {t:"أضع اسمي علناً على نتائج عملي وأتحمّل المخاطرة الشخصية الواضحة، فهذا ما يجلب أكبر المكافآت: الملكية، والرافعة، والثقة", q:"best", d:18,
+       fb:"نافال يوضح: وضع اسمك علناً على النتائج يجلب أكبر مكافآت المجتمع (ملكية، رافعة، ثقة)؛ المخاطرة الشخصية الواضحة تساوي عوائداً شخصية كبيرة، بعكس العمل المجهول الذي يضمن تعويضاً متواضعاً محدوداً.",
+       y1:"ثقةٌ وسمعةٌ بدأت تتشكّل حول اسمك", y5:"مكافآتٌ أكبر بفضل المخاطرة العلنية المحسوبة"},
+      {t:"أعمل بشكلٍ شبه مجهول مع الإشارة الجزئية لاسمي فقط عند النجاح", q:"ok", d:5,
+       fb:"المخاطرة الجزئية تجلب مكافآتٍ جزئية فقط؛ الالتزام الكامل العلني هو ما يجلب أكبر المكافآت.",
+       y1:"تقدّمٌ محدودٌ بسبب المخاطرة الجزئية", y5:"مكافآتٌ متوسّطة مقارنةً بالإمكان الكامل"},
+      {t:"أعمل بشكلٍ مجهولٍ تماماً لتجنّب أي مخاطرةٍ على سمعتي الشخصية", q:"bad", d:-7,
+       fb:"العمل المجهول الكامل يضمن تعويضاً متواضعاً ومحدوداً، ويفوّت أكبر المكافآت التي تأتي مع المخاطرة الشخصية الواضحة.",
+       y1:"تعويضٌ محدودٌ بسبب غياب المخاطرة الشخصية", y5:"فرصٌ كبيرة فُوِّتت بسبب الحذر الزائد"}
+    ]
+  },
+  {
+    cure:"المبدأ · الرافعة بلا إذن",
+    short:"الكود والمحتوى يعملان دون موافقة أحد",
+    situation:"تفكّر في توسيع مشروعك: عبر تعيين موظفين إضافيين (رافعةٌ تحتاج إذناً وموارد)، أو بناء منتجٍ رقميٍّ أو محتوىً يتكرّر تلقائياً دون تكلفةٍ إضافية تُذكر.",
+    choices:[
+      {t:"أستثمر في بناء رافعةٍ رقمية (كودٌ أو محتوى) تعمل وتتكرّر بتكلفةٍ شبه معدومة دون الحاجة لإذنٍ من أحد", q:"best", d:19,
+       fb:"نافال يصف الرافعة الرقمية (الكود والمحتوى) بأنها لا تحتاج إذناً، وتعمل وأنت نائم بتكلفةٍ شبه معدومة، بعكس الرافعة التقليدية (العمّال أو رأس المال) التي تحتاج إذناً وموارد كبيرة.",
+       y1:"نظامٌ رقميٌّ بدأ يعمل دون تكلفةٍ إضافية كبيرة", y5:"نموٌّ يتجاوز حدود التوسّع التقليدي بالموظفين"},
+      {t:"أوسّع عبر التوظيف التقليدي فقط دون استثمارٍ في أي رافعةٍ رقمية", q:"ok", d:5,
+       fb:"التوظيف التقليدي رافعةٌ فعّالة لكنها تحتاج إذناً وموارد متزايدة مع كل خطوة توسّع.",
+       y1:"نموٌّ مكلفٌ يتطلّب موارد إضافية مستمرّة", y5:"توسّعٌ محدودٌ بسقف الموارد المتاحة"},
+      {t:"لا أوسّع مشروعي بأي طريقةٍ وأبقى عند نفس الحجم الحالي إلى الأبد", q:"bad", d:-7,
+       fb:"عدم الاستفادة من أي نوعٍ من الرافعة يُبقي المشروع في سقفه الحالي دون أي نموٍّ إضافي ممكن.",
+       y1:"لا نموٌّ في حجم المشروع أو عائده", y5:"فرصة نموٍّ كبيرة فُوِّتت تماماً"}
+    ]
+  },
+  {
+    cure:"المبدأ · العب لعباً طويل المدى مع لاعبين صبورين",
+    short:"العوائد المركّبة تحتاج التزاماً مستمرّاً لا تنقّلاً متكرّراً",
+    situation:"تفكّر في مسارك المهني: الانتقال المتكرّر بين فرصٍ مختلفة كل سنةٍ بحثاً عن مكاسبٍ سريعة، أو الالتزام بمجالٍ وعلاقاتٍ واحدة على المدى الطويل.",
+    choices:[
+      {t:"ألتزم بمجالٍ وعلاقاتٍ صبورة على المدى الطويل، فالعوائد المركّبة تحتاج استمراريةً لا تنقّلاً متكرّراً يصفّر التقدّم كل مرّة", q:"best", d:18,
+       fb:"نافال يؤكّد: «كل العظمة تأتي من معاناةٍ طويلة». اللعب طويل المدى مع شركاء صبورين يبني ثقةً وسمعةً وميزةً تراكمية؛ التنقّل المتكرّر يصفّر التقدّم في كل مرّة.",
+       y1:"ثقةٌ وسمعةٌ تراكمت بفضل الاستمرارية", y5:"ميزةٌ تراكميةٌ يصعب على الآخرين منافستها"},
+      {t:"أنتقل بين الفرص كل سنةٍ تقريباً بحثاً عن مكاسبٍ سريعة في كل مرّة", q:"ok", d:5,
+       fb:"التنقّل المتكرّر يصفّر التقدّم التراكمي في كل مرّة، ويمنع بناء الثقة والميزة طويلة الأمد.",
+       y1:"مكاسبٌ سريعة متفرّقة دون تراكمٍ حقيقي", y5:"لا ميزةٌ تراكمية تُذكر رغم النشاط المستمر"},
+      {t:"أبقى في وضعٍ غير مُرضٍ تماماً دون أي تغييرٍ لمجرّد «الاستقرار» دون أي رؤيةٍ طويلة المدى", q:"bad", d:-7,
+       fb:"البقاء بلا رؤيةٍ أو التزامٍ حقيقي طويل المدى لا يبني ميزةً تراكمية، بل مجرّد جمودٍ بلا هدف.",
+       y1:"لا تقدّم نحو أي هدفٍ واضح", y5:"وضعٌ راكدٌ دون أي ميزةٍ تراكمية"}
+    ]
+  }
+];
+
+const VERDICTS = {
+  best:{title:"⚓ حكمةٌ تراكمية — هكذا يفكّر نافال", cls:"best"},
+  ok:{title:"⚖️ مقبول… لكن الرافعة غير مكتملة", cls:"ok"},
+  bad:{title:"🌀 قرارٌ يُبقيك حبيس تأجير الوقت", cls:"bad"}
+};
+
+let idx = 0, wealth = 0, mastered = [];
+const $ = id => document.getElementById(id);
+
+function fmt(n){
+  const s = Math.abs(n).toLocaleString('en-US').replace(/,/g,'٬');
+  return (n<0?'−':'')+s;
+}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function renderDots(){
+  $('dots').innerHTML = SCENARIOS.map((_,i)=>`<div class="dot ${i<idx?'on':''} ${i===idx?'now':''}"></div>`).join('');
+}
+function renderWealth(animateFrom){
+  const el = $('wealth');
+  el.classList.toggle('neg', wealth<0);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(animateFrom===undefined || reduce){ el.innerHTML = fmt(wealth)+' <small>نقطة</small>'; return; }
+  const start = animateFrom, diff = wealth-start, dur = 900, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    el.innerHTML = fmt(Math.round(start+diff*e))+' <small>نقطة</small>';
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function startGame(){
+  idx = 0; wealth = 0; mastered = [];
+  $('ledger').style.display = 'block';
+  renderWealth(); renderDots(); renderScenario(); show('game');
+}
+function renderScenario(){
+  const s = SCENARIOS[idx];
+  $('g-eyebrow').textContent = `الموقف ${idx+1} من ${SCENARIOS.length} · ${s.cure}`;
+  $('g-situation').textContent = s.situation;
+  const letters = ['أ','ب','ج'];
+  $('g-choices').innerHTML = s.choices.map((c,i)=>
+    `<button class="choice" onclick="choose(${i})"><span class="badge">${letters[i]}</span><span>${c.t}</span></button>`).join('');
+  renderDots();
+}
+function choose(ci){
+  const s = SCENARIOS[idx], c = s.choices[ci];
+  const before = wealth;
+  wealth += c.d;
+  mastered.push(c.q === 'best');
+  const v = VERDICTS[c.q];
+  $('f-verdict').className = 'verdict '+v.cls;
+  $('f-title').textContent = v.title;
+  $('f-text').textContent = c.fb;
+  $('f-y1').textContent = c.y1;
+  $('f-y5').textContent = c.y5;
+  const dEl = $('f-delta');
+  dEl.className = 'delta '+(c.d>0?'up':c.d<0?'down':'flat');
+  dEl.textContent = (c.d>0?'📈 +':c.d<0?'📉 −':'⏳ ')+(c.d===0?'لا تغيير':Math.abs(c.d)+' نقطة');
+  $('f-next').textContent = (idx === SCENARIOS.length-1) ? 'اكشف نتيجتك النهائية ⚓' : 'الموقف التالي ←';
+  show('feedback');
+  renderWealth(before);
+}
+function nextScenario(){
+  idx++;
+  if(idx < SCENARIOS.length){ renderScenario(); show('game'); }
+  else showResults();
+}
+function rankOf(w){
+  if(w>=95) return {r:"⚓ تطلب الثروة لا المال أو المكانة بإتقان", n:"تطبّق حكمة نافال بإتقان: الملكية، والمعرفة المتخصّصة، والرافعة الرقمية، واللعب طويل المدى. طبّقها على حياتك الحقيقية الآن."};
+  if(w>=60) return {r:"🌊 رؤيتك للثروة تتوسّع تدريجياً", n:"تمتلك معظم المبادئ. راجع ما أخطأت فيه أدناه ورسّخه."};
+  if(w>=25) return {r:"⏳ بدأتَ تفرّق بين الثروة والمكانة", n:"وضعتَ أولى لبنات الفهم. أعد قراءة الفصول ثم عُد."};
+  return {r:"🌀 لا تزال تطلب المال أو المكانة بدل الثروة", n:"لا بأس — الوعي أول خطوة. ابدأ بسؤالٍ واحد: «هل أملك حصّةً أم أؤجّر وقتي فقط؟»"};
+}
+function showResults(){
+  $('ledger').style.display = 'none';
+  const rk = rankOf(wealth);
+  const amountEl = $('r-amount');
+  amountEl.classList.toggle('neg', wealth<0);
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n;
+  $('r-principles').innerHTML = SCENARIOS.map((s,i)=>
+    `<li><span class="p-mark ${mastered[i]?'yes':'no'}">${mastered[i]?'✓':'✗'}</span><span>${s.short}</span></li>`).join('');
+  show('results');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ amountEl.textContent = fmt(wealth); return; }
+  const dur = 1400, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    amountEl.textContent = fmt(Math.round(wealth*e));
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function restart(){ $('ledger').style.display = 'none'; show('intro'); }
+</script>
+</body>
+</html>

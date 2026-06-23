@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ازرع حديقة عقلك المالي — لعبة القرارات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#0E2010; --lapis-deep:#08140A; --lapis-panel:#1B3B20;
+    --gold:#D9A23B; --gold-bright:#F0C36B; --sand:#ECF2EA; --sand-dim:#A8BFA8;
+    --ember:#D2674E; --reed:#4F9E5E; --reed-deep:#37753F; --reed-bright:#7CC589;
+    --shadow:0 12px 32px rgba(2,12,4,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:'Tajawal',sans-serif;background:radial-gradient(1200px 600px at 50% -10%, #224D2C 0%, transparent 60%),linear-gradient(180deg, var(--lapis-night) 0%, #060F07 100%);color:var(--sand);min-height:100vh;line-height:1.7}
+  body::after{content:"";position:fixed;inset:auto 0 0 0;height:3px;z-index:5;background:linear-gradient(90deg, transparent 0, var(--reed) 30%, var(--gold-bright) 50%, var(--reed) 70%, transparent 100%);box-shadow:0 -4px 16px rgba(79,158,94,.35);opacity:.9}
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+  .ledger{position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:14px 18px 12px;background:linear-gradient(180deg, rgba(14,32,16,.97) 70%, rgba(14,32,16,.85));border-bottom:1px solid rgba(79,158,94,.45);backdrop-filter:blur(6px)}
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .ledger-label{font-size:.78rem;color:var(--sand-dim);font-weight:500}
+  .ledger-amount{font-family:'Cairo',sans-serif;font-weight:800;font-size:1.4rem;color:var(--gold-bright);letter-spacing:.3px;white-space:nowrap}
+  .ledger-amount small{font-size:.82rem;color:var(--sand-dim);font-family:'Tajawal',sans-serif;font-weight:500;margin-right:4px}
+  .ledger-amount.neg{color:var(--ember)}
+  .dots{display:flex;gap:6px;margin-top:8px;justify-content:center}
+  .dot{width:26px;height:4px;border-radius:99px;background:rgba(236,242,234,.16);transition:background .4s}
+  .dot.on{background:var(--reed)}
+  .dot.now{background:var(--reed-bright);box-shadow:0 0 8px rgba(124,197,137,.8)}
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;color:var(--reed-bright);border:1px solid rgba(79,158,94,.55);border-radius:99px;padding:4px 14px;margin-bottom:14px;letter-spacing:.3px;background:rgba(79,158,94,.1)}
+  h1{font-family:'Cairo',sans-serif;font-size:2.2rem;font-weight:900;line-height:1.3;color:var(--gold-bright);margin-bottom:6px}
+  h2.situation{font-family:'Tajawal',sans-serif;font-size:1.4rem;line-height:1.75;color:var(--sand);font-weight:700;margin-bottom:22px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+  .card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(79,158,94,.32);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow)}
+  .choice{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;background:rgba(8,20,10,.6);border:1px solid rgba(236,242,234,.16);border-radius:14px;padding:15px 16px;margin-bottom:12px;color:var(--sand);font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.65;cursor:pointer;transition:border-color .2s, background .2s, transform .15s}
+  .choice:hover,.choice:focus-visible{border-color:var(--reed);background:rgba(79,158,94,.12);transform:translateY(-1px)}
+  .choice:focus-visible{outline:2px solid var(--reed-bright);outline-offset:2px}
+  .badge{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(79,158,94,.18);border:1px solid rgba(79,158,94,.55);color:var(--reed-bright);font-weight:800;font-size:.95rem;margin-top:2px}
+  .verdict{border-radius:14px;padding:18px;margin-bottom:16px;border:1px solid}
+  .verdict.best{background:rgba(79,158,94,.14);border-color:rgba(79,158,94,.6)}
+  .verdict.ok{background:rgba(217,162,59,.12);border-color:rgba(217,162,59,.55)}
+  .verdict.bad{background:rgba(210,103,78,.14);border-color:rgba(210,103,78,.6)}
+  .verdict-title{font-family:'Cairo',sans-serif;font-size:1.22rem;font-weight:800;margin-bottom:8px}
+  .verdict.best .verdict-title{color:#8FE0B6}
+  .verdict.ok .verdict-title{color:var(--gold-bright)}
+  .verdict.bad .verdict-title{color:#F0987C}
+  .verdict p{font-size:.98rem}
+  .timeline{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+  .t-row{display:flex;gap:12px;align-items:flex-start;background:rgba(8,20,10,.55);border-radius:12px;padding:12px 14px;border:1px solid rgba(236,242,234,.12)}
+  .t-when{flex:0 0 auto;font-weight:800;color:var(--reed-bright);font-size:.85rem;border-left:1px solid rgba(79,158,94,.4);padding-left:12px;min-width:74px}
+  .t-what{font-size:.95rem;color:var(--sand)}
+  .delta{display:inline-flex;align-items:center;gap:8px;font-family:'Cairo',sans-serif;font-weight:800;font-size:1.3rem;border-radius:12px;padding:8px 16px;margin-bottom:18px}
+  .delta.up{background:rgba(79,158,94,.16);color:#8FE0B6;border:1px solid rgba(79,158,94,.5)}
+  .delta.down{background:rgba(210,103,78,.16);color:#F0987C;border:1px solid rgba(210,103,78,.5)}
+  .delta.flat{background:rgba(236,242,234,.08);color:var(--sand-dim);border:1px solid rgba(236,242,234,.22)}
+  .btn{display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;color:#0E2010;background:linear-gradient(180deg,var(--reed-bright),var(--reed-deep));border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(55,117,63,.4)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(55,117,63,.5)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(217,162,59,.55);box-shadow:none;margin-top:10px}
+  .final-amount{font-family:'Cairo',sans-serif;font-size:3rem;font-weight:900;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
+  .final-amount.neg{color:var(--ember)}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{text-align:center;font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800;color:var(--sand);margin-bottom:6px}
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:22px}
+  .principles{list-style:none;margin-bottom:22px}
+  .principles li{display:flex;gap:10px;align-items:center;padding:10px 14px;margin-bottom:8px;background:rgba(8,20,10,.55);border-radius:12px;border:1px solid rgba(236,242,234,.12);font-size:.95rem}
+  .p-mark{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+  .p-mark.yes{background:rgba(79,158,94,.2);color:#8FE0B6;border:1px solid rgba(79,158,94,.6)}
+  .p-mark.no{background:rgba(210,103,78,.2);color:#F0987C;border:1px solid rgba(210,103,78,.6)}
+  .quote{font-family:'Cairo',sans-serif;font-size:1.16rem;font-weight:700;line-height:1.85;text-align:center;color:var(--gold-bright);border-top:1px solid rgba(217,162,59,.35);border-bottom:1px solid rgba(217,162,59,.35);padding:18px 6px;margin-bottom:22px}
+  .quote span{display:block;font-family:'Tajawal',sans-serif;font-size:.85rem;font-weight:500;color:var(--sand-dim);margin-top:8px}
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--reed);display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:radial-gradient(circle at 35% 30%, rgba(79,158,94,.3), rgba(217,162,59,.05));box-shadow:0 0 30px rgba(79,158,94,.3)}
+  .intro-list{margin:0 0 26px;padding:0;list-style:none}
+  .intro-list li{display:block;position:relative;padding-right:22px;color:var(--sand);font-size:.98rem;margin-bottom:10px}
+  .intro-list li::before{content:"◆";color:var(--reed);font-size:.7rem;position:absolute;right:0;top:.5em}
+  @media (max-width:420px){h1{font-size:1.85rem}h2.situation{font-size:1.25rem}.final-amount{font-size:2.4rem}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div>
+        <div class="ledger-label">رصيد حديقة الفكر المالي</div>
+        <div class="ledger-amount" id="wealth">0 <small>نقطة</small></div>
+      </div>
+      <div style="font-size:1.6rem">🌱</div>
+    </div>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <section class="screen active" id="intro">
+    <div class="intro-seal">🌱</div>
+    <div style="text-align:center">
+      <div class="eyebrow">لعبة قرارات · كتاب «كما يفكّر الإنسان»</div>
+      <h1>ازرع حديقة عقلك المالي</h1>
+      <p class="sub">«الإنسان نتاج أفكاره الحقيقية؛ يصبح ما يفكّر فيه باستمرار» — جيمس ألين، 1903.</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>ستواجه <b>6 مواقف</b> على حكمة جيمس ألين في «كما يفكّر الإنسان».</li>
+        <li>كل قرارٍ يرفع أو يخفض <b>رصيد حديقة الفكر المالي</b> لديك.</li>
+        <li>المبدأ: <b>فكرٌ ← فعلٌ ← عادةٌ ← ظرف</b> — تغيير ظروفك المالية يبدأ من تغيير جذور تفكيرك.</li>
+        <li>اجمع أعلى رصيدٍ ممكن… حتى تصبح بستانيّاً واعياً لحديقة عقلك.</li>
+      </ul>
+      <button class="btn" onclick="startGame()">ابدأ الزراعة ▸</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="eyebrow" id="g-eyebrow"></div>
+    <h2 class="situation" id="g-situation"></h2>
+    <div id="g-choices"></div>
+  </section>
+
+  <section class="screen" id="feedback">
+    <div class="card">
+      <div class="verdict" id="f-verdict">
+        <div class="verdict-title" id="f-title"></div>
+        <p id="f-text"></p>
+      </div>
+      <div class="timeline">
+        <div class="t-row"><div class="t-when">بعد سنة</div><div class="t-what" id="f-y1"></div></div>
+        <div class="t-row"><div class="t-when">بعد 5 سنوات</div><div class="t-what" id="f-y5"></div></div>
+      </div>
+      <div style="text-align:center"><span class="delta" id="f-delta"></span></div>
+      <button class="btn" id="f-next" onclick="nextScenario()">متابعة ←</button>
+    </div>
+  </section>
+
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow">اكتملت الجلسة</div></div>
+    <div class="card">
+      <div class="final-label">رصيد حديقة الفكر المالي</div>
+      <div class="final-amount" id="r-amount">0</div>
+      <div class="final-label">نقطة &nbsp;·&nbsp; من أصل 116</div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <ul class="principles" id="r-principles"></ul>
+      <div class="quote">«العقل كالحديقة، يمكن أن تُزرَع بذكاءٍ أو تُترَك للبرّية؛ لكنها تُنتج دائماً»<span>— جيمس ألين</span></div>
+      <button class="btn" onclick="restart()">أعد المحاولة 🔄</button>
+      <button class="btn ghost" onclick="restart()">اقرأ الملخص مرة أخرى 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const SCENARIOS = [
+  {
+    cure:"المبدأ · الإنسان صانع نفسه عبر الفكر",
+    short:"الشخصية تتشكّل بتراكم الأفكار، لا بالظروف الخارجية وحدها",
+    situation:"تواجه صعوبةً مالية وتجد نفسك تلوم الظروف الخارجية (الاقتصاد، الحظ، الآخرين) بالكامل دون أي مراجعةٍ لأفكارك وأنماطك الشخصية.",
+    choices:[
+      {t:"أراجع أنماط تفكيري المتكرّرة حول المال، فألين يؤكّد أن الإنسان «صانع نفسه» عبر تراكم أفكاره، لا ضحيّةً سلبية للظروف الخارجية فقط", q:"best", d:20,
+       fb:"ألين يوضح أن الشخصية والظروف تنتجان من تراكم الأفكار عبر الزمن، لا من الوراثة أو الظروف الخارجية وحدها؛ المراجعة الداخلية خطوةٌ أولى ضرورية للتغيير الحقيقي.",
+       y1:"وعيٌ أعمق بأنماط تفكيرك المالية", y5:"تغييرٌ جذريٌّ في الأنماط التي تصنع ظروفك"},
+      {t:"ألوم الظروف الخارجية جزئياً وأراجع تفكيري الشخصي جزئياً دون التزامٍ كامل", q:"ok", d:5,
+       fb:"المراجعة الجزئية تحقّق تقدّماً محدوداً؛ التغيير الحقيقي يحتاج التزاماً كاملاً بفهم دور الفكر في صياغة الظروف.",
+       y1:"تقدّمٌ طفيفٌ في الوعي الذاتي", y5:"تغييرٌ محدودٌ في الأنماط المالية"},
+      {t:"ألوم الظروف الخارجية بالكامل دون أي مراجعةٍ لأفكاري أو أنماطي الشخصية", q:"bad", d:-8,
+       fb:"اللوم الكامل للظروف الخارجية، دون أي مراجعةٍ داخلية، يُبقيك في موقع الضحيّة السلبية ويمنع أي تغييرٍ حقيقي.",
+       y1:"لا تغيير في الأنماط المالية المتكرّرة", y5:"تكرار نفس الصعوبات المالية دون تعلّم"}
+    ]
+  },
+  {
+    cure:"المبدأ · سلسلة الفكر-الفعل-العادة-الظرف",
+    short:"تغيير الظروف الخارجية يحتاج تغيير الفكر من الجذور",
+    situation:"تحاول تغيير وضعك المالي عبر تغيير سلوكياتٍ سطحية (تتبّع نفقاتٍ مؤقّت، نصائح عابرة) دون أي تغييرٍ في طريقة تفكيرك الأساسية حول المال.",
+    choices:[
+      {t:"أعمل على السلسلة كاملةً من الجذور: أبدأ بتغيير أفكاري الأساسية حول المال، فتتبعها أفعالٌ جديدة، ثم عاداتٌ، ثم ظروفٌ ماليةٌ مختلفة فعلياً", q:"best", d:19,
+       fb:"ألين يصف سلسلةً واضحة: فكرٌ ← فعلٌ ← عادةٌ ← ظرف. تغيير الظروف الخارجية دون تغيير الفكر الجذري يُنتج تحسّناً سطحياً ومؤقّتاً فقط.",
+       y1:"تغييرٌ يبدأ من الجذور لا من السطح", y5:"ظروفٌ ماليةٌ مختلفة فعلياً نتيجة فكرٍ متغيّر"},
+      {t:"أركّز على تغيير السلوكيات السطحية فقط دون أي عملٍ على الأفكار الجذرية", q:"ok", d:5,
+       fb:"التغيير السطحي بلا تغييرٍ جذري في الفكر يميل للتراجع والعودة للنمط القديم بمرور الوقت.",
+       y1:"تحسّنٌ سطحيٌّ مؤقّت", y5:"عودةٌ محتملة للنمط المالي القديم"},
+      {t:"لا أغيّر شيئاً على أي مستوى، وأنتظر أن «تتحسّن الظروف من نفسها»", q:"bad", d:-8,
+       fb:"انتظار تحسّن الظروف دون أي تغييرٍ في الفكر أو الفعل يتناقض تماماً مع سلسلة ألين التي تبدأ من الفكر دائماً.",
+       y1:"لا تغيير على أي مستوى", y5:"ظروفٌ ماليةٌ ثابتة دون أي تحسّن"}
+    ]
+  },
+  {
+    cure:"المبدأ · الفكر النقيّ والهادئ ينعكس على الصحّة والوضوح",
+    short:"الأفكار المسمومة بالخوف والكراهية تترك أثراً واضحاً",
+    situation:"تشعر بتوترٍ وقلقٍ ماليٍّ مستمر يصاحبه أفكار خوفٍ وكراهية تجاه وضعك المالي، وتلاحظ تأثيراً سلبياً على صحتك العامة ووضوح قراراتك.",
+    choices:[
+      {t:"أعمل على تهدئة أفكاري وتنقيتها من الخوف والكراهية المستمرّين، فألين يصف الأفكار الهادئة والنقيّة كمصدرٍ لصحّةٍ ووضوحٍ أفضل في كل القرارات بما فيها المالية", q:"best", d:19,
+       fb:"ألين يوضح أن الأفكار النقيّة والهادئة تنعكس صحّةً ووضوحاً، بينما الأفكار المسمومة بالخوف والكراهية تترك أثراً واضحاً على الجسد والوجه وجودة القرارات.",
+       y1:"وضوحٌ ذهنيٌّ أفضل في القرارات المالية", y5:"صحّةٌ نفسيةٌ وجسديةٌ أفضل تدعم قراراتٍ أرشد"},
+      {t:"أحاول تجاهل القلق دون أي عملٍ فعليٍّ على تهدئة أو تنقية أفكاري", q:"ok", d:5,
+       fb:"التجاهل وحده دون عملٍ فعليٍّ على الأفكار الجذرية لا يحلّ المشكلة، بل يؤجّل التعامل معها فقط.",
+       y1:"قلقٌ مستمرٌّ تحت السطح", y5:"تأثيرٌ سلبيٌّ متراكمٌ على الصحّة والقرارات"},
+      {t:"أستسلم تماماً لأفكار الخوف والكراهية تجاه وضعي المالي دون أي محاولةٍ للتهدئة", q:"bad", d:-7,
+       fb:"الاستسلام الكامل للأفكار السلبية يضخّم تأثيرها السلبي على الصحّة والوضوح الذهني والقرارات المالية معاً.",
+       y1:"تدهورٌ في الصحّة والوضوح الذهني", y5:"قراراتٌ ماليةٌ أسوأ نتيجة الحالة الذهنية المتدهورة"}
+    ]
+  },
+  {
+    cure:"المبدأ · الهدف المركزي ينظّم الطاقة الذهنية المُبعثَرة",
+    short:"الانجراف بلا هدفٍ واضح يشبه قارباً بلا دفّة",
+    situation:"تتنقّل بين أهدافٍ مالية متعدّدة ومتغيّرة باستمرار دون أي هدفٍ مركزيٍّ واضح يوجّه قراراتك وطاقتك على المدى الطويل.",
+    choices:[
+      {t:"أحدّد هدفاً مالياً مركزياً واضحاً يوجّه قراراتي وطاقتي الذهنية المُبعثَرة نحو اتجاهٍ واحدٍ مركَّز، فألين يصف غياب الهدف المركزي بأنه يجعل الإنسان «يدفع كالقارب بلا دفّة»", q:"best", d:18,
+       fb:"ألين يؤكّد أن النيّة المركَّزة تنظّم الطاقة الذهنية المُبعثَرة في قوّةٍ مركَّزة موجَّهة نحو هدفٍ محدّد، بعكس التشتّت بلا هدفٍ واضح الذي يشبه قارباً بلا دفّة وسط الأمواج.",
+       y1:"طاقةٌ ذهنية مركَّزة نحو هدفٍ واحد واضح", y5:"تقدّمٌ تراكميٌّ بفضل التركيز المستمر"},
+      {t:"أحدّد أهدافاً متعدّدة في نفس الوقت دون أي أولويةٍ واضحة بينها", q:"ok", d:5,
+       fb:"تعدّد الأهداف بلا أولويةٍ واضحة يُشتّت الطاقة الذهنية ويقلّل فعالية التقدّم نحو أي هدفٍ منها بشكلٍ كامل.",
+       y1:"تقدّمٌ مُشتّتٌ بين أهدافٍ متعدّدة", y5:"نتيجةٌ جزئية في كل هدفٍ دون إتمامٍ كامل لأي منها"},
+      {t:"أبقى بلا أي هدفٍ مالي واضح وأتّخذ قراراتي بشكلٍ عشوائيٍّ تماماً", q:"bad", d:-8,
+       fb:"غياب الهدف المركزي تماماً يُبقي الطاقة الذهنية مُبعثَرة بلا أي اتجاهٍ، مما يضمن نتائج عشوائية وغير متّسقة.",
+       y1:"قراراتٌ ماليةٌ عشوائية بلا اتجاه", y5:"نتيجةٌ غير متّسقة وغير مُرضية على المدى الطويل"}
+    ]
+  },
+  {
+    cure:"المبدأ · الرؤية الداخلية تسبق الإنجاز الخارجي",
+    short:"كل إنجازٍ عظيم بدأ كرؤيةٍ داخلية قبل أن يتحقّق خارجياً",
+    situation:"تتخيّل تحسّناً مالياً كبيراً في المستقبل، لكنك تشعر بحرجٍ من هذه الرؤية وتعتبرها «مجرّد خيالٍ غير واقعي» يجب التخلّي عنه فوراً.",
+    choices:[
+      {t:"أحتفظ بهذه الرؤية الداخلية وأعتبرها بداية أي إنجازٍ عظيم، فألين يصف الحالمين بأنهم «منقذو العالم»، وكل إنجازٍ بدأ كرؤيةٍ داخلية قبل أن يتحقّق خارجياً بجهدٍ مستمر", q:"best", d:18,
+       fb:"ألين يؤكّد أن كل إنجازٍ عظيم بدأ كرؤيةٍ داخلية قبل أي تحقّقٍ خارجي عبر جهدٍ مستمر؛ التخلّي عن الرؤية مبكّراً يُلغي الخطوة الأولى الضرورية لأي إنجاز.",
+       y1:"رؤيةٌ واضحة تبدأ تتحوّل لخطواتٍ عملية", y5:"إنجازٌ ماليٌّ بدأ كرؤيةٍ وتحقّق بجهدٍ مستمر"},
+      {t:"أحتفظ بالرؤية لكنني لا أتّخذ أي خطوةٍ عملية تجاه تحقيقها فعلياً", q:"ok", d:5,
+       fb:"الرؤية بلا جهدٍ عمليٍّ مستمر تبقى خيالاً مجرّداً لا يتحوّل لإنجازٍ خارجيٍّ فعلي.",
+       y1:"رؤيةٌ جميلة دون أي خطوةٍ عملية", y5:"إنجازٌ لم يتحقّق رغم وضوح الرؤية الداخلية"},
+      {t:"أتخلّى عن الرؤية كلياً معتبراً أنها «خيالٌ غير واقعي» لا يستحق أي اهتمام", q:"bad", d:-7,
+       fb:"التخلّي الكامل عن الرؤية الداخلية يُلغي الخطوة الأولى الضرورية التي يصفها ألين كبدايةٍ لكل إنجازٍ عظيم.",
+       y1:"لا رؤيةٌ توجّه أي تقدّمٍ مستقبلي", y5:"إنجازٌ ماليٌّ كبير ظلّ غير مُحقَّق"}
+    ]
+  },
+  {
+    cure:"المبدأ · السكينة هي تاج الحكمة المكتسَبة",
+    short:"إتقان أفكارك يُنتج سكينةً تمنح تأثيراً واستقراراً للآخرين",
+    situation:"تتّخذ قراراتك المالية المهمّة وأنت في حالةٍ من الاضطراب والتسرّع الذهني المستمر، وتتساءل عن أهمّية الهدوء الذهني في هذه القرارات.",
+    choices:[
+      {t:"أعمل على تهدئة ذهني وإتقان أفكاري قبل اتخاذ القرارات المهمّة، فألين يصف السكينة العميقة بأنها «تاج» يأتي من إتقان الأفكار وفهم علاقات السبب والنتيجة، وتمنح استقراراً يؤثّر إيجابياً على من حولك", q:"best", d:19,
+       fb:"ألين يصف السكينة كأعلى درجات الحكمة المكتسَبة عبر إتقان الأفكار؛ هذا الهدوء العميق يمنح وضوحاً في القرارات المهمّة واستقراراً يؤثّر إيجابياً على المحيطين بك.",
+       y1:"قراراتٌ ماليةٌ أكثر وضوحاً وحكمة", y5:"استقرارٌ وتأثيرٌ إيجابيٌّ يمتدّ لمن حولك"},
+      {t:"أتّخذ القرارات المهمّة في حالة اضطرابٍ ذهنيٍّ جزئي دون أي محاولةٍ حقيقية للتهدئة", q:"ok", d:5,
+       fb:"الاضطراب الذهني الجزئي وقت القرارات المهمّة يقلّل جودة التفكير ويزيد احتمالية الأخطاء غير الضرورية.",
+       y1:"قراراتٌ متفاوتة الجودة بسبب الاضطراب الجزئي", y5:"نتائج ماليةٌ غير مستقرّة بسبب نقص الوضوح الذهني"},
+      {t:"أتّخذ كل قراراتي المهمّة في حالة اضطرابٍ وتسرّعٍ ذهنيٍّ تام دون أي اعتبارٍ للهدوء", q:"bad", d:-8,
+       fb:"اتخاذ القرارات المهمّة في حالة اضطرابٍ تامٍّ يزيد بشدّة احتمالية الأخطاء المكلفة ويُضعف جودة التفكير الكامل.",
+       y1:"قراراتٌ متسرّعة وعالية المخاطر", y5:"نتائج ماليةٌ سلبية متكرّرة بسبب التسرّع الذهني"}
+    ]
+  }
+];
+
+const VERDICTS = {
+  best:{title:"🌱 حديقةٌ فكريةٌ مزروعةٌ بحكمة — هكذا يصف ألين", cls:"best"},
+  ok:{title:"⚖️ مقبول… لكن الحديقة غير مكتملة العناية", cls:"ok"},
+  bad:{title:"🌀 حشائش الفكر السلبي تنمو دون رقابة", cls:"bad"}
+};
+
+let idx = 0, wealth = 0, mastered = [];
+const $ = id => document.getElementById(id);
+
+function fmt(n){
+  const s = Math.abs(n).toLocaleString('en-US').replace(/,/g,'٬');
+  return (n<0?'−':'')+s;
+}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function renderDots(){
+  $('dots').innerHTML = SCENARIOS.map((_,i)=>`<div class="dot ${i<idx?'on':''} ${i===idx?'now':''}"></div>`).join('');
+}
+function renderWealth(animateFrom){
+  const el = $('wealth');
+  el.classList.toggle('neg', wealth<0);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(animateFrom===undefined || reduce){ el.innerHTML = fmt(wealth)+' <small>نقطة</small>'; return; }
+  const start = animateFrom, diff = wealth-start, dur = 900, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    el.innerHTML = fmt(Math.round(start+diff*e))+' <small>نقطة</small>';
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function startGame(){
+  idx = 0; wealth = 0; mastered = [];
+  $('ledger').style.display = 'block';
+  renderWealth(); renderDots(); renderScenario(); show('game');
+}
+function renderScenario(){
+  const s = SCENARIOS[idx];
+  $('g-eyebrow').textContent = `الموقف ${idx+1} من ${SCENARIOS.length} · ${s.cure}`;
+  $('g-situation').textContent = s.situation;
+  const letters = ['أ','ب','ج'];
+  $('g-choices').innerHTML = s.choices.map((c,i)=>
+    `<button class="choice" onclick="choose(${i})"><span class="badge">${letters[i]}</span><span>${c.t}</span></button>`).join('');
+  renderDots();
+}
+function choose(ci){
+  const s = SCENARIOS[idx], c = s.choices[ci];
+  const before = wealth;
+  wealth += c.d;
+  mastered.push(c.q === 'best');
+  const v = VERDICTS[c.q];
+  $('f-verdict').className = 'verdict '+v.cls;
+  $('f-title').textContent = v.title;
+  $('f-text').textContent = c.fb;
+  $('f-y1').textContent = c.y1;
+  $('f-y5').textContent = c.y5;
+  const dEl = $('f-delta');
+  dEl.className = 'delta '+(c.d>0?'up':c.d<0?'down':'flat');
+  dEl.textContent = (c.d>0?'📈 +':c.d<0?'📉 −':'⏳ ')+(c.d===0?'لا تغيير':Math.abs(c.d)+' نقطة');
+  $('f-next').textContent = (idx === SCENARIOS.length-1) ? 'اكشف نتيجتك النهائية 🌱' : 'الموقف التالي ←';
+  show('feedback');
+  renderWealth(before);
+}
+function nextScenario(){
+  idx++;
+  if(idx < SCENARIOS.length){ renderScenario(); show('game'); }
+  else showResults();
+}
+function rankOf(w){
+  if(w>=95) return {r:"🌱 حديقة عقلك المالي مزروعةٌ بحكمةٍ تامّة", n:"تطبّق حكمة جيمس ألين بإتقان: المراجعة الداخلية، وسلسلة الفكر-الفعل-العادة-الظرف، والهدف المركزي، والسكينة. طبّقها على حياتك الحقيقية الآن."};
+  if(w>=60) return {r:"🌿 حديقتك في طور النموّ الجيد", n:"تمتلك معظم المبادئ. راجع ما أخطأت فيه أدناه ورسّخه."};
+  if(w>=25) return {r:"⏳ بدأتَ تزرع بذوراً واعية", n:"وضعتَ أولى لبنات الفهم. أعد قراءة الفصول ثم عُد."};
+  return {r:"🌀 حشائش الفكر السلبي تسيطر على حديقتك", n:"لا بأس — الوعي أول خطوة. ابدأ بسؤالٍ واحد: «ما الفكرة المتكرّرة التي تصنع ظروفي المالية الحالية؟»"};
+}
+function showResults(){
+  $('ledger').style.display = 'none';
+  const rk = rankOf(wealth);
+  const amountEl = $('r-amount');
+  amountEl.classList.toggle('neg', wealth<0);
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n;
+  $('r-principles').innerHTML = SCENARIOS.map((s,i)=>
+    `<li><span class="p-mark ${mastered[i]?'yes':'no'}">${mastered[i]?'✓':'✗'}</span><span>${s.short}</span></li>`).join('');
+  show('results');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ amountEl.textContent = fmt(wealth); return; }
+  const dur = 1400, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    amountEl.textContent = fmt(Math.round(wealth*e));
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function restart(){ $('ledger').style.display = 'none'; show('intro'); }
+</script>
+</body>
+</html>

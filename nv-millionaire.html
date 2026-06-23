@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اختبار الحكم الصائب والرافعة — من سيربح المليون</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#06222A; --lapis-deep:#03141A; --lapis-panel:#0E3946;
+    --gold:#D9A23B; --gold-bright:#F0C36B; --sand:#E8F4F6; --sand-dim:#9DBFC6;
+    --ember:#D2674E; --reed:#5FB389; --teal:#2C9CB0; --teal-deep:#1D7282; --teal-bright:#5FC4D6;
+    --shadow:0 12px 32px rgba(1,10,13,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Tajawal',sans-serif;background:radial-gradient(1200px 600px at 50% -10%, #144D5C 0%, transparent 60%),linear-gradient(180deg, var(--lapis-night) 0%, #02090C 100%);color:var(--sand);min-height:100vh;line-height:1.7}
+  body::after{content:"";position:fixed;inset:auto 0 0 0;height:3px;z-index:5;background:linear-gradient(90deg, transparent 0, var(--teal) 30%, var(--gold-bright) 50%, var(--teal) 70%, transparent 100%);box-shadow:0 -4px 16px rgba(44,156,176,.35);opacity:.9}
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+  .ledger{position:sticky;top:0;z-index:10;margin:0 -18px 16px;padding:12px 18px;background:linear-gradient(180deg, rgba(6,34,42,.97) 70%, rgba(6,34,42,.85));border-bottom:1px solid rgba(44,156,176,.45);backdrop-filter:blur(6px)}
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .stat-label{font-size:.7rem;color:var(--sand-dim);font-weight:500}
+  .stat-val{font-family:'Cairo',sans-serif;font-weight:800;font-size:1.25rem;color:var(--gold-bright);white-space:nowrap}
+  .ladder-btn{border:1px solid rgba(44,156,176,.55);background:rgba(44,156,176,.12);color:var(--teal-bright);border-radius:99px;padding:7px 14px;font-family:'Tajawal',sans-serif;font-weight:800;font-size:.82rem;cursor:pointer}
+  .lifelines{display:flex;gap:8px;margin-top:10px;justify-content:center}
+  .life{flex:1;max-width:160px;border-radius:12px;padding:8px 6px;cursor:pointer;text-align:center;font-family:'Tajawal',sans-serif;font-weight:800;font-size:.8rem;color:var(--teal-bright);background:rgba(44,156,176,.12);border:1px solid rgba(44,156,176,.55);transition:opacity .2s, transform .15s}
+  .life:hover:not(:disabled){transform:translateY(-1px)}
+  .life:disabled{opacity:.32;cursor:default;text-decoration:line-through}
+  .life:focus-visible{outline:2px solid var(--teal-bright);outline-offset:2px}
+  .ladder-panel{position:fixed;inset:0;z-index:50;background:rgba(1,10,13,.85);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px}
+  .ladder-panel.open{display:flex}
+  .ladder-card{width:100%;max-width:360px;background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(44,156,176,.5);border-radius:18px;padding:20px;box-shadow:var(--shadow);max-height:86vh;overflow:auto}
+  .ladder-title{font-family:'Cairo',sans-serif;font-size:1.3rem;font-weight:800;color:var(--gold-bright);text-align:center;margin-bottom:12px}
+  .rung{display:flex;justify-content:space-between;align-items:center;padding:7px 12px;border-radius:10px;font-size:.92rem;margin-bottom:4px;border:1px solid transparent}
+  .rung .num{color:var(--sand-dim);font-size:.78rem;font-weight:700;min-width:34px}
+  .rung .amt{font-family:'Cairo',sans-serif;font-weight:700;color:var(--sand)}
+  .rung.safe .amt{color:var(--gold-bright)}
+  .rung.safe{border-color:rgba(217,162,59,.35);background:rgba(217,162,59,.06)}
+  .rung.current{background:rgba(44,156,176,.2);border-color:var(--teal);box-shadow:0 0 12px rgba(44,156,176,.3)}
+  .rung.won .amt,.rung.won .num{color:#8FE0B6}
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;color:var(--teal);border:1px solid rgba(44,156,176,.55);border-radius:99px;padding:4px 14px;margin-bottom:14px;background:rgba(44,156,176,.1)}
+  h1{font-family:'Cairo',sans-serif;font-size:2.2rem;font-weight:900;line-height:1.35;color:var(--gold-bright);margin-bottom:6px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+  .card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(44,156,176,.35);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow)}
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--teal);display:flex;align-items:center;justify-content:center;font-size:2.1rem;background:radial-gradient(circle at 35% 30%, rgba(44,156,176,.3), rgba(217,162,59,.05));box-shadow:0 0 30px rgba(44,156,176,.3)}
+  .intro-list{margin:0 0 26px;list-style:none}
+  .intro-list li{display:block;position:relative;padding-right:22px;color:var(--sand);font-size:.98rem;margin-bottom:10px}
+  .intro-list li::before{content:"◆";color:var(--teal);font-size:.7rem;position:absolute;right:0;top:.5em}
+  .q-card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(44,156,176,.4);border-radius:18px;padding:22px;box-shadow:var(--shadow);margin-bottom:16px;text-align:center}
+  .q-text{font-family:'Cairo',sans-serif;font-size:1.3rem;line-height:1.8;font-weight:700;color:var(--sand)}
+  .hintbox{display:none;background:rgba(44,156,176,.12);border:1px solid rgba(44,156,176,.5);border-radius:14px;padding:14px 16px;margin-bottom:14px;font-size:.95rem}
+  .hintbox.show{display:block;animation:fadeUp .3s ease both}
+  .hintbox .who{font-weight:800;color:var(--teal-bright);font-size:.82rem;margin-bottom:4px}
+  .hintbox .txt{font-family:'Cairo',sans-serif;font-size:1.02rem;line-height:1.8}
+  .poll{display:none;margin-bottom:14px}
+  .poll.show{display:block;animation:fadeUp .3s ease both}
+  .poll-row{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+  .poll-letter{flex:0 0 auto;width:24px;font-weight:800;color:var(--teal-bright);font-size:.9rem}
+  .poll-track{flex:1;height:16px;border-radius:99px;background:rgba(232,244,246,.12);overflow:hidden}
+  .poll-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--teal-bright),var(--teal-deep));width:0;transition:width .8s ease}
+  .poll-pct{flex:0 0 auto;min-width:42px;text-align:left;font-size:.82rem;font-weight:800;color:var(--sand-dim)}
+  .opt{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;background:rgba(3,20,26,.55);border:1px solid rgba(232,244,246,.22);border-radius:14px;padding:14px 16px;margin-bottom:11px;color:var(--sand);font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.6;cursor:pointer;transition:border-color .2s, background .2s, transform .15s, opacity .3s}
+  .opt:hover:not(:disabled),.opt:focus-visible{border-color:var(--teal);background:rgba(44,156,176,.12)}
+  .opt:focus-visible{outline:2px solid var(--teal-bright);outline-offset:2px}
+  .opt .badge{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(44,156,176,.18);border:1px solid rgba(44,156,176,.55);color:var(--teal-bright);font-weight:800;font-size:.95rem;margin-top:1px}
+  .opt.removed{opacity:.22;pointer-events:none;text-decoration:line-through}
+  .opt.selected{border-color:var(--teal-bright);background:rgba(44,156,176,.2);box-shadow:0 0 0 2px rgba(95,196,214,.35)}
+  .opt.suspense{animation:pulse 0.55s ease-in-out infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 2px rgba(95,196,214,.25)}50%{box-shadow:0 0 0 6px rgba(95,196,214,.5)}}
+  .opt.correct{border-color:var(--reed);background:rgba(95,179,137,.2);box-shadow:0 0 0 3px rgba(95,179,137,.4)}
+  .opt.correct .badge{background:rgba(95,179,137,.25);border-color:var(--reed);color:#8FE0B6}
+  .opt.wrong{border-color:var(--ember);background:rgba(210,103,78,.2);box-shadow:0 0 0 3px rgba(210,103,78,.4)}
+  .opt.wrong .badge{background:rgba(210,103,78,.25);border-color:var(--ember);color:#F0987C}
+  .opt:disabled{cursor:default}
+  .confirm-bar{display:none;gap:10px;margin-bottom:12px}
+  .confirm-bar.show{display:flex;animation:fadeUp .25s ease both}
+  .cbtn{flex:1;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1rem;border-radius:12px;padding:13px}
+  .cbtn.go{color:#06222A;background:linear-gradient(180deg,var(--teal-bright),var(--teal-deep))}
+  .cbtn.back{background:transparent;color:var(--sand-dim);border:1px solid rgba(232,244,246,.3)}
+  .result-banner{display:none;border-radius:14px;padding:14px 16px;margin-bottom:12px;border:1px solid;text-align:center;font-weight:800}
+  .result-banner.show{display:block;animation:fadeUp .3s ease both}
+  .result-banner.win{background:rgba(95,179,137,.15);border-color:rgba(95,179,137,.6);color:#8FE0B6}
+  .result-banner.lose{background:rgba(210,103,78,.15);border-color:rgba(210,103,78,.6);color:#F0987C}
+  .walk{display:block;width:100%;background:transparent;border:1px dashed rgba(210,103,78,.55);color:#E8997A;border-radius:12px;padding:10px;font-family:'Tajawal',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;margin-top:4px}
+  .walk:hover{background:rgba(210,103,78,.08)}
+  .btn{display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;color:#06222A;background:linear-gradient(180deg,var(--teal-bright),var(--teal-deep));border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(29,114,130,.4)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(29,114,130,.5)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(217,162,59,.55);box-shadow:none;margin-top:10px}
+  .final-amount{font-family:'Cairo',sans-serif;font-size:3rem;font-weight:900;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{text-align:center;font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800;color:var(--sand);margin-bottom:6px}
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:20px}
+  .kpis{display:flex;gap:10px;margin-bottom:22px}
+  .kpi{flex:1;text-align:center;background:rgba(3,20,26,.5);border:1px solid rgba(232,244,246,.16);border-radius:12px;padding:12px 8px}
+  .kpi b{display:block;font-family:'Cairo',sans-serif;font-size:1.35rem;color:var(--gold-bright)}
+  .kpi span{font-size:.74rem;color:var(--sand-dim)}
+  .quote{font-family:'Cairo',sans-serif;font-size:1.16rem;font-weight:700;line-height:1.85;text-align:center;color:var(--gold-bright);border-top:1px solid rgba(217,162,59,.35);border-bottom:1px solid rgba(217,162,59,.35);padding:18px 6px;margin-bottom:22px}
+  .quote span{display:block;font-family:'Tajawal',sans-serif;font-size:.85rem;font-weight:500;color:var(--sand-dim);margin-top:8px}
+  @media (max-width:420px){h1{font-size:1.9rem} .q-text{font-size:1.16rem} .final-amount{font-size:2.4rem} .life{font-size:.72rem}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div>
+        <div class="stat-label">السؤال <span id="s-q">1</span> من 12 · تلعب على</div>
+        <div class="stat-val" id="s-prize">500 درهم</div>
+      </div>
+      <button class="ladder-btn" onclick="toggleLadder(true)">🪜 سلّم الثروة</button>
+    </div>
+    <div class="lifelines">
+      <button class="life" id="L-fifty" onclick="useFifty()">٥٠:٥٠<br>احذف إجابتين</button>
+      <button class="life" id="L-arkad" onclick="useArkad()">📖 استشر<br>نافال</button>
+      <button class="life" id="L-poll" onclick="usePoll()">🎟️ تصويت<br>أصحاب الحصص</button>
+    </div>
+  </div>
+
+  <div class="ladder-panel" id="ladder-panel" onclick="toggleLadder(false)">
+    <div class="ladder-card" onclick="event.stopPropagation()">
+      <div class="ladder-title">🪜 سلّم الثروة</div>
+      <div id="ladder-rungs"></div>
+      <button class="btn ghost" onclick="toggleLadder(false)" style="margin-top:14px">إغلاق</button>
+    </div>
+  </div>
+
+  <section class="screen active" id="intro">
+    <div class="intro-seal">⚓</div>
+    <div style="text-align:center">
+      <div class="eyebrow">اختبار الكنز · كتاب «تقويم نافال رافيكانت»</div>
+      <h1>اختبار الحكم الصائب والرافعة</h1>
+      <p class="sub">12 سؤالاً تصعد بها من 500 درهم إلى المليون… إن صمدت حكمتك في الملكية والرافعة.</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li><b>12 سؤالاً</b> متدرّجاً من حكمة نافال رافيكانت في «التقويم».</li>
+        <li>منطقتا أمان: <b>8,000</b> و<b>250,000</b> — الخطأ يعيدك إلى آخر أمانٍ بلغته.</li>
+        <li>3 وسائل مساعدة: <b>٥٠:٥٠</b>، <b>📖 استشر نافال</b>، <b>🎟️ تصويت أصحاب الحصص</b>.</li>
+        <li>يمكنك <b>الانسحاب</b> في أي لحظةٍ بما ربحته.</li>
+      </ul>
+      <button class="btn" onclick="startGame()">اجلس على كرسي الثروة ⚓</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="q-card"><div class="q-text" id="q-text"></div></div>
+    <div class="hintbox" id="hintbox">
+      <div class="who">📖 نافال يهمس لك:</div>
+      <div class="txt" id="hint-text"></div>
+    </div>
+    <div class="poll" id="poll"></div>
+    <div id="options"></div>
+    <div class="confirm-bar" id="confirm-bar">
+      <button class="cbtn back" onclick="cancelSelect()">تغيير</button>
+      <button class="cbtn go" onclick="lockAnswer()">🔒 إجابة نهائية</button>
+    </div>
+    <div class="result-banner" id="banner"></div>
+    <button class="btn" id="next-btn" style="display:none" onclick="afterReveal()"></button>
+    <button class="walk" id="walk-btn" onclick="walkAway()"></button>
+  </section>
+
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow" id="r-eyebrow">انتهت الجلسة</div></div>
+    <div class="card">
+      <div class="final-label">غادرتَ كرسي الثروة ومعك</div>
+      <div class="final-amount" id="r-amount">0</div>
+      <div class="final-label">درهم</div>
+      <div class="kpis">
+        <div class="kpi"><b id="r-reached">0</b><span>أسئلة أجبتها صح</span></div>
+        <div class="kpi"><b id="r-lifes">0/3</b><span>وسائل مساعدة استعملتها</span></div>
+      </div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <div class="quote">«لن تصبح غنياً بتأجير وقتك؛ يجب أن تملك حصّة من عملٍ»<span>— نافال رافيكانت</span></div>
+      <button class="btn" onclick="startGame()">حاول بلوغ المليون مجدداً ⚓</button>
+      <button class="btn ghost" onclick="backToIntro()">عُد إلى الملخص 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const LADDER = [500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1000000];
+const SAFE = [4,9];
+
+const QUESTIONS = [
+ {t:1, q:"من الشخص الذي جُمعت أفكاره في «تقويم نافال رافيكانت»؟",
+  opts:[["نافال رافيكانت",true],["إيريك جورجنسون",false],["بيتر ثيل",false],["نسيم نيكولاس طالب",false]],
+  hint:"إيريك جورجنسون هو من جمع وحرّر تغريدات ومقابلات نافال في كتابٍ واحد، متاحٍ مجاناً بقراره."},
+ {t:1, q:"ما الفرق الذي يوضّحه نافال بين الثروة والمال والمكانة؟",
+  opts:[["الثروة أصولٌ تعمل وأنت نائم؛ المال ينقلها عبر الزمن؛ المكانة موقعٌ تراتبي",true],["لا فرق بين الثلاثة؛ كلّها تعني الشيء نفسه",false],["المكانة هي الأهمّ من الثلاثة دائماً",false],["المال هو الهدف النهائي الوحيد المطلوب",false]],
+  hint:"لعبة المكانة لعبةٌ صفرية؛ بناء الثروة لعبةٌ جمعية المحصّلة تنفع الجميع."},
+ {t:1, q:"ماذا يعني قول نافال «لن تصبح غنياً بتأجير وقتك»؟",
+  opts:[["يجب امتلاك حصّةٍ أو ملكيةٍ، لا الاعتماد على دخلٍ خطّيٍّ يتوقّف بتوقّف العمل",true],["يجب العمل بأقصى عددٍ من الساعات الممكنة كل يوم",false],["يجب رفض كل وظيفةٍ بأجرٍ ثابت بصرف النظر عن الظروف",false],["الوقت لا قيمة له إطلاقاً في معادلة الثروة",false]],
+  hint:"الدخل الخطّي محدودٌ بساعاتك؛ الملكية تنمو مع نموّ النظام دون هذا القيد."},
+ {t:1, q:"كيف يصف نافال «المعرفة المتخصّصة» (Specific Knowledge)؟",
+  opts:[["معرفةٌ لا يمكن تعليمها بسهولة؛ تنبع من تقاطع الموهبة والشغف والخبرة الفريدة",true],["أي شهادةٍ جامعية يحصل عليها الشخص",false],["معرفةٌ يمكن لأي شخصٍ تعلّمها في وقتٍ قصير",false],["مهارةٌ تقنيةٌ واحدة محدّدة فقط",false]],
+  hint:"إن كانت المعرفة قابلةً للتدريب بسهولة، وُجِد منافسٌ أرخص يقدّمها."},
+ {t:2, q:"ماذا يحدث عند وضع اسمك علناً على نتائج عملك بحسب نافال؟",
+  opts:[["تجذب أكبر مكافآت المجتمع: ملكية، رافعة، ثقة",true],["لا يوجد أي تأثيرٍ على المكافآت المحتملة",false],["تضمن تعويضاً متواضعاً ومحدوداً دائماً",false],["تتجنّب كل أنواع المخاطرة بشكلٍ كامل",false]],
+  hint:"المخاطرة الشخصية الواضحة تساوي عوائداً شخصية كبيرة؛ العمل المجهول يضمن تعويضاً محدوداً."},
+ {t:2, q:"ما الفرق بين الرافعة التقليدية والرافعة الرقمية بحسب نافال؟",
+  opts:[["التقليدية تحتاج إذناً وعمّالاً أو رأس مال؛ الرقمية (كودٌ ومحتوى) لا تحتاج إذناً وتعمل بتكلفةٍ شبه معدومة",true],["لا فرق بينهما؛ كلتاهما تحتاج نفس الموارد بالضبط",false],["الرافعة التقليدية أرخص دائماً من الرافعة الرقمية",false],["الرافعة الرقمية تحتاج إذناً أكثر من التقليدية",false]],
+  hint:"الكود والمحتوى يُطلق عليهما نافال «جيوش الروبوتات المجانية المتاحة في مراكز البيانات»."},
+ {t:2, q:"ما معادلة نافال للدخل في العصر الحديث؟",
+  opts:[["الدخل = الحكم الصائب × الرافعة",true],["الدخل = عدد ساعات العمل فقط",false],["الدخل = الشهادات الجامعية × الخبرة",false],["الدخل = الحظ بصرف النظر عن أي عاملٍ آخر",false]],
+  hint:"في عصور الرافعة الضخمة، قرارٌ واحدٌ صائب يتجاوز عقوداً من الكدّ اليدوي."},
+ {t:2, q:"كيف يصف نافال «اللعب طويل المدى مع لاعبين صبورين»؟",
+  opts:[["استمرارية في مجالٍ وعلاقاتٍ واحدة تبني ثقةً وميزةً تراكمية",true],["تغيير المجال والعلاقات كل بضعة أشهرٍ لتجربة فرصٍ جديدة",false],["العمل مع أكبر عددٍ من الشركاء في وقتٍ واحد",false],["تجنّب أي التزامٍ طويل المدى مع أي طرف",false]],
+  hint:"التنقّل المتكرّر يصفّر التقدّم التراكمي في كل مرّةٍ يبدأ فيها الشخص من جديد."},
+ {t:3, q:"كيف يصف نافال «هدم الرغبة» (Desire) كأداةٍ للسعادة؟",
+  opts:[["الرغبة عقدٌ مع نفسك بأن تكون بائساً حتى تحقّقها",true],["الرغبة هي المصدر الوحيد للسعادة الحقيقية",false],["يجب مضاعفة الرغبات لتحقيق سعادةٍ أكبر",false],["لا علاقة بين الرغبة والشعور بالسعادة إطلاقاً",false]],
+  hint:"تفكيك الرغبة المستمرة جزءٌ من ممارسات نافال لتعلّم السعادة كمهارةٍ، لا حدثٍ عابر."},
+ {t:3, q:"لماذا يصف نافال الحضور (Presence) كأداةٍ أساسية للسعادة؟",
+  opts:[["لأن اللحظة الحاضرة هي الوحيدة الموجودة فعلياً، بعكس القلق على الماضي أو المستقبل",true],["لأن التخطيط للمستقبل غير مهمٍّ إطلاقاً",false],["لأن الماضي هو الزمن الوحيد المهمّ للسعادة",false],["لأن الحضور لا علاقة له بأي شعورٍ بالسعادة",false]],
+  hint:"الحضور أحد أدوات نافال الأساسية، إلى جانب هدم الرغبة وتجنّب الحسد."},
+ {t:3, q:"كيف يصف نافال خطر «نسخ الإجماع» في القرارات المالية والمهنية؟",
+  opts:[["يفوّت فرصة بناء معرفةٍ متخصّصة فريدة تضعك خارج المنافسة",true],["نسخ الإجماع هو الاستراتيجية الأكثر أماناً دائماً",false],["لا خطر في اتّباع إجماع الآخرين في أي مجال",false],["الإجماع دائماً يعكس الحقيقة الموضوعية الكاملة",false]],
+  hint:"الهروب من المنافسة عبر الأصالة (Authenticity) مبدأٌ محوريٌّ في فلسفة نافال."},
+ {t:3, q:"سؤال المليون: ما جوهر رسالة «تقويم نافال رافيكانت» في جملة؟",
+  opts:[["اطلب الثروة عبر المعرفة المتخصّصة والرافعة والوقت، وابنِ السعادة بالحضور والتقبّل",true],["الثراء يأتي فقط من العمل بأقصى عددٍ من الساعات الممكنة",false],["المكانة الاجتماعية هي الهدف النهائي الأهمّ من الثروة",false],["لا علاقة بين الحكمة المالية وبين السعادة الشخصية",false]],
+  hint:"الكتاب يجمع بين فلسفة بناء الثروة وفلسفة السعادة كمهارةٍ مكمّلةٍ لها."}
+];
+
+let qi=0, lifes={fifty:false,arkad:false,poll:false}, view=[], removedIdx=new Set(), selected=-1, phase='choose', finalAmount=0, lastOutcome='';
+
+const $ = id => document.getElementById(id);
+const fmt = n => n.toLocaleString('en-US').replace(/,/g,'٬');
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el=$(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function shuffle(a){const r=[...a];for(let k=r.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[r[k],r[j]]=[r[j],r[k]];}return r;}
+
+function renderLadder(){
+  $('ladder-rungs').innerHTML = LADDER.map((v,i)=>({v,i})).reverse().map(({v,i})=>{
+    const cls = ['rung'];
+    if(SAFE.includes(i)) cls.push('safe');
+    if(i===qi) cls.push('current');
+    if(i<qi) cls.push('won');
+    return `<div class="${cls.join(' ')}"><span class="num">${i+1}</span><span class="amt">${fmt(v)} ${SAFE.includes(i)?'🛡️':''}</span></div>`;
+  }).join('');
+}
+function toggleLadder(open){ renderLadder(); $('ladder-panel').classList.toggle('open', open); }
+
+function startGame(){
+  qi=0; lifes={fifty:false,arkad:false,poll:false};
+  ['L-fifty','L-arkad','L-poll'].forEach(id=>$(id).disabled=false);
+  $('ledger').style.display='block';
+  renderQuestion(); show('game');
+}
+
+function safeAmount(){
+  let s=0; SAFE.forEach(i=>{ if(qi>i) s=LADDER[i]; }); return s;
+}
+function bankedAmount(){ return qi>0 ? LADDER[qi-1] : 0; }
+
+function renderQuestion(){
+  const Q = QUESTIONS[qi];
+  view = shuffle(Q.opts.map(([text,ok])=>({text,ok})));
+  removedIdx = new Set(); selected=-1; phase='choose';
+  $('s-q').textContent = qi+1;
+  $('s-prize').textContent = fmt(LADDER[qi])+' درهم';
+  $('q-text').textContent = Q.q;
+  $('hintbox').classList.remove('show');
+  $('poll').classList.remove('show'); $('poll').innerHTML='';
+  $('banner').className='result-banner'; $('banner').textContent='';
+  $('next-btn').style.display='none';
+  $('confirm-bar').classList.remove('show');
+  const wb = $('walk-btn');
+  if(qi>0){ wb.style.display='block'; wb.textContent=`🚪 أنسحب الآن وآخذ ${fmt(bankedAmount())} درهم`; wb.dataset.step='0'; }
+  else wb.style.display='none';
+  drawOptions();
+}
+
+const LETTERS=['أ','ب','ج','د'];
+function drawOptions(){
+  $('options').innerHTML = view.map((o,i)=>{
+    const cls=['opt'];
+    if(removedIdx.has(i)) cls.push('removed');
+    if(i===selected) cls.push('selected');
+    return `<button class="${cls.join(' ')}" id="opt-${i}" onclick="pick(${i})"><span class="badge">${LETTERS[i]}</span><span>${o.text}</span></button>`;
+  }).join('');
+}
+
+function pick(i){
+  if(phase!=='choose' && phase!=='picked') return;
+  if(removedIdx.has(i)) return;
+  selected=i; phase='picked';
+  drawOptions();
+  $('confirm-bar').classList.add('show');
+}
+function cancelSelect(){
+  if(phase!=='picked') return;
+  selected=-1; phase='choose';
+  $('confirm-bar').classList.remove('show');
+  drawOptions();
+}
+
+function lockAnswer(){
+  if(phase!=='picked') return;
+  phase='suspense';
+  $('confirm-bar').classList.remove('show');
+  $('walk-btn').style.display='none';
+  document.querySelectorAll('.opt').forEach(b=>b.disabled=true);
+  const sel = $('opt-'+selected);
+  sel.classList.add('suspense');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  setTimeout(reveal, reduce?100:1300);
+}
+
+function reveal(){
+  const sel=$('opt-'+selected);
+  sel.classList.remove('suspense');
+  const ok = view[selected].ok;
+  const correctIdx = view.findIndex(o=>o.ok);
+  $('opt-'+correctIdx).classList.add('correct');
+  const banner=$('banner'), nb=$('next-btn');
+  if(ok){
+    phase='revealed-win';
+    banner.className='result-banner win show';
+    banner.textContent = qi===11 ? '⚓⚓⚓ المليـــون! الحكم الصائب والرافعة اكتملا!' : `✅ صحيح! ضمنتَ ${fmt(LADDER[qi])} درهم`;
+    nb.textContent = qi===11 ? 'استلم كنزك ⚓' : 'السؤال التالي ←';
+    lastOutcome = qi===11 ? 'million' : 'next';
+  }else{
+    phase='revealed-lose';
+    sel.classList.add('wrong');
+    banner.className='result-banner lose show';
+    banner.textContent = `✗ للأسف… تنزل إلى منطقة أمانك: ${fmt(safeAmount())} درهم`;
+    nb.textContent='شاهد النتيجة';
+    lastOutcome='lose';
+  }
+  nb.style.display='block';
+}
+
+function afterReveal(){
+  if(lastOutcome==='next'){ qi++; renderQuestion(); }
+  else if(lastOutcome==='million'){ finalAmount=1000000; showResults('بلغتَ المليون!'); }
+  else { finalAmount=safeAmount(); showResults('سؤالٌ أطاح بك'); }
+}
+
+function walkAway(){
+  const wb=$('walk-btn');
+  if(wb.dataset.step==='0'){ wb.dataset.step='1'; wb.textContent=`متأكد؟ اضغط مجدداً لتأكيد الانسحاب بـ ${fmt(bankedAmount())} درهم`; return; }
+  finalAmount = bankedAmount();
+  showResults('انسحابٌ حكيم');
+}
+
+function useFifty(){
+  if(lifes.fifty || phase!=='choose' && phase!=='picked') return;
+  lifes.fifty=true; $('L-fifty').disabled=true;
+  const wrongs = view.map((o,i)=>!o.ok&&!removedIdx.has(i)?i:-1).filter(i=>i>=0);
+  shuffle(wrongs).slice(0,2).forEach(i=>removedIdx.add(i));
+  if(removedIdx.has(selected)){ selected=-1; phase='choose'; $('confirm-bar').classList.remove('show'); }
+  drawOptions();
+}
+function useArkad(){
+  if(lifes.arkad || (phase!=='choose' && phase!=='picked')) return;
+  lifes.arkad=true; $('L-arkad').disabled=true;
+  $('hint-text').textContent = QUESTIONS[qi].hint;
+  $('hintbox').classList.add('show');
+}
+function usePoll(){
+  if(lifes.poll || (phase!=='choose' && phase!=='picked')) return;
+  lifes.poll=true; $('L-poll').disabled=true;
+  const alive = view.map((o,i)=>removedIdx.has(i)?null:{o,i}).filter(Boolean);
+  const tier = QUESTIONS[qi].t;
+  const base = tier===1 ? 68+Math.random()*16 : tier===2 ? 52+Math.random()*16 : 34+Math.random()*20;
+  let rest = 100 - base;
+  const pct = {};
+  const others = alive.filter(x=>!x.o.ok);
+  others.forEach((x,k)=>{
+    if(k===others.length-1){ pct[x.i]=Math.round(rest); }
+    else { const v = Math.round(Math.random()*rest*0.7); pct[x.i]=v; rest-=v; }
+  });
+  alive.forEach(x=>{ if(x.o.ok) pct[x.i]=100-Object.values(pct).reduce((a,b)=>a+b,0); });
+  const box=$('poll');
+  box.innerHTML = alive.map(x=>`
+    <div class="poll-row">
+      <span class="poll-letter">${LETTERS[x.i]}</span>
+      <div class="poll-track"><div class="poll-fill" data-w="${pct[x.i]}"></div></div>
+      <span class="poll-pct">${pct[x.i]}%</span>
+    </div>`).join('');
+  box.classList.add('show');
+  requestAnimationFrame(()=>box.querySelectorAll('.poll-fill').forEach(f=>f.style.width=f.dataset.w+'%'));
+}
+
+function rankOf(a){
+  if(a>=1000000) return {r:"⚓ حكمٌ صائبٌ ورافعةٌ مكتملان!", n:"أعدتَ ضبط فهمك للثروة بالكامل — نافال نفسه سيصفّق لك. طبّق هذا على حياتك الحقيقية الآن."};
+  if(a>=250000) return {r:"🌊 رؤيتك في طور الإتقان", n:"تجاوزتَ أصعب المبادئ. سؤالٌ أو سؤالان عن القمّة — راجع الكتاب وعُد."};
+  if(a>=8000)  return {r:"🌱 بدأتَ تفرّق بين الثروة والمكانة", n:"أساسك جيّد لكن المبادئ العميقة أوقعتك. أعد قراءة الكتاب ثم عُد للكرسي."};
+  return {r:"🌀 لا تزال تؤجّر وقتك بدل بناء الثروة", n:"لا ثروةَ اليوم… لكنك عرفتَ القاعدة الأولى: اطلب الملكية لا اللقب. الملخص بانتظارك!"};
+}
+function showResults(eyebrow){
+  $('ledger').style.display='none';
+  $('r-eyebrow').textContent = eyebrow;
+  const used = Object.values(lifes).filter(Boolean).length;
+  $('r-reached').textContent = (lastOutcome==='million'? 12 : qi) + '/12';
+  $('r-lifes').textContent = used+'/3';
+  const rk = rankOf(finalAmount);
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n;
+  const el=$('r-amount');
+  show('results');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ el.textContent = fmt(finalAmount); return; }
+  const dur=1500, t0=performance.now();
+  (function tick(t){
+    const p=Math.min((t-t0)/dur,1), e=1-Math.pow(1-p,3);
+    el.textContent = fmt(Math.round(finalAmount*e));
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function backToIntro(){ $('ledger').style.display='none'; show('intro'); }
+</script>
+</body>
+</html>
