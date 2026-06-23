@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ثلاثة أقدام من الذهب — اختر مصيرك</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#0A0E22; --lapis-deep:#070A18; --lapis-panel:#171D3A;
+    --gold:#D4AF50; --gold-bright:#EBCB76; --sand:#F3E9D2; --sand-dim:#B7AE97;
+    --ember:#C96A52; --reed:#7BA86B; --shadow:0 12px 32px rgba(2,5,16,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:'Tajawal',sans-serif;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #1B2452 0%, transparent 60%),
+      linear-gradient(180deg, var(--lapis-night) 0%, #05070F 100%);
+    color:var(--sand); min-height:100vh; line-height:1.7;
+  }
+  body::after{
+    content:""; position:fixed; inset:auto 0 0 0; height:3px; z-index:5;
+    background:linear-gradient(90deg, transparent 0, var(--gold) 34%, var(--gold-bright) 50%, var(--gold) 66%, transparent 100%);
+    box-shadow:0 -4px 16px rgba(212,175,80,.3); opacity:.85;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+
+  .ledger{
+    position:sticky;top:0;z-index:10;margin:0 -18px 16px;padding:11px 18px;
+    background:linear-gradient(180deg, rgba(10,14,34,.97) 70%, rgba(10,14,34,.85));
+    border-bottom:1px solid rgba(212,175,80,.45);backdrop-filter:blur(6px);
+  }
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .stat{text-align:center;flex:1}
+  .stat-label{font-size:.68rem;color:var(--sand-dim);font-weight:500}
+  .stat-val{font-family:'Amiri',serif;font-weight:700;font-size:1.15rem;color:var(--gold-bright);white-space:nowrap}
+  .stat-val.neg{color:var(--ember)}
+
+  .screen{display:none;animation:fadeUp .5s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  .eyebrow{
+    display:inline-block;font-size:.78rem;font-weight:700;color:var(--gold);
+    border:1px solid rgba(212,175,80,.55);border-radius:99px;padding:4px 14px;
+    margin-bottom:14px;background:rgba(212,175,80,.08);
+  }
+  h1{font-family:'Amiri',serif;font-size:2.15rem;line-height:1.4;color:var(--gold-bright);margin-bottom:6px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+  .card{
+    background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));
+    border:1px solid rgba(212,175,80,.35);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow);
+  }
+  .intro-seal{
+    width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--gold);
+    display:flex;align-items:center;justify-content:center;font-size:2.1rem;
+    background:radial-gradient(circle at 35% 30%, rgba(235,203,118,.25), rgba(212,175,80,.05));
+    box-shadow:0 0 30px rgba(212,175,80,.25);
+  }
+  .intro-list{margin:0 0 26px;list-style:none}
+  .intro-list li{display:flex;gap:10px;margin-bottom:10px;color:var(--sand);font-size:.98rem}
+  .intro-list li::before{content:"◆";color:var(--gold);font-size:.7rem;margin-top:7px}
+
+  /* ====== السرد ====== */
+  .story{
+    background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));
+    border:1px solid rgba(212,175,80,.4);border-radius:18px;padding:24px 22px;
+    box-shadow:var(--shadow);margin-bottom:18px;
+  }
+  .story p{
+    font-family:'Amiri',serif;font-size:1.2rem;line-height:2.1;color:var(--sand);
+    margin-bottom:1.45em;text-align:right;opacity:0;animation:inkIn .5s ease forwards;
+  }
+  .story p:last-child{margin-bottom:0}
+  @keyframes inkIn{from{opacity:0}to{opacity:1}}
+  .story .speech{color:var(--gold-bright);font-weight:700}
+
+  .prompt{
+    font-size:.85rem;font-weight:800;color:var(--gold);text-align:center;margin-bottom:12px;
+    letter-spacing:.3px;
+  }
+  .choice{
+    display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;
+    background:rgba(7,10,24,.55);border:1px solid rgba(243,233,210,.22);
+    border-radius:14px;padding:15px 16px;margin-bottom:12px;color:var(--sand);
+    font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.65;cursor:pointer;
+    transition:border-color .2s, background .2s, transform .15s;
+  }
+  .choice:hover,.choice:focus-visible{border-color:var(--gold);background:rgba(212,175,80,.10);transform:translateY(-1px)}
+  .choice:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
+  .choice .glyph{
+    flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:rgba(212,175,80,.16);border:1px solid rgba(212,175,80,.5);
+    color:var(--gold-bright);font-size:.95rem;margin-top:2px;
+  }
+
+  /* ====== النهاية ====== */
+  .end-icon{font-size:3.2rem;text-align:center;margin-bottom:6px}
+  .end-title{font-family:'Amiri',serif;font-size:1.9rem;font-weight:700;text-align:center;color:var(--gold-bright);margin-bottom:4px}
+  .end-kind{text-align:center;font-size:.82rem;font-weight:800;margin-bottom:18px}
+  .end-kind.good{color:#9FD083}.end-kind.mid{color:var(--gold-bright)}.end-kind.badc{color:#E0967C}
+  .end-text{font-family:'Amiri',serif;font-size:1.18rem;line-height:2.05;color:var(--sand);margin-bottom:20px}
+  .lessons{list-style:none;margin-bottom:20px}
+  .lessons li{
+    display:flex;gap:10px;background:rgba(212,175,80,.08);border:1px solid rgba(212,175,80,.4);
+    border-radius:12px;padding:11px 14px;margin-bottom:9px;font-size:.93rem;
+  }
+  .lessons li::before{content:"📜";flex:0 0 auto}
+  .kpis{display:flex;gap:10px;margin-bottom:20px}
+  .kpi{flex:1;text-align:center;background:rgba(7,10,24,.5);border:1px solid rgba(243,233,210,.16);border-radius:12px;padding:12px 8px}
+  .kpi b{display:block;font-family:'Amiri',serif;font-size:1.35rem;color:var(--gold-bright)}
+  .kpi b.neg{color:var(--ember)}
+  .kpi span{font-size:.74rem;color:var(--sand-dim)}
+
+  .endings-title{font-family:'Amiri',serif;font-size:1.15rem;color:var(--gold-bright);text-align:center;margin-bottom:10px}
+  .endings-grid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:22px}
+  .end-badge{
+    width:64px;text-align:center;background:rgba(7,10,24,.5);border:1px solid rgba(243,233,210,.16);
+    border-radius:12px;padding:8px 4px;font-size:.62rem;color:var(--sand-dim);line-height:1.5;
+  }
+  .end-badge .ic{display:block;font-size:1.3rem;margin-bottom:2px}
+  .end-badge.found{border-color:rgba(212,175,80,.6);background:rgba(212,175,80,.1);color:var(--sand)}
+  .end-badge.now{box-shadow:0 0 0 2px var(--gold-bright);border-color:var(--gold-bright)}
+
+  .btn{
+    display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;
+    font-weight:800;font-size:1.1rem;color:#0A0E22;
+    background:linear-gradient(180deg,var(--gold-bright),var(--gold));
+    border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;
+    box-shadow:0 6px 18px rgba(212,175,80,.3);
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(212,175,80,.42)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(212,175,80,.55);box-shadow:none;margin-top:10px}
+
+  @media (max-width:420px){
+    h1{font-size:1.8rem} .story p{font-size:1.1rem} .end-title{font-size:1.6rem}
+  }
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}
+    .story p{opacity:1!important}}
+  /* إصلاح: نص قائمة المقدّمة يتدفّق ككتلةٍ طبيعية مع إبقاء الكلمات الغليظة في مواضعها بدل تقطيع السطر */
+  .intro-list li{display:block;position:relative;padding-right:22px;gap:0}
+  .intro-list li::before{position:absolute;right:0;top:.5em;margin-top:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- لوح الحكاية -->
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div class="stat"><div class="stat-label">🪙 رصيدك</div><div class="stat-val" id="s-gold">3</div></div>
+      <div class="stat"><div class="stat-label">الفصل</div><div class="stat-val" id="s-act" style="font-size:.95rem;color:var(--sand)">الأول · الشرارة</div></div>
+      <div class="stat"><div class="stat-label">🔥 عزيمتك</div><div class="stat-val" id="s-wis">0</div></div>
+    </div>
+  </div>
+
+  <!-- البداية -->
+  <section class="screen active" id="intro">
+    <div class="intro-seal">💡</div>
+    <div style="text-align:center">
+      <div class="eyebrow">قصة تفاعلية · كتاب «فكّر تصبح غنياً»</div>
+      <h1>ثلاثة أقدام من الذهب</h1>
+      <p class="sub">القصة الحقيقية التي ألهمت نابليون هيل… عِشها بنفسك، واكتب نهايتها.</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>أنت شابٌّ أصابته <b>حُمّى الذهب</b>، ومعك مدّخراتُ سنواتٍ ورغبةٌ تشتعل.</li>
+        <li>ستواجه لحظةً يفصلك فيها عن الثروة <b>ثلاثةُ أقدامٍ فقط</b>… فهل تثابر أم تستسلم؟</li>
+        <li>راقب <b>رصيدك 🪙</b> و<b>عزيمتك 🔥</b> — قراراتك تصنع المصير لا الحظ.</li>
+        <li>للحكاية <b>7 نهايات</b> مختلفة. كم نهايةً ستكتشف؟</li>
+      </ul>
+      <button class="btn" onclick="startStory()">أشعل الفانوس وابدأ الحفر 💡</button>
+    </div>
+  </section>
+
+  <!-- السرد -->
+  <section class="screen" id="game">
+    <div class="eyebrow" id="g-eyebrow"></div>
+    <div class="story" id="g-story"></div>
+    <div class="prompt" id="g-prompt">— ماذا تفعل؟ —</div>
+    <div id="g-choices"></div>
+  </section>
+
+  <!-- النهاية -->
+  <section class="screen" id="ending">
+    <div style="text-align:center"><div class="eyebrow">نهاية الحكاية</div></div>
+    <div class="card">
+      <div class="end-icon" id="e-icon"></div>
+      <div class="end-title" id="e-title"></div>
+      <div class="end-kind" id="e-kind"></div>
+      <div class="end-text" id="e-text"></div>
+      <ul class="lessons" id="e-lessons"></ul>
+      <div class="kpis">
+        <div class="kpi"><b id="e-gold">0</b><span>🪙 رصيدك عند الستار</span></div>
+        <div class="kpi"><b id="e-wis">0</b><span>🔥 عزيمة جمعتها</span></div>
+      </div>
+      <div class="endings-title">سجل النهايات — اكتشفت <span id="e-count">1</span> من 7</div>
+      <div class="endings-grid" id="e-grid"></div>
+      <button class="btn" onclick="startStory()">عِش الحكاية بمسارٍ آخر 💡</button>
+      <button class="btn ghost" onclick="backToIntro()">عُد إلى الملخص 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ============ عقد الحكاية ============ */
+const NODES = {
+
+start:{act:1, p:[
+ "حُمّى الذهب اجتاحت البلدة. عمُّك عاد من جبال كولورادو بعينين تلمعان وكيسٍ صغيرٍ من الخام، يقول إنه عثر على عِرقٍ في الجبل، وكلُّ ما يحتاجه شريكٌ ومعدّاتٌ للحفر.",
+ "في جيبك مدّخراتُ سنواتٍ من عملٍ متواضع، وفي صدرك رغبةٌ بدأت للتوّ تشتعل.",
+ "وفي حانة البلدة رجلٌ أنيقٌ يبيع <span class='speech'>«أسهم منجمٍ مضمون»</span> ويُقسم أنها تتضاعف في شهر."],
+ ch:[
+  {t:"أحسمها برغبةٍ مشتعلة: أضع مدّخراتي مع عمّي وأذهب إلى الجبل بنفسي", wis:2, to:'desire'},
+  {t:"أشتري «الأسهم المضمونة» — لماذا أحفر بيدي والثروةُ تُباع جاهزة؟", to:'speculate'},
+  {t:"أبقى في وظيفتي الآمنة — أحلامُ الذهب تُفلِس أصحابها", to:'safe'}
+ ]},
+
+desire:{act:1, p:[
+ "شددتَ الرحال إلى الجبل. أسابيعُ من الحفر تحت شمسٍ حارقة، ثم — ذات فجر — يلمع العِرقُ أمامك: ذهبٌ حقيقيّ! تعانق عمّك وتضحكان كطفلين.",
+ "اقترضتما لشراء آلة حفرٍ كبيرة، وبدأ الخامُ يتدفّق. كدتما تسدّدان الدَّين… حين وقع ما لم يكن في الحسبان.",
+ "اختفى العِرق. توقّف الذهبُ فجأةً كأنّ الجبل أطبق قبضته. حفرتما بيأسٍ أياماً بلا أثرٍ لبريق."],
+ ch:[
+  {t:"(تجلسان حول النار، والقرارُ الأصعبُ ينتظر…)", to:'vein_lost'}
+ ]},
+
+speculate:{act:1, p:[
+ "دفعتَ مدّخراتك ثمناً لـ«الأسهم المضمونة». لأسابيعَ راقبتَ الأرقام تصعد على الورق وقلبُك يرقص.",
+ "ثم اختفى البائعُ الأنيق، واتّضح أن المنجم لا وجود له أصلاً. الورقُ في يدك لا يساوي الحبرَ الذي كُتب به.",
+ "درسٌ مرّ: لا ثراءَ يأتي من وعدٍ سهلٍ بلا عملٍ ولا معرفة."],
+ ch:[
+  {t:"أبتلع الدرس وأعود إلى الجبل لأبدأ بعزمٍ حقيقيٍّ هذه المرة", wis:2, gold:-2, to:'desire'},
+  {t:"خدعوني وانتهى أمري… لن أثق بشيءٍ بعد اليوم", gold:-2, to:'E4'}
+ ]},
+
+safe:{act:1, p:[
+ "بقيتَ في وظيفتك الآمنة. مرّت السنون رتيبةً كدقّات ساعةٍ في غرفةٍ فارغة.",
+ "ذات مساءٍ يصلك الخبر: عمُّك وشريكُه الجديد استخرجا ذهباً من الجبل بعد أن استعانا بمهندسٍ خبير. الثروةُ التي كان يمكن أن تكون لك… صارت لغيرك.",
+ "تقف أمام المرآة وتسأل نفسك: هل فات الأوان حقاً؟"],
+ ch:[
+  {t:"لم يفُت! تشتعل فيّ الرغبةُ أخيراً، وأدخل مجال البيع لأبني نفسي من الصفر", wis:1, late:true, to:'comeback'},
+  {t:"قدري أن أبقى حيث أنا… الأحلامُ للجريئين لا لأمثالي", to:'E6'}
+ ]},
+
+vein_lost:{act:2, p:[
+ "المعدّاتُ صامتة، والدَّينُ يثقل، وعمُّك منهكٌ يقول: <span class='speech'>«انتهى الأمر يا بنيّ. لنبِع الآلةَ لتاجر الخردة ونستردّ ما نقدر عليه»</span>.",
+ "أمامك ثلاثةُ طرق… وأحدها — لو تعلم — يبعد عن الذهب ثلاثةَ أقدامٍ فقط."],
+ ch:[
+  {t:"قبل أن نستسلم: أستدعي مهندسَ مناجمٍ خبيراً ليقرأ طبقاتِ الصخر", wis:2, to:'engineer'},
+  {t:"أُثابر وأحفر وحدي في كل اتجاهٍ بلا توقّف، عناداً", to:'blind_dig'},
+  {t:"عمّي محقّ… نبيع الآلةَ لتاجر الخردة ونرحل", to:'sell_junk'}
+ ]},
+
+engineer:{act:2, p:[
+ "جاء المهندس، فحص الصخورَ وخرائطَ الطبقات، ثم ابتسم: <span class='speech'>«العِرقُ لم ينتهِ — انزاح فقط عند خطّ صدعٍ في الصخر. هو هنا، على بُعد ثلاثة أقدامٍ من حيث توقّفتما»</span>.",
+ "ثلاثةُ أقدام! كان الذهبُ يناديكما من خلف جدارٍ رقيق… والمعرفةُ المتخصّصة وحدها هي ما كشفته.",
+ "تنظر إلى عمّك، وقرارٌ واحدٌ يفصلكما عمّا حلمتما به."],
+ ch:[
+  {t:"نواصل الحفر فوراً — هذه المرة بعلمٍ لا بعناد!", wis:1, gold:6, to:'strike'},
+  {t:"نتردّد… وماذا لو أخطأ المهندس؟ ربما الأسلمُ أن نبيع نصيبنا الآن", to:'sell_after_knowing'}
+ ]},
+
+blind_dig:{act:2, p:[
+ "رفضتَ الاستعانة بأحد، وحفرتَ بعنادٍ في كل اتجاه. أسابيعُ من العرق بلا خريطةٍ ولا علم.",
+ "نفدت قواك، ونفد صبرُ الدَّين. لم تجد الذهب — ليس لأنه ليس هناك، بل لأنك حفرتَ في كل مكانٍ إلا الاتجاه الصحيح.",
+ "المثابرةُ بلا معرفةٍ كسفينةٍ بلا بوصلة."],
+ ch:[
+  {t:"أتوقّف وأستعين بخبيرٍ أخيراً — العنادُ وحده لا يكفي", wis:1, to:'engineer'},
+  {t:"أستسلم منهكاً وأبيع الآلة", to:'sell_junk'}
+ ]},
+
+strike:{act:3, p:[
+ "ثلاثُ ضرباتٍ بالمعول… فانفجر البريقُ من جديد. العِرقُ عاد أغزرَ مما كان! حفرتما حتى سدّدتما الدَّين وفاض الذهب.",
+ "صار اسمُك في الولاية مقروناً بالثروة، لكنك تعلّمتَ شيئاً أثمنَ من الذهب: أن الهزيمةَ المؤقتة ليست نهاية، وأن المعرفةَ تكشف ما يخفيه اليأس.",
+ "في مساءاتك تردّد لمن حولك: «كم من ثروةٍ دُفنت على بُعد ثلاثة أقدامٍ ممن استسلم»."],
+ ch:[
+  {t:"(تُسدل الستار على عرقٍ ذهبيٍّ لا ينضب…)", gold:5, to:'E1'}
+ ]},
+
+sell_after_knowing:{act:3, p:[
+ "المهندسُ أكّد أن الذهب على بُعد ثلاثة أقدام… لكنك ترددتَ وخفت، فبعتَ نصيبك لمن لا يخاف.",
+ "حفر المشتري ثلاثةَ أقدامٍ فقط… واستخرج ثروةً كانت بين يديك. أن تعرف الطريقَ ولا تسلكه أمرُّ من ألّا تعرفه أصلاً.",
+ "تحمل الدرسَ في صدرك كجمرة: التردّد بعد المعرفة خيانةٌ للرغبة."],
+ ch:[
+  {t:"(تنفض الغبار وتقرّر أن تبدأ من جديد… أكثرَ حسماً)", wis:1, to:'E7'}
+ ]},
+
+sell_junk:{act:2, p:[
+ "بعتما الآلةَ لتاجر الخردة بثمنٍ زهيد ورحلتما. وبعد أسابيعَ يصل الخبرُ كالصاعقة:",
+ "تاجرُ الخردة استدعى مهندساً، فأخبره أن العِرق يبعد ثلاثةَ أقدامٍ فقط عن حيث توقّفتما. حفر… فاستخرج ذهباً جعله من أثرياء الولاية.",
+ "ثلاثةُ أقدام. هذا كلُّ ما كان يفصلك عن الثروة. تجلس على حجرٍ ويدور في رأسك سؤالٌ واحد: ماذا أفعل بهذا الدرس الباهظ؟"],
+ ch:[
+  {t:"أحفر الدرسَ في عظمي: «لن أستسلم بعد اليوم قبل ثلاثة أقدامٍ إضافية»… وأبدأ من جديد", wis:2, to:'comeback'},
+  {t:"انكسر شيءٌ بداخلي… الذهبُ ليس لي", to:'E5'}
+ ]},
+
+comeback:{act:3, p:[
+ "تركتَ التنقيب ودخلتَ مجال البيع: تطرق الأبوابَ وتعرض على الناس ما ينفعهم. الرفضُ يأتي تلو الرفض — لكنك الآن رجلٌ تعلّم درسَ الأقدام الثلاثة.",
+ "كلما همَّ زبونٌ بإغلاق الباب، تذكّرتَ العِرقَ المنزاح، فثابرتَ خطوةً أخرى… ثم أخرى. صرتَ من خيرة الباعة في الولاية.",
+ "وذات يومٍ يعرض عليك ثلاثةٌ من أمهر الباعة أن تؤسّسوا معاً فريقاً يجمع خبراتكم. ما قرارك؟"],
+ ch:[
+  {t:"أوافق وأبني «عقلاً مدبّراً»: فريقٌ تتناغم عقولُه نحو هدفٍ واحد", wis:2, to:'E2'},
+  {t:"أكتفي بنفسي — نجاحي ثمرةُ جهدي وحدي ولا أقاسمه أحداً", to:'E3'}
+ ]}
+};
+
+/* ============ النهايات ============ */
+const ENDINGS = {
+E1:{icon:"🏆", kind:"good", title:"ملكُ الصدعِ الذهبي",
+ text:"حفرتما ثلاثةَ أقدامٍ أخرى فعاد العِرقُ أغزرَ من الأول. سدّدتما الدَّين وفاض الذهب، وصار اسمُك في الولاية رمزاً للثروة. لكن أعظمَ ما خرجتَ به لم يكن الذهب، بل قانونٌ حفرتَه في قلبك: «الهزيمةُ المؤقتة ليست فشلاً نهائياً، والمعرفةُ المتخصصة تكشف ما يدفنه اليأس». لقد جمعتَ بين الرغبة المشتعلة، والمثابرة، والقرار الحاسم، والمعرفة — فكان الذهبُ نتيجةً حتمية.",
+ lessons:["المثابرة + المعرفة المتخصصة = اختراقٌ حيث يستسلم الآخرون","معظم الناس يتوقفون عند أول هزيمةٍ مؤقتة — والنجاح غالباً على بُعد خطوةٍ منها"]},
+E2:{icon:"🌟", kind:"good", title:"الذي عاد من ثلاثةِ أقدام",
+ text:"خسرتَ المنجم… لكنك ربحتَ الدرسَ الذي يساوي مناجم. حملتَ «الأقدامَ الثلاثة» إلى مجال البيع، وثابرتَ حيث ينسحب غيرك، ثم بنيتَ عقلاً مدبّراً مع خيرة الباعة فتضاعفت قوّتكم. صرتَ أسطورةً في مجالك، وكلما سُئلتَ عن سرّك قلت: «تعلّمتُ ألّا أتوقّف قبل ثلاثة أقدامٍ إضافية — مهما بدا الباب موصداً». هذه هي القصة الحقيقية التي ألهمت نابليون هيل: من فشلٍ في منجمٍ… إلى ثروةٍ بُنيت على المثابرة.",
+ lessons:["الفشل ليس نهايةً بل مدرسة — من يستخلص درسه يحوّله إلى ثروة","العقل المدبّر (تحالف العقول) يضاعف قدرة الفرد أضعافاً"]},
+E3:{icon:"⚖️", kind:"mid", title:"صاحبُ النجاحِ الوحيد",
+ text:"نهضتَ من قاع المنجم وبنيتَ نفسك في البيع بمثابرةٍ نادرة، ونجحتَ نجاحاً محترماً وحدك. لكنك رفضتَ يدَ الفريق الممدودة، فبقي سقفُك سقفَ رجلٍ واحد. كنتَ تثابر كالأبطال… لكنك حملتَ الحملَ كلَّه على ظهرٍ واحد، فبلغتَ نصفَ ما كان يمكن أن تبلغه لو تناغمت عقولُكم. تعلّمتَ المثابرة… وبقي درسُ العقل المدبّر بانتظارك.",
+ lessons:["المثابرة الفردية تصنع نجاحاً، لكن العقل المدبّر يصنع إمبراطورية","الاعتماد على الذات وحدها سقفٌ منخفضٌ فوق كل طموحٍ كبير"]},
+E4:{icon:"🃏", kind:"badc", title:"ضحيةُ الوعدِ السهل",
+ text:"طاردتَ ثروةً بلا عملٍ ولا معرفة، فابتلعها محتالٌ بابتسامةٍ أنيقة. والأمرّ أنك تركتَ الخسارةَ تكسرك، فلم تُعطِ نفسك فرصةً ثانية. القانونُ الذي حذّر منه هيل تحقّق فيك: الثروةُ تهرب ممن يصدّق الأحلامَ الوردية ويبحث عن الذهب السريع. لو أنك بدأت بعملٍ حقيقيٍّ مدروسٍ بدل وعدٍ برّاق…",
+ lessons:["لا ثروةَ بلا رغبةٍ مشتعلةٍ تتبعها خطةٌ منظّمة وعملٌ حقيقي","الوعود السهلة فخّ — والمعرفة هي درعك الأول ضد المحتالين"]},
+E5:{icon:"⛏️", kind:"badc", title:"ثلاثةُ أقدامٍ من الذهب",
+ text:"بعتَ الآلةَ ورحلت… على بُعد ثلاثة أقدامٍ من ثروةِ العمر. تاجرُ الخردة سأل خبيراً، وحفر القليل، وصار غنياً بما كان تحت قدميك. ثم تركتَ الهزيمةَ تطفئ جذوتك إلى الأبد. هذه القصةُ بالذات هي التي ألهمت نابليون هيل ليكتب عن المثابرة — لأن معظم الناس، مثلك في هذه النهاية، يستسلمون عند أول هزيمةٍ مؤقتة، وهم لا يدرون كم اقتربوا.",
+ lessons:["لا تستسلم عند أول عقبة — قد يكون الذهبُ على بُعد ثلاثة أقدامٍ فقط","قبل الانسحاب: استشر خبيراً، فالمعرفةُ قد تقلب الهزيمةَ نصراً"]},
+E6:{icon:"🚏", kind:"badc", title:"العمرُ الذي مرَّ على الرصيف",
+ text:"لم تجرؤ يوماً على إشعال رغبتك، فبقيتَ متفرّجاً بينما يقطف الجريئون الذهب. صار عمُّك ثرياً، وصار زميلُك المتردّدُ الذي تجرّأ أخيراً ثرياً، وبقيتَ أنتَ كما أنت: آمناً… وفارغ اليدين. أكبرُ المخاطر لم يكن أن تحاول وتفشل، بل ألّا تحاول أبداً. وأغلى ما أهدرتَ لم يكن الذهب… بل السنوات.",
+ lessons:["الخوف من كل مخاطرة هو نفسه أكبر مخاطرة: مخاطرة ألّا تنمو أبداً","كل إنجازٍ عظيمٍ يبدأ بقرار جريء — والتردّد الدائم قرارٌ بالفشل"]},
+E7:{icon:"🪙", kind:"mid", title:"عرَفَ الطريقَ ولم يسلكه",
+ text:"كان الذهبُ على بُعد ثلاثة أقدام، والمهندسُ قد أكّد ذلك بعلمه… لكن الخوفَ غلب الرغبة، فبعتَ نصيبك لمن جنى ثروتك. تحمل اليوم درساً أثمنَ من المال: القرارُ المتردّدُ بعد المعرفة هو أقسى أنواع الندم. النبأ الجيّد أنك خرجتَ بعزمٍ جديدٍ على ألّا تتردّد مرةً أخرى — وهذه بدايةُ طريقٍ ثانٍ.",
+ lessons:["سرعة القرار والحسم تميّز الأثرياء — والتردّد يضيّع فرص العمر","المعرفة بلا قرارٍ حاسمٍ يتبعها… معرفةٌ بلا ثمرة"]}
+};
+
+const ACTS = {1:"الأول · الشرارة", 2:"الثاني · الاختبار", 3:"الثالث · القرار"};
+
+let st = null;
+let discovered = new Set(); /* نهايات هذه الجلسة */
+
+const $ = id => document.getElementById(id);
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el=$(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function startStory(){
+  st = {gold:3, wis:0, redeemed:false, late:false};
+  $('ledger').style.display='block';
+  goto('start');
+  show('game');
+}
+
+function renderLedger(){
+  const g=$('s-gold');
+  g.textContent = st.gold; g.classList.toggle('neg', st.gold<0);
+  $('s-wis').textContent = st.wis;
+}
+
+function goto(id){
+  if(id==='__win'){ id = st.redeemed ? 'E2' : 'E1'; }
+  if(ENDINGS[id]){ return showEnding(id); }
+  const n = NODES[id];
+  $('s-act').textContent = ACTS[n.act];
+  $('g-eyebrow').textContent = 'الفصل '+ACTS[n.act];
+  $('g-story').innerHTML = n.p.map(t=>`<p>${t}</p>`).join('');
+  $('g-prompt').textContent = n.ch.length===1 ? '— تابع —' : '— ماذا تفعل؟ —';
+  $('g-choices').innerHTML = n.ch.map((c,i)=>
+    `<button class="choice" onclick="pick('${id}',${i})"><span class="glyph">${n.ch.length===1?'←':'◆'}</span><span>${c.t}</span></button>`
+  ).join('');
+  renderLedger();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function pick(nodeId, ci){
+  const c = NODES[nodeId].ch[ci];
+  if(c.gold) st.gold += c.gold;
+  if(c.wis) st.wis += c.wis;
+  if(c.redeemed) st.redeemed = true;
+  if(c.late) st.late = true;
+  goto(c.to);
+}
+
+function showEnding(id){
+  discovered.add(id);
+  const e = ENDINGS[id];
+  /* رصيد رمزي لكل نهاية */
+  const endGold = {E1: st.gold+40, E2: st.gold+30, E3: Math.max(st.gold,12), E4: 0, E5: 0, E6: 2, E7: Math.max(st.gold,6)}[id];
+  $('ledger').style.display='none';
+  $('e-icon').textContent = e.icon;
+  $('e-title').textContent = e.title;
+  const kindMap = {good:["نهاية ذهبية ✦","good"], mid:["نهاية فضية ◆","mid"], badc:["نهاية معتمة ▪","badc"]};
+  $('e-kind').textContent = kindMap[e.kind][0];
+  $('e-kind').className = 'end-kind '+kindMap[e.kind][1];
+  $('e-text').textContent = e.text;
+  $('e-lessons').innerHTML = e.lessons.map(l=>`<li>${l}</li>`).join('');
+  const gEl = $('e-gold');
+  gEl.textContent = endGold; gEl.classList.toggle('neg', endGold<=0);
+  $('e-wis').textContent = st.wis;
+  $('e-count').textContent = discovered.size;
+  $('e-grid').innerHTML = Object.keys(ENDINGS).map(k=>{
+    const found = discovered.has(k);
+    const cls = 'end-badge'+(found?' found':'')+(k===id?' now':'');
+    return `<div class="${cls}"><span class="ic">${found?ENDINGS[k].icon:'❔'}</span>${found?ENDINGS[k].title:'؟؟؟'}</div>`;
+  }).join('');
+  show('ending');
+}
+
+function backToIntro(){ $('ledger').style.display='none'; show('intro'); }
+</script>
+</body>
+</html>

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>صمّم خياراتك — لعبة القرارات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#0E1A22; --lapis-deep:#081117; --lapis-panel:#16303D;
+    --gold:#D9A23B; --gold-bright:#F0C36B; --sand:#EAF1F2; --sand-dim:#A2B7BD;
+    --ember:#D2674E; --reed:#5FB389; --slate:#4C8CA8; --slate-deep:#346A82; --slate-bright:#7FB9D4;
+    --shadow:0 12px 32px rgba(2,8,11,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:'Tajawal',sans-serif;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #1E4656 0%, transparent 60%),
+      linear-gradient(180deg, var(--lapis-night) 0%, #060D11 100%);
+    color:var(--sand); min-height:100vh; line-height:1.7;
+  }
+  body::after{
+    content:""; position:fixed; inset:auto 0 0 0; height:3px; z-index:5;
+    background:linear-gradient(90deg, transparent 0, var(--slate) 30%, var(--gold-bright) 50%, var(--slate) 70%, transparent 100%);
+    box-shadow:0 -4px 16px rgba(76,140,168,.35); opacity:.9;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+  .ledger{position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:14px 18px 12px;background:linear-gradient(180deg, rgba(14,26,34,.97) 70%, rgba(14,26,34,.85));border-bottom:1px solid rgba(76,140,168,.45);backdrop-filter:blur(6px)}
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .ledger-label{font-size:.78rem;color:var(--sand-dim);font-weight:500}
+  .ledger-amount{font-family:'Cairo',sans-serif;font-weight:800;font-size:1.4rem;color:var(--gold-bright);letter-spacing:.3px;white-space:nowrap}
+  .ledger-amount small{font-size:.82rem;color:var(--sand-dim);font-family:'Tajawal',sans-serif;font-weight:500;margin-right:4px}
+  .ledger-amount.neg{color:var(--ember)}
+  .dots{display:flex;gap:6px;margin-top:8px;justify-content:center}
+  .dot{width:26px;height:4px;border-radius:99px;background:rgba(234,241,242,.16);transition:background .4s}
+  .dot.on{background:var(--slate)}
+  .dot.now{background:var(--slate-bright);box-shadow:0 0 8px rgba(127,185,212,.8)}
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;color:var(--slate-bright);border:1px solid rgba(76,140,168,.55);border-radius:99px;padding:4px 14px;margin-bottom:14px;letter-spacing:.3px;background:rgba(76,140,168,.1)}
+  h1{font-family:'Cairo',sans-serif;font-size:2.2rem;font-weight:900;line-height:1.3;color:var(--gold-bright);margin-bottom:6px}
+  h2.situation{font-family:'Tajawal',sans-serif;font-size:1.4rem;line-height:1.75;color:var(--sand);font-weight:700;margin-bottom:22px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+  .card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(76,140,168,.32);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow)}
+  .choice{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;background:rgba(8,17,23,.6);border:1px solid rgba(234,241,242,.16);border-radius:14px;padding:15px 16px;margin-bottom:12px;color:var(--sand);font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.65;cursor:pointer;transition:border-color .2s, background .2s, transform .15s}
+  .choice:hover,.choice:focus-visible{border-color:var(--slate);background:rgba(76,140,168,.12);transform:translateY(-1px)}
+  .choice:focus-visible{outline:2px solid var(--slate-bright);outline-offset:2px}
+  .badge{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(76,140,168,.18);border:1px solid rgba(76,140,168,.55);color:var(--slate-bright);font-weight:800;font-size:.95rem;margin-top:2px}
+  .verdict{border-radius:14px;padding:18px;margin-bottom:16px;border:1px solid}
+  .verdict.best{background:rgba(95,179,137,.14);border-color:rgba(95,179,137,.6)}
+  .verdict.ok{background:rgba(217,162,59,.12);border-color:rgba(217,162,59,.55)}
+  .verdict.bad{background:rgba(210,103,78,.14);border-color:rgba(210,103,78,.6)}
+  .verdict-title{font-family:'Cairo',sans-serif;font-size:1.22rem;font-weight:800;margin-bottom:8px}
+  .verdict.best .verdict-title{color:#8FE0B6}
+  .verdict.ok .verdict-title{color:var(--gold-bright)}
+  .verdict.bad .verdict-title{color:#F0987C}
+  .verdict p{font-size:.98rem}
+  .timeline{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+  .t-row{display:flex;gap:12px;align-items:flex-start;background:rgba(8,17,23,.55);border-radius:12px;padding:12px 14px;border:1px solid rgba(234,241,242,.12)}
+  .t-when{flex:0 0 auto;font-weight:800;color:var(--slate-bright);font-size:.85rem;border-left:1px solid rgba(76,140,168,.4);padding-left:12px;min-width:74px}
+  .t-what{font-size:.95rem;color:var(--sand)}
+  .delta{display:inline-flex;align-items:center;gap:8px;font-family:'Cairo',sans-serif;font-weight:800;font-size:1.3rem;border-radius:12px;padding:8px 16px;margin-bottom:18px}
+  .delta.up{background:rgba(95,179,137,.16);color:#8FE0B6;border:1px solid rgba(95,179,137,.5)}
+  .delta.down{background:rgba(210,103,78,.16);color:#F0987C;border:1px solid rgba(210,103,78,.5)}
+  .delta.flat{background:rgba(234,241,242,.08);color:var(--sand-dim);border:1px solid rgba(234,241,242,.22)}
+  .btn{display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;color:#0E1A22;background:linear-gradient(180deg,var(--slate-bright),var(--slate-deep));border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(52,106,130,.4)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(52,106,130,.5)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(217,162,59,.55);box-shadow:none;margin-top:10px}
+  .final-amount{font-family:'Cairo',sans-serif;font-size:3rem;font-weight:900;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
+  .final-amount.neg{color:var(--ember)}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{text-align:center;font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800;color:var(--sand);margin-bottom:6px}
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:22px}
+  .principles{list-style:none;margin-bottom:22px}
+  .principles li{display:flex;gap:10px;align-items:center;padding:10px 14px;margin-bottom:8px;background:rgba(8,17,23,.55);border-radius:12px;border:1px solid rgba(234,241,242,.12);font-size:.95rem}
+  .p-mark{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+  .p-mark.yes{background:rgba(95,179,137,.2);color:#8FE0B6;border:1px solid rgba(95,179,137,.6)}
+  .p-mark.no{background:rgba(210,103,78,.2);color:#F0987C;border:1px solid rgba(210,103,78,.6)}
+  .quote{font-family:'Cairo',sans-serif;font-size:1.16rem;font-weight:700;line-height:1.85;text-align:center;color:var(--gold-bright);border-top:1px solid rgba(217,162,59,.35);border-bottom:1px solid rgba(217,162,59,.35);padding:18px 6px;margin-bottom:22px}
+  .quote span{display:block;font-family:'Tajawal',sans-serif;font-size:.85rem;font-weight:500;color:var(--sand-dim);margin-top:8px}
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--slate);display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:radial-gradient(circle at 35% 30%, rgba(76,140,168,.3), rgba(217,162,59,.05));box-shadow:0 0 30px rgba(76,140,168,.3)}
+  .intro-list{margin:0 0 26px;padding:0;list-style:none}
+  .intro-list li{display:block;position:relative;padding-right:22px;color:var(--sand);font-size:.98rem;margin-bottom:10px}
+  .intro-list li::before{content:"◆";color:var(--slate);font-size:.7rem;position:absolute;right:0;top:.5em}
+  @media (max-width:420px){h1{font-size:1.85rem}h2.situation{font-size:1.25rem}.final-amount{font-size:2.4rem}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div>
+        <div class="ledger-label">رصيد التصميم الذكي للخيارات</div>
+        <div class="ledger-amount" id="wealth">0 <small>نقطة</small></div>
+      </div>
+      <div style="font-size:1.6rem">🐘</div>
+    </div>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <section class="screen active" id="intro">
+    <div class="intro-seal">🐘</div>
+    <div style="text-align:center">
+      <div class="eyebrow">لعبة قرارات · كتاب «الوكزة»</div>
+      <h1>صمّم خياراتك</h1>
+      <p class="sub">كيف تُصمَّم الخيارات أمامك يحدّد قرارك أكثر مما تتخيّل.</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>ستواجه <b>6 مواقف</b> على مبادئ ثالر وسانستين في «الوكزة».</li>
+        <li>كل قرارٍ يرفع أو يخفض <b>رصيد التصميم الذكي للخيارات</b> لديك.</li>
+        <li>المبدأ: <b>الخيار الافتراضي (default) يحدّد سلوك أغلب الناس</b> — صمّمه بحكمةٍ لمصلحتك.</li>
+        <li>اجمع أعلى رصيدٍ ممكن… حتى تتقن «الوكز» الذاتي نحو قراراتٍ ماليةٍ أفضل.</li>
+      </ul>
+      <button class="btn" onclick="startGame()">ابدأ التصميم ▸</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="eyebrow" id="g-eyebrow"></div>
+    <h2 class="situation" id="g-situation"></h2>
+    <div id="g-choices"></div>
+  </section>
+
+  <section class="screen" id="feedback">
+    <div class="card">
+      <div class="verdict" id="f-verdict">
+        <div class="verdict-title" id="f-title"></div>
+        <p id="f-text"></p>
+      </div>
+      <div class="timeline">
+        <div class="t-row"><div class="t-when">بعد سنة</div><div class="t-what" id="f-y1"></div></div>
+        <div class="t-row"><div class="t-when">بعد 5 سنوات</div><div class="t-what" id="f-y5"></div></div>
+      </div>
+      <div style="text-align:center"><span class="delta" id="f-delta"></span></div>
+      <button class="btn" id="f-next" onclick="nextScenario()">متابعة ←</button>
+    </div>
+  </section>
+
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow">اكتملت الجلسة</div></div>
+    <div class="card">
+      <div class="final-label">رصيد التصميم الذكي للخيارات</div>
+      <div class="final-amount" id="r-amount">0</div>
+      <div class="final-label">نقطة &nbsp;·&nbsp; من أصل 116</div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <ul class="principles" id="r-principles"></ul>
+      <div class="quote">«الوكزة تغيّر السلوك دون إلزام أحد، عبر تصميم الخيار الافتراضي بحكمة»<span>— ريتشارد ثالر وكاس سانستين</span></div>
+      <button class="btn" onclick="restart()">أعد المحاولة 🔄</button>
+      <button class="btn ghost" onclick="restart()">اقرأ الملخص مرة أخرى 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const SCENARIOS = [
+  {
+    cure:"المبدأ · قوة الخيار الافتراضي",
+    short:"الخيار الافتراضي يحدّد سلوك أغلب الناس",
+    situation:"تنضمّ لوظيفةٍ جديدة، وخطّة التقاعد فيها تتطلّب «تفعيلاً يدوياً» من الموظّف للانضمام. كيف تتصرّف؟",
+    choices:[
+      {t:"أنضمّ فوراً يدوياً، وأدرك أن جعل الانضمام تلقائياً (افتراضياً) كان سيوفّر على الكثيرين تردّدهم", q:"best", d:20,
+       fb:"ثالر وسانستين يوضحان أن أغلب الناس يبقون على الخيار الافتراضي أياً كان؛ خطط التقاعد ذات «الانضمام التلقائي» تزيد المشاركة بشكلٍ كبير.",
+       y1:"انضممتَ فعلياً رغم الجهد المطلوب", y5:"مدّخرات تقاعدٍ تراكمت بفضل القرار المبكر"},
+      {t:"أؤجّل التفعيل «لوقتٍ لاحق أكثر هدوءاً» دون موعدٍ محدّد", q:"ok", d:5,
+       fb:"التأجيل بلا موعدٍ محدّد يستغلّ كسل القرار بدل أن يخدمك؛ هذا تماماً ما يحذّر منه الكتاب.",
+       y1:"لا انضمام فعلي حتى الآن", y5:"سنواتٌ من الفائدة المركّبة ضائعة"},
+      {t:"أتجاهل الأمر كلياً لأن «التسجيل يبدو معقّداً»", q:"bad", d:-9,
+       fb:"تجاهل خطّة التقاعد بسبب تعقيد التسجيل يعني خسارة مساهمة صاحب العمل المحتملة ونموّ الفائدة المركّبة لعقود.",
+       y1:"صفر مساهماتٍ في خطّة التقاعد", y5:"فرصةٌ ضائعةٌ بالكامل"}
+    ]
+  },
+  {
+    cure:"المبدأ · معماريّ القرار وتصميم البيئة",
+    short:"تصميم بيئتك المالية يوجّه قراراتك دون أن تشعر",
+    situation:"تلاحظ أنك تنفق أكثر مما تخطّط حين تحمل بطاقة ائتمانٍ سهلة الاستخدام دائماً في محفظتك.",
+    choices:[
+      {t:"أعيد تصميم بيئتي المالية: أُبقي البطاقة بعيدةً عن متناول اليد المباشر وأجعل التحويل للادّخار هو الخيار السهل", q:"best", d:19,
+       fb:"«معماريّ القرار» عند ثالر يعني تصميم البيئة لتسهيل القرار الجيد وتصعيب القرار السيئ قليلاً، دون منع أي خيارٍ بالقوة.",
+       y1:"إنفاقٌ أقلّ اندفاعاً بفعل التصميم", y5:"عادةٌ ماليةٌ أفضل ترسّخت تدريجياً"},
+      {t:"ألوم نفسي على ضعف الإرادة دون تغيير أي شيءٍ في البيئة المحيطة", q:"ok", d:5,
+       fb:"الاعتماد على الإرادة وحدها أقل فعاليةً من تصميم بيئةٍ تجعل القرار الجيد هو الأسهل.",
+       y1:"نفس نمط الإنفاق يتكرّر", y5:"تقدّمٌ محدودٌ رغم النيّة الطيبة"},
+      {t:"أزيد عدد البطاقات وأجعل الإنفاق أسهل «لأنني أستحق الراحة»", q:"bad", d:-8,
+       fb:"تسهيل الإنفاق أكثر يصمّم البيئة لصالح القرار السيئ بالضبط، عكس ما ينصح به الكتاب.",
+       y1:"إنفاقٌ متزايدٌ بفعل التصميم", y5:"عاداتٌ ماليةٌ متدهورة"}
+    ]
+  },
+  {
+    cure:"المبدأ · التأثير الاجتماعي والمعايير",
+    short:"إخبار الناس بسلوك الأغلبية يغيّر سلوكهم",
+    situation:"تريد تحفيز نفسك على الادّخار أكثر، وتعلم أن أغلب زملائك يدّخرون نسبةً أعلى مما تدّخر.",
+    choices:[
+      {t:"أستخدم هذه المعلومة كـ«وكزة» إيجابية لنفسي، وأرفع نسبة ادّخاري لتقترب من معيار الأغلبية الجيد", q:"best", d:19,
+       fb:"إخبار الناس أن الأغلبية تتصرّف بطريقةٍ معيّنة (معيارٌ اجتماعي) يحفّزهم على محاذاة سلوكهم معها — وكزةٌ فعّالة وموثَّقة في الكتاب.",
+       y1:"نسبة ادّخارٍ أعلى محاذاةً للمعيار الجيد", y5:"عادة ادّخارٍ تحسّنت بفعل المقارنة الإيجابية"},
+      {t:"أتجاهل المعلومة لأنها «لا تخصّني» دون أي تغييرٍ في سلوكي", q:"ok", d:5,
+       fb:"تجاهل معلومةٍ مفيدة عن سلوك الأغلبية يفوّت وكزةً مجانية كان يمكن أن تحفّز تحسّناً حقيقياً.",
+       y1:"لا تغيير في نسبة الادّخار", y5:"فرصة تحسّنٍ سهلة ضاعت"},
+      {t:"أشعر بالإحباط من المقارنة وأتوقّف عن الادّخار كلياً", q:"bad", d:-8,
+       fb:"الاستجابة بالإحباط بدل الدافع تحوّل معلومةً مفيدة إلى أثرٍ سلبي معكوس تماماً.",
+       y1:"تراجعٌ في الادّخار", y5:"عادةٌ ماليةٌ تدهورت بسبب رد فعلٍ سلبي"}
+    ]
+  },
+  {
+    cure:"المبدأ · التبسيط يقلّل الأخطاء",
+    short:"الخيارات المعقّدة جداً تدفع الناس لقراراتٍ سيئة أو لا قرار",
+    situation:"تواجه خطّة استثمارٍ بعشرات الصناديق المعقّدة، وتشعر بالحيرة الكاملة فتفكّر في عدم الاستثمار أصلاً.",
+    choices:[
+      {t:"أبسّط القرار باختيار خيارٍ معقول (مثل صندوق مؤشّرٍ متنوّع) بدل الشلل التام أمام التعقيد", q:"best", d:18,
+       fb:"ثالر وسانستين يوضحان أن «الحمل المعرفي» الزائد من خياراتٍ كثيرة قد يدفع الناس لعدم القرار إطلاقاً؛ التبسيط يكسر هذا الشلل.",
+       y1:"استثمارٌ بدأ بدل التردّد اللامتناهي", y5:"نموٌّ تراكميٌّ بدأ في وقتٍ مبكّر"},
+      {t:"أؤجّل القرار «حتى أفهم كل التفاصيل بدقّةٍ كاملة»", q:"ok", d:5,
+       fb:"السعي للفهم الكامل قبل أي قرارٍ غالباً يؤدّي لتأجيلٍ لا ينتهي بينما الوقت يمرّ دون استثمار.",
+       y1:"لا استثمار حتى الآن", y5:"وقتٌ ثمينٌ من النموّ المركّب ضاع"},
+      {t:"أختار عشوائياً أول صندوقٍ يظهر دون أي تفكير لمجرّد «إنهاء الأمر»", q:"bad", d:-7,
+       fb:"الاختيار العشوائي بلا أي معيارٍ قد يقودك لصندوقٍ غير مناسبٍ لمخاطرتك أو أهدافك الحقيقية.",
+       y1:"استثمارٌ غير متوافقٍ مع أهدافك", y5:"نتيجةٌ قد تخيب التوقعات لعدم التوافق"}
+    ]
+  },
+  {
+    cure:"المبدأ · الالتزامات المسبقة (Commitment Devices)",
+    short:"الالتزام بقرارٍ اليوم يحمي «الأنا المستقبلية» من الإغراء",
+    situation:"تعلم أنك ستواجه إغراءاتٍ كثيرة للإنفاق غير الضروري في الأشهر القادمة (مواسم تخفيضات، مناسبات).",
+    choices:[
+      {t:"ألتزم مسبقاً بتحويلٍ تلقائي لمدّخراتي قبل أن أرى الإغراءات، فيصعب عليّ التراجع لاحقاً", q:"best", d:19,
+       fb:"«أدوات الالتزام المسبق» تستفيد من نسخةٍ منك حاضرة العقل اليوم لتحمي نسخةً مستقبلية أقلّ انضباطاً من الإغراءات.",
+       y1:"مدّخراتٌ محميّةٌ من إغراءات المستقبل", y5:"رصيدٌ تراكم رغم الإغراءات المتكرّرة"},
+      {t:"أعتمد على «إرادتي القوية» وقت الإغراء دون أي التزامٍ مسبق", q:"ok", d:5,
+       fb:"الاعتماد على الإرادة وحدها في لحظة الإغراء أقل فعاليةً من ترتيبٍ مسبقٍ يحمي القرار.",
+       y1:"نتيجةٌ متفاوتة حسب قوة الإرادة اللحظية", y5:"ادّخارٌ غير مستقرّ"},
+      {t:"لا أخطّط لأي شيءٍ وأقرّر «حسب مزاجي وقت كل إغراء»", q:"bad", d:-8,
+       fb:"غياب أي التزامٍ مسبق يجعلك عُرضةً كاملةً لكل إغراءٍ يظهر دون أي حمايةٍ ذاتية.",
+       y1:"إنفاقٌ متكرّرٌ على الإغراءات", y5:"مدّخراتٌ تآكلت تدريجياً"}
+    ]
+  },
+  {
+    cure:"المبدأ · الحرّية مع التوجيه (Libertarian Paternalism)",
+    short:"الوكزة توجّه دون أن تمنع أي خيارٍ بالقوة",
+    situation:"تصمّم نظاماً مالياً لنفسك أو لفريقك. كيف توازن بين التوجيه نحو القرار الأفضل وحرّية الاختيار؟",
+    choices:[
+      {t:"أصمّم الخيار الافتراضي ليكون الأفضل ماليّاً، مع إبقاء حرّية التغيير لمن يريد ذلك بوضوحٍ تام", q:"best", d:20,
+       fb:"هذا هو جوهر «الأبوية التحرّرية» عند ثالر وسانستين: توجيه السلوك نحو الأفضل عبر التصميم، دون إلزام أحد أو منع أي خيار.",
+       y1:"نظامٌ يوجّه دون قسرٍ لأي طرف", y5:"نتائج ماليةٌ أفضل مع الحفاظ على الحرّية الكاملة"},
+      {t:"أفرض خياراً واحداً إلزامياً دون أي إمكانيةٍ للتغيير", q:"ok", d:3,
+       fb:"الفرض الكامل قد يحقّق نتيجةً جيدة، لكنه يتجاوز فلسفة الكتاب القائمة على الحرّية مع التوجيه.",
+       y1:"نتيجةٌ موحَّدة لكن بلا مرونة", y5:"استياءٌ محتملٌ من غياب الخيار"},
+      {t:"أترك كل الخيارات مفتوحةً بلا أي تصميمٍ أو خيارٍ افتراضي واضح", q:"bad", d:-7,
+       fb:"غياب أي تصميمٍ يترك الناس عرضةً للتسويف والقرارات العشوائية التي يحذّر منها الكتاب أصلاً.",
+       y1:"قراراتٌ متفرّقة وغير متّسقة", y5:"نتائج ماليةٌ متفاوتة بلا نمطٍ واضح"}
+    ]
+  }
+];
+
+const VERDICTS = {
+  best:{title:"🐘 وكزةٌ ذكية — هكذا يصمّم ثالر القرارات", cls:"best"},
+  ok:{title:"⚖️ مقبول… لكن التصميم لم يُستثمَر بالكامل", cls:"ok"},
+  bad:{title:"🌀 تصميمٌ يُضعف قرارك المالي", cls:"bad"}
+};
+
+let idx = 0, wealth = 0, mastered = [];
+const $ = id => document.getElementById(id);
+
+function fmt(n){
+  const s = Math.abs(n).toLocaleString('en-US').replace(/,/g,'٬');
+  return (n<0?'−':'')+s;
+}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function renderDots(){
+  $('dots').innerHTML = SCENARIOS.map((_,i)=>`<div class="dot ${i<idx?'on':''} ${i===idx?'now':''}"></div>`).join('');
+}
+function renderWealth(animateFrom){
+  const el = $('wealth');
+  el.classList.toggle('neg', wealth<0);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(animateFrom===undefined || reduce){ el.innerHTML = fmt(wealth)+' <small>نقطة</small>'; return; }
+  const start = animateFrom, diff = wealth-start, dur = 900, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    el.innerHTML = fmt(Math.round(start+diff*e))+' <small>نقطة</small>';
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function startGame(){
+  idx = 0; wealth = 0; mastered = [];
+  $('ledger').style.display = 'block';
+  renderWealth(); renderDots(); renderScenario(); show('game');
+}
+function renderScenario(){
+  const s = SCENARIOS[idx];
+  $('g-eyebrow').textContent = `الموقف ${idx+1} من ${SCENARIOS.length} · ${s.cure}`;
+  $('g-situation').textContent = s.situation;
+  const letters = ['أ','ب','ج'];
+  $('g-choices').innerHTML = s.choices.map((c,i)=>
+    `<button class="choice" onclick="choose(${i})"><span class="badge">${letters[i]}</span><span>${c.t}</span></button>`).join('');
+  renderDots();
+}
+function choose(ci){
+  const s = SCENARIOS[idx], c = s.choices[ci];
+  const before = wealth;
+  wealth += c.d;
+  mastered.push(c.q === 'best');
+  const v = VERDICTS[c.q];
+  $('f-verdict').className = 'verdict '+v.cls;
+  $('f-title').textContent = v.title;
+  $('f-text').textContent = c.fb;
+  $('f-y1').textContent = c.y1;
+  $('f-y5').textContent = c.y5;
+  const dEl = $('f-delta');
+  dEl.className = 'delta '+(c.d>0?'up':c.d<0?'down':'flat');
+  dEl.textContent = (c.d>0?'📈 +':c.d<0?'📉 −':'⏳ ')+(c.d===0?'لا تغيير':Math.abs(c.d)+' نقطة');
+  $('f-next').textContent = (idx === SCENARIOS.length-1) ? 'اكشف نتيجتك النهائية 🐘' : 'الموقف التالي ←';
+  show('feedback');
+  renderWealth(before);
+}
+function nextScenario(){
+  idx++;
+  if(idx < SCENARIOS.length){ renderScenario(); show('game'); }
+  else showResults();
+}
+function rankOf(w){
+  if(w>=95) return {r:"🐘 تصمّم خياراتك بذكاءٍ تام", n:"تطبّق مبادئ ثالر وسانستين بإتقان: الخيارات الافتراضية، وتصميم البيئة، والالتزامات المسبقة. طبّقها على قراراتك المالية الآن."};
+  if(w>=60) return {r:"🔧 تصميمك في طور التحسّن", n:"تمتلك معظم المبادئ. راجع ما أخطأت فيه أدناه ورسّخه."};
+  if(w>=25) return {r:"⏳ بدأتَ تعي قوة التصميم", n:"وضعتَ أولى لبنات الوكزة الذاتية. أعد قراءة الفصول ثم عُد."};
+  return {r:"🌀 خياراتك تحتاج تصميماً أوضح", n:"لا بأس — الوعي أول خطوة. ابدأ بسؤالٍ واحد: «ما الخيار الافتراضي في حياتي المالية الآن؟»"};
+}
+function showResults(){
+  $('ledger').style.display = 'none';
+  const rk = rankOf(wealth);
+  const amountEl = $('r-amount');
+  amountEl.classList.toggle('neg', wealth<0);
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n;
+  $('r-principles').innerHTML = SCENARIOS.map((s,i)=>
+    `<li><span class="p-mark ${mastered[i]?'yes':'no'}">${mastered[i]?'✓':'✗'}</span><span>${s.short}</span></li>`).join('');
+  show('results');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ amountEl.textContent = fmt(wealth); return; }
+  const dur = 1400, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    amountEl.textContent = fmt(Math.round(wealth*e));
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function restart(){ $('ledger').style.display = 'none'; show('intro'); }
+</script>
+</body>
+</html>

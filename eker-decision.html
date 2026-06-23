@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>أعد برمجة عقلك المالي — لعبة القرارات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#160E2A; --lapis-deep:#0E081C; --lapis-panel:#241641;
+    --gold:#D9B44A; --gold-bright:#F0CE72; --sand:#EFE7F5; --sand-dim:#B0A2C2;
+    --ember:#D2674E; --reed:#6FB58E; --amethyst:#9B6FE0; --amethyst-deep:#7C4FD0; --amethyst-bright:#B68BF0;
+    --shadow:0 12px 32px rgba(8,4,20,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:'Tajawal',sans-serif;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #2E1C52 0%, transparent 60%),
+      linear-gradient(180deg, var(--lapis-night) 0%, #0A0518 100%);
+    color:var(--sand); min-height:100vh; line-height:1.7;
+  }
+  body::after{
+    content:""; position:fixed; inset:auto 0 0 0; height:3px; z-index:5;
+    background:linear-gradient(90deg, transparent 0, var(--amethyst) 30%, var(--gold-bright) 50%, var(--amethyst) 70%, transparent 100%);
+    box-shadow:0 -4px 16px rgba(155,111,224,.35); opacity:.9;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+
+  .ledger{
+    position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:14px 18px 12px;
+    background:linear-gradient(180deg, rgba(22,14,42,.97) 70%, rgba(22,14,42,.85));
+    border-bottom:1px solid rgba(155,111,224,.45);backdrop-filter:blur(6px);
+  }
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .ledger-label{font-size:.78rem;color:var(--sand-dim);font-weight:500}
+  .ledger-amount{font-family:'Cairo',sans-serif;font-weight:800;font-size:1.4rem;color:var(--gold-bright);letter-spacing:.3px;white-space:nowrap}
+  .ledger-amount small{font-size:.82rem;color:var(--sand-dim);font-family:'Tajawal',sans-serif;font-weight:500;margin-right:4px}
+  .ledger-amount.neg{color:var(--ember)}
+  .dots{display:flex;gap:6px;margin-top:8px;justify-content:center}
+  .dot{width:26px;height:4px;border-radius:99px;background:rgba(239,231,245,.16);transition:background .4s}
+  .dot.on{background:var(--amethyst)}
+  .dot.now{background:var(--amethyst-bright);box-shadow:0 0 8px rgba(182,139,240,.8)}
+
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  .eyebrow{
+    display:inline-block;font-size:.78rem;font-weight:700;color:var(--amethyst);
+    border:1px solid rgba(155,111,224,.55);border-radius:99px;padding:4px 14px;
+    margin-bottom:14px;letter-spacing:.3px;background:rgba(155,111,224,.1);
+  }
+  h1{font-family:'Cairo',sans-serif;font-size:2.2rem;font-weight:900;line-height:1.3;color:var(--gold-bright);margin-bottom:6px}
+  h2.situation{font-family:'Tajawal',sans-serif;font-size:1.4rem;line-height:1.75;color:var(--sand);font-weight:700;margin-bottom:22px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+
+  .card{
+    background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));
+    border:1px solid rgba(155,111,224,.32);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow);
+  }
+
+  .choice{
+    display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;
+    background:rgba(14,8,28,.6);border:1px solid rgba(239,231,245,.16);
+    border-radius:14px;padding:15px 16px;margin-bottom:12px;color:var(--sand);
+    font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.65;cursor:pointer;
+    transition:border-color .2s, background .2s, transform .15s;
+  }
+  .choice:hover,.choice:focus-visible{border-color:var(--amethyst);background:rgba(155,111,224,.12);transform:translateY(-1px)}
+  .choice:focus-visible{outline:2px solid var(--amethyst-bright);outline-offset:2px}
+  .badge{
+    flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:rgba(155,111,224,.18);border:1px solid rgba(155,111,224,.55);color:var(--amethyst-bright);font-weight:800;font-size:.95rem;margin-top:2px;
+  }
+
+  .verdict{border-radius:14px;padding:18px;margin-bottom:16px;border:1px solid}
+  .verdict.best{background:rgba(111,181,142,.14);border-color:rgba(111,181,142,.6)}
+  .verdict.ok{background:rgba(217,180,74,.12);border-color:rgba(217,180,74,.55)}
+  .verdict.bad{background:rgba(210,103,78,.14);border-color:rgba(210,103,78,.6)}
+  .verdict-title{font-family:'Cairo',sans-serif;font-size:1.22rem;font-weight:800;margin-bottom:8px}
+  .verdict.best .verdict-title{color:#8FE0B6}
+  .verdict.ok .verdict-title{color:var(--gold-bright)}
+  .verdict.bad .verdict-title{color:#F0987C}
+  .verdict p{font-size:.98rem}
+
+  .timeline{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+  .t-row{display:flex;gap:12px;align-items:flex-start;background:rgba(14,8,28,.55);border-radius:12px;padding:12px 14px;border:1px solid rgba(239,231,245,.12)}
+  .t-when{flex:0 0 auto;font-weight:800;color:var(--amethyst-bright);font-size:.85rem;border-left:1px solid rgba(155,111,224,.4);padding-left:12px;min-width:74px}
+  .t-what{font-size:.95rem;color:var(--sand)}
+
+  .delta{display:inline-flex;align-items:center;gap:8px;font-family:'Cairo',sans-serif;font-weight:800;font-size:1.3rem;border-radius:12px;padding:8px 16px;margin-bottom:18px}
+  .delta.up{background:rgba(111,181,142,.16);color:#8FE0B6;border:1px solid rgba(111,181,142,.5)}
+  .delta.down{background:rgba(210,103,78,.16);color:#F0987C;border:1px solid rgba(210,103,78,.5)}
+  .delta.flat{background:rgba(239,231,245,.08);color:var(--sand-dim);border:1px solid rgba(239,231,245,.22)}
+
+  .btn{
+    display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;
+    color:#160E2A;background:linear-gradient(180deg,var(--amethyst-bright),var(--amethyst-deep));border-radius:14px;padding:15px;
+    transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(124,79,208,.4);
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(124,79,208,.5)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(217,180,74,.55);box-shadow:none;margin-top:10px}
+
+  .final-amount{font-family:'Cairo',sans-serif;font-size:3rem;font-weight:900;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
+  .final-amount.neg{color:var(--ember)}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{text-align:center;font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800;color:var(--sand);margin-bottom:6px}
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:22px}
+  .principles{list-style:none;margin-bottom:22px}
+  .principles li{display:flex;gap:10px;align-items:center;padding:10px 14px;margin-bottom:8px;background:rgba(14,8,28,.55);border-radius:12px;border:1px solid rgba(239,231,245,.12);font-size:.95rem}
+  .p-mark{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+  .p-mark.yes{background:rgba(111,181,142,.2);color:#8FE0B6;border:1px solid rgba(111,181,142,.6)}
+  .p-mark.no{background:rgba(210,103,78,.2);color:#F0987C;border:1px solid rgba(210,103,78,.6)}
+  .quote{font-family:'Cairo',sans-serif;font-size:1.16rem;font-weight:700;line-height:1.85;text-align:center;color:var(--gold-bright);border-top:1px solid rgba(217,180,74,.35);border-bottom:1px solid rgba(217,180,74,.35);padding:18px 6px;margin-bottom:22px}
+  .quote span{display:block;font-family:'Tajawal',sans-serif;font-size:.85rem;font-weight:500;color:var(--sand-dim);margin-top:8px}
+
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--amethyst);display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:radial-gradient(circle at 35% 30%, rgba(155,111,224,.3), rgba(217,180,74,.05));box-shadow:0 0 30px rgba(155,111,224,.3)}
+  .intro-list{margin:0 0 26px;padding:0;list-style:none}
+  .intro-list li{display:flex;gap:10px;margin-bottom:10px;color:var(--sand);font-size:.98rem}
+  .intro-list li::before{content:"◆";color:var(--amethyst);font-size:.7rem;margin-top:7px}
+
+  @media (max-width:420px){h1{font-size:1.85rem}h2.situation{font-size:1.25rem}.final-amount{font-size:2.4rem}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+  /* إصلاح: نص قائمة المقدّمة يتدفّق ككتلةٍ طبيعية مع إبقاء الكلمات الغليظة في مواضعها بدل تقطيع السطر */
+  .intro-list li{display:block;position:relative;padding-right:22px;gap:0}
+  .intro-list li::before{position:absolute;right:0;top:.5em;margin-top:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div>
+        <div class="ledger-label">مخطّط الثروة الداخلي</div>
+        <div class="ledger-amount" id="wealth">0 <small>نقطة</small></div>
+      </div>
+      <div style="font-size:1.6rem">🗝️</div>
+    </div>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <section class="screen active" id="intro">
+    <div class="intro-seal">🗝️</div>
+    <div style="text-align:center">
+      <div class="eyebrow">لعبة قرارات · كتاب «أسرار عقل المليونير»</div>
+      <h1>أعد برمجة عقلك المالي</h1>
+      <p class="sub">هل يقودك مخطّط الثروة… أم مخطّط الفقر؟</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>ستواجه <b>6 مواقف</b>، كلٌّ منها يختبر «ملف ثروة» في أرض الواقع.</li>
+        <li>كل قرارٍ يرفع أو يخفض <b>مخطّط الثروة الداخلي</b> لديك.</li>
+        <li>المبدأ: <b>فكرة ← شعور ← فعل ← نتيجة</b> — أفكارك تصنع نتائجك المالية.</li>
+        <li>اجمع أعلى مخطّطٍ ممكن… حتى <b>يُضبط عقلك على الثراء</b>.</li>
+      </ul>
+      <button class="btn" onclick="startGame()">ابدأ إعادة البرمجة ▸</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="eyebrow" id="g-eyebrow"></div>
+    <h2 class="situation" id="g-situation"></h2>
+    <div id="g-choices"></div>
+  </section>
+
+  <section class="screen" id="feedback">
+    <div class="card">
+      <div class="verdict" id="f-verdict">
+        <div class="verdict-title" id="f-title"></div>
+        <p id="f-text"></p>
+      </div>
+      <div class="timeline">
+        <div class="t-row"><div class="t-when">بعد سنة</div><div class="t-what" id="f-y1"></div></div>
+        <div class="t-row"><div class="t-when">بعد 5 سنوات</div><div class="t-what" id="f-y5"></div></div>
+      </div>
+      <div style="text-align:center"><span class="delta" id="f-delta"></span></div>
+      <button class="btn" id="f-next" onclick="nextScenario()">متابعة ←</button>
+    </div>
+  </section>
+
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow">اكتملت الجلسة</div></div>
+    <div class="card">
+      <div class="final-label">مخطّط الثروة الداخلي</div>
+      <div class="final-amount" id="r-amount">0</div>
+      <div class="final-label">نقطة &nbsp;·&nbsp; من أصل 116</div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <ul class="principles" id="r-principles"></ul>
+      <div class="quote">«إن أردتَ أن تغيّر ثمار حياتك… فعليك أولاً أن تغيّر جذورها»<span>— ت. هارف إيكر</span></div>
+      <button class="btn" onclick="restart()">أعد المحاولة 🔄</button>
+      <button class="btn ghost" onclick="restart()">اقرأ الملخص مرة أخرى 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const SCENARIOS = [
+  {
+    cure:"ملف الثروة · الفرص لا العقبات",
+    short:"رؤية الفرصة قبل العقبة",
+    situation:"تصلك فرصةُ عملٍ واعدة لكنها غير مضمونةٍ تماماً. ما أول ما يدور في ذهنك؟",
+    choices:[
+      {t:"أبدأ بسؤال «كيف يمكن أن تنجح؟» وأبحث عن الفرصة الكامنة قبل المخاطر", q:"best", d:20,
+       fb:"الأثرياء يركّزون على الفرص، والفقراء على العقبات. سؤال «كيف تنجح؟» يفتح أبواباً يغلقها سؤال «وماذا لو فشلت؟».",
+       y1:"اقتنصتَ فرصةً تردّد فيها غيرك", y5:"بابٌ فتحه تركيزك على الإمكانات"},
+      {t:"أوازن بين الفرصة والمخاطر بحذرٍ شديدٍ قبل أي خطوة", q:"ok", d:6,
+       fb:"الحذر معقول، لكن الإفراط فيه يجعلك تطيل النظر في المخاطر حتى تهرب الفرصة.",
+       y1:"ترددٌ أضاع بعض الوقت", y5:"تقدّمٌ بطيء ومتحفّظ"},
+      {t:"أرفضها فوراً — أرى كل ما قد يسوء فيها", q:"bad", d:-8,
+       fb:"التركيز على العقبات يشلّ القرار. من يرى الفشل في كل فرصةٍ يبقى حيث هو.",
+       y1:"فرصةٌ أخذها غيرك", y5:"«لو أنني جرّبت…»"}
+    ]
+  },
+  {
+    cure:"ملف الثروة · التصرّف رغم الخوف",
+    short:"الفعل رغم الخوف لا انتظار زواله",
+    situation:"قرّرتَ أن تبدأ مشروعاً جانبياً، لكن الخوف من الفشل يشلّك. ماذا تفعل؟",
+    choices:[
+      {t:"أبدأ بخطوةٍ صغيرة الآن، وأحمل الخوف معي بدل انتظار زواله", q:"best", d:19,
+       fb:"«التصرّف رغم الخوف» قاعدةٌ محورية عند إيكر. الخوف لا يختفي؛ الأثرياء يتحرّكون وهو موجود.",
+       y1:"بدأتَ فعلاً بينما انتظر غيرك", y5:"مشروعٌ نما لأنك تحرّكت"},
+      {t:"أنتظر حتى أشعر بثقةٍ أكبر قليلاً ثم أبدأ", q:"ok", d:6,
+       fb:"الثقة تأتي بعد الفعل لا قبله. الانتظار حتى «تجهز» تأجيلٌ لا اطمئنان.",
+       y1:"بدايةٌ متأخّرة", y5:"وقتٌ ضاع في الانتظار"},
+      {t:"أؤجّل حتى يزول خوفي تماماً", q:"bad", d:-9,
+       fb:"انتظار غياب الخوف انتظارٌ بلا نهاية. أكبر مشاريعك ستبقى حبيسةَ رأسك.",
+       y1:"لم تبدأ", y5:"حلمٌ بقي حلماً"}
+    ]
+  },
+  {
+    cure:"ملف الثروة · الترويج لقيمتك",
+    short:"عرض قيمتك بثقةٍ لا خجل",
+    situation:"تتقن خدمةً تنفع الناس، لكن «التسويق لنفسك» يبدو لك مُحرجاً. كيف تتصرّف؟",
+    choices:[
+      {t:"أعرض قيمتي بثقة وأروّج لما أقدّمه — فمن يؤمن بمنتجه يبشّر به", q:"best", d:19,
+       fb:"الفقراء ينظرون للبيع نظرةً سلبية، والأثرياء يروّجون لأنفسهم بفخر. إن لم تعرض قيمتك حرمتَ الناس منها.",
+       y1:"وصلتَ إلى زبائن جدد", y5:"اسمٌ صار معروفاً بقيمته"},
+      {t:"أنتظر أن يكتشف الناس قيمتي وحدهم", q:"ok", d:5,
+       fb:"الجودة وحدها لا تكفي إن لم يعرف بها أحد. الانتظار السلبي فرصٌ ضائعة.",
+       y1:"نموٌّ بطيءٌ بالكلمة المنقولة", y5:"قيمةٌ بقيت مخفية"},
+      {t:"أتجنّب الترويج تماماً — البيع شيءٌ وضيع", q:"bad", d:-8,
+       fb:"احتقار الترويج يحبس قيمتك. كثيرٌ من الموهوبين فقراء لأنهم خجلوا أن يُسمعوا صوتهم.",
+       y1:"بقيتَ مجهولاً", y5:"موهبةٌ لم تُثمر"}
+    ]
+  },
+  {
+    cure:"ملف الثروة · إدارة المال",
+    short:"إدارة المال مهما قلّ، والآن لا لاحقاً",
+    situation:"يصلك مبلغٌ غير متوقّع. ما تصرّفك معه؟",
+    choices:[
+      {t:"أوزّعه فوراً على حساباتٍ مُخصّصة (استثمار، ادخار، ضروريات) وفق نظامٍ واضح", q:"best", d:20,
+       fb:"يوصي إيكر بنظام «جِرار المال»: من يدير القليل بإتقانٍ يستحقّ الكثير. الإدارة عادةٌ لا تنتظر الثراء.",
+       y1:"كل درهمٍ وُجّه لهدفه", y5:"نظامٌ ماليٌّ صار جزءاً من حياتك"},
+      {t:"أدّخر جزءاً وأصرف الباقي بلا خطّةٍ محدّدة", q:"ok", d:6,
+       fb:"الادخار خطوة، لكن غياب النظام يجعل المال يتسرّب من بين الجِرار.",
+       y1:"ادّخارٌ متواضع", y5:"تقدّمٌ بلا منهج"},
+      {t:"أصرفه على ما أشتهي — سأدير مالي حين أصبح غنياً", q:"bad", d:-8,
+       fb:"من لا يدير القليل لن يدير الكثير. تأجيل الإدارة إلى «يوم الغنى» يؤجّل الغنى نفسه.",
+       y1:"اختفى المبلغ بلا أثر", y5:"عادةٌ تُبقيك بلا ثروة"}
+    ]
+  },
+  {
+    cure:"ملف الثروة · دائرتك المحيطة",
+    short:"مصاحبة الناجحين الإيجابيين",
+    situation:"معظم من حولك يشكون من المال ويسخرون من الطموح. كيف تتعامل مع دائرتك؟",
+    choices:[
+      {t:"أبحث عن دائرةٍ من الناجحين الإيجابيين وأتعلّم منهم، مع حفظ علاقاتي بأدب", q:"best", d:18,
+       fb:"«أنت معدّل الخمسة الذين تقضي معهم وقتك». الأثرياء يصاحبون الإيجابيين؛ المحيط يصنع المخطّط.",
+       y1:"أفكارٌ وفرصٌ من دائرةٍ أرقى", y5:"سقفٌ ارتفع بارتفاع من حولك"},
+      {t:"أبقى مع دائرتي الحالية وأحاول تجاهل السلبية", q:"ok", d:5,
+       fb:"التجاهل صعبٌ حين تحيط بك السلبية يومياً؛ المحيط يتسرّب إليك شئتَ أم أبيت.",
+       y1:"شدٌّ وجذبٌ مستمر", y5:"طموحٌ يكافح ضدّ التيار"},
+      {t:"أجاري المحيطين وأتبنّى شكواهم من «صعوبة المال»", q:"bad", d:-9,
+       fb:"تبنّي عقلية الشكوى يثبّت مخطّط الفقر. ما يردّده محيطك يصير صوتك الداخلي.",
+       y1:"غرقتَ في عقلية الندب", y5:"مخطّطٌ شُحن بالسلبية"}
+    ]
+  },
+  {
+    cure:"ملف الثروة · الالتزام واللعب للربح",
+    short:"الالتزام الكامل واللعب كي تربح",
+    situation:"أمامك هدفٌ ماليٌّ كبير. ما مستوى التزامك به؟",
+    choices:[
+      {t:"ألتزم به التزاماً تامّاً وألعب «كي أربح»: أهدافٌ كبيرة وخطواتٌ جريئة", q:"best", d:20,
+       fb:"الفقراء «يريدون» الغنى، والأثرياء «ملتزمون» به. ومن يلعب كي لا يخسر يبقى متعادلاً؛ من يلعب كي يربح يكبر.",
+       y1:"التزامٌ حرّك كل قراراتك", y5:"هدفٌ كبير تحقّق لأنك لعبتَ لتربح"},
+      {t:"أرغب فيه بشدّة وأبذل جهداً معقولاً دون مخاطرة", q:"ok", d:6,
+       fb:"الرغبة القوية ليست التزاماً. اللعب الآمن «كي لا تخسر» سقفُه التعادل لا الثراء.",
+       y1:"تقدّمٌ محدود", y5:"بقيتَ قرب نقطة البداية"},
+      {t:"أتمنّاه لكنني لا أريد التضحية أو المخاطرة من أجله", q:"bad", d:-8,
+       fb:"الأمنية بلا التزامٍ ولا استعدادٍ للثمن لا تصنع ثروة. نصف الالتزام نصف نتيجةٍ أو أقل.",
+       y1:"لا تغيير يُذكر", y5:"حلمٌ بلا أثر"}
+    ]
+  }
+];
+
+const VERDICTS = {
+  best:{title:"💜 عقلية ثروة — هكذا يعيد إيكر برمجتك", cls:"best"},
+  ok:{title:"⚖️ مقبول… لكن البرمجة القديمة تتسلّل", cls:"ok"},
+  bad:{title:"🌀 برمجة الفقر تتحكّم", cls:"bad"}
+};
+
+let idx = 0, wealth = 0, mastered = [];
+const $ = id => document.getElementById(id);
+
+function fmt(n){
+  const s = Math.abs(n).toLocaleString('en-US').replace(/,/g,'٬');
+  return (n<0?'−':'')+s;
+}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function renderDots(){
+  $('dots').innerHTML = SCENARIOS.map((_,i)=>`<div class="dot ${i<idx?'on':''} ${i===idx?'now':''}"></div>`).join('');
+}
+function renderWealth(animateFrom){
+  const el = $('wealth');
+  el.classList.toggle('neg', wealth<0);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(animateFrom===undefined || reduce){ el.innerHTML = fmt(wealth)+' <small>نقطة</small>'; return; }
+  const start = animateFrom, diff = wealth-start, dur = 900, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    el.innerHTML = fmt(Math.round(start+diff*e))+' <small>نقطة</small>';
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function startGame(){
+  idx = 0; wealth = 0; mastered = [];
+  $('ledger').style.display = 'block';
+  renderWealth(); renderDots(); renderScenario(); show('game');
+}
+function renderScenario(){
+  const s = SCENARIOS[idx];
+  $('g-eyebrow').textContent = `الموقف ${idx+1} من ${SCENARIOS.length} · ${s.cure}`;
+  $('g-situation').textContent = s.situation;
+  const letters = ['أ','ب','ج'];
+  $('g-choices').innerHTML = s.choices.map((c,i)=>
+    `<button class="choice" onclick="choose(${i})"><span class="badge">${letters[i]}</span><span>${c.t}</span></button>`).join('');
+  renderDots();
+}
+function choose(ci){
+  const s = SCENARIOS[idx], c = s.choices[ci];
+  const before = wealth;
+  wealth += c.d;
+  mastered.push(c.q === 'best');
+  const v = VERDICTS[c.q];
+  $('f-verdict').className = 'verdict '+v.cls;
+  $('f-title').textContent = v.title;
+  $('f-text').textContent = c.fb;
+  $('f-y1').textContent = c.y1;
+  $('f-y5').textContent = c.y5;
+  const dEl = $('f-delta');
+  dEl.className = 'delta '+(c.d>0?'up':c.d<0?'down':'flat');
+  dEl.textContent = (c.d>0?'📈 +':c.d<0?'📉 −':'⏳ ')+(c.d===0?'لا تغيير':Math.abs(c.d)+' نقطة');
+  $('f-next').textContent = (idx === SCENARIOS.length-1) ? 'اكشف نتيجتك النهائية 👑' : 'الموقف التالي ←';
+  show('feedback');
+  renderWealth(before);
+}
+function nextScenario(){
+  idx++;
+  if(idx < SCENARIOS.length){ renderScenario(); show('game'); }
+  else showResults();
+}
+function rankOf(w){
+  if(w>=95) return {r:"👑 مخطّطك مضبوطٌ على الثراء!", n:"عقلك يعمل بكل ملفات الثروة. حان وقت العيش بها لا مجرّد معرفتها — طبّقها على مالك الحقيقي."};
+  if(w>=60) return {r:"💜 مخطّطٌ ماليٌّ في طور الترقية", n:"تمتلك معظم ملفات الثروة. راجع ما أخطأت فيه أدناه وأعد البرمجة لتُحكمها."};
+  if(w>=25) return {r:"🌱 بدأتَ تستبدل البرمجة القديمة", n:"وضعتَ أولى لبنات عقلية المليونير. أعد قراءة الفصول ثم عُد."};
+  return {r:"🌀 مخطّطك يحتاج إعادة برمجة", n:"لا بأس — الوعي أول خطوة. ابدأ بأول ملف: «أنا أصنع حياتي»، وغيّر الجذور."};
+}
+function showResults(){
+  $('ledger').style.display = 'none';
+  const rk = rankOf(wealth);
+  const amountEl = $('r-amount');
+  amountEl.classList.toggle('neg', wealth<0);
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n;
+  $('r-principles').innerHTML = SCENARIOS.map((s,i)=>
+    `<li><span class="p-mark ${mastered[i]?'yes':'no'}">${mastered[i]?'✓':'✗'}</span><span>${s.short}</span></li>`).join('');
+  show('results');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ amountEl.textContent = fmt(wealth); return; }
+  const dur = 1400, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    amountEl.textContent = fmt(Math.round(wealth*e));
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function restart(){ $('ledger').style.display = 'none'; show('intro'); }
+</script>
+</body>
+</html>

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اختر مسارك المالي — لعبة القرارات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#1F1408; --lapis-deep:#140B04; --lapis-panel:#332108;
+    --gold:#E0A23B; --gold-bright:#F3C76A; --sand:#F2EBDD; --sand-dim:#C6B89C;
+    --ember:#D2674E; --reed:#5FB389; --asphalt:#E8772C; --asphalt-deep:#B5551A; --asphalt-bright:#F5A663;
+    --shadow:0 12px 32px rgba(10,5,1,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:'Tajawal',sans-serif;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #4D2A0A 0%, transparent 60%),
+      linear-gradient(180deg, var(--lapis-night) 0%, #0C0701 100%);
+    color:var(--sand); min-height:100vh; line-height:1.7;
+  }
+  body::after{
+    content:""; position:fixed; inset:auto 0 0 0; height:3px; z-index:5;
+    background:linear-gradient(90deg, transparent 0, var(--asphalt) 30%, var(--gold-bright) 50%, var(--asphalt) 70%, transparent 100%);
+    box-shadow:0 -4px 16px rgba(232,119,44,.35); opacity:.9;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+
+  .ledger{
+    position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:14px 18px 12px;
+    background:linear-gradient(180deg, rgba(31,20,8,.97) 70%, rgba(31,20,8,.85));
+    border-bottom:1px solid rgba(232,119,44,.45);backdrop-filter:blur(6px);
+  }
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .ledger-label{font-size:.78rem;color:var(--sand-dim);font-weight:500}
+  .ledger-amount{font-family:'Cairo',sans-serif;font-weight:800;font-size:1.4rem;color:var(--gold-bright);letter-spacing:.3px;white-space:nowrap}
+  .ledger-amount small{font-size:.82rem;color:var(--sand-dim);font-family:'Tajawal',sans-serif;font-weight:500;margin-right:4px}
+  .ledger-amount.neg{color:var(--ember)}
+  .dots{display:flex;gap:6px;margin-top:8px;justify-content:center}
+  .dot{width:26px;height:4px;border-radius:99px;background:rgba(242,235,221,.16);transition:background .4s}
+  .dot.on{background:var(--asphalt)}
+  .dot.now{background:var(--asphalt-bright);box-shadow:0 0 8px rgba(245,166,99,.8)}
+
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  .eyebrow{
+    display:inline-block;font-size:.78rem;font-weight:700;color:var(--asphalt-bright);
+    border:1px solid rgba(232,119,44,.55);border-radius:99px;padding:4px 14px;
+    margin-bottom:14px;letter-spacing:.3px;background:rgba(232,119,44,.1);
+  }
+  h1{font-family:'Cairo',sans-serif;font-size:2.2rem;font-weight:900;line-height:1.3;color:var(--gold-bright);margin-bottom:6px}
+  h2.situation{font-family:'Tajawal',sans-serif;font-size:1.4rem;line-height:1.75;color:var(--sand);font-weight:700;margin-bottom:22px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+
+  .card{
+    background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));
+    border:1px solid rgba(232,119,44,.32);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow);
+  }
+
+  .choice{
+    display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;
+    background:rgba(20,11,4,.6);border:1px solid rgba(242,235,221,.16);
+    border-radius:14px;padding:15px 16px;margin-bottom:12px;color:var(--sand);
+    font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.65;cursor:pointer;
+    transition:border-color .2s, background .2s, transform .15s;
+  }
+  .choice:hover,.choice:focus-visible{border-color:var(--asphalt);background:rgba(232,119,44,.12);transform:translateY(-1px)}
+  .choice:focus-visible{outline:2px solid var(--asphalt-bright);outline-offset:2px}
+  .badge{
+    flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:rgba(232,119,44,.18);border:1px solid rgba(232,119,44,.55);color:var(--asphalt-bright);font-weight:800;font-size:.95rem;margin-top:2px;
+  }
+
+  .verdict{border-radius:14px;padding:18px;margin-bottom:16px;border:1px solid}
+  .verdict.best{background:rgba(95,179,137,.14);border-color:rgba(95,179,137,.6)}
+  .verdict.ok{background:rgba(224,162,59,.12);border-color:rgba(224,162,59,.55)}
+  .verdict.bad{background:rgba(210,103,78,.14);border-color:rgba(210,103,78,.6)}
+  .verdict-title{font-family:'Cairo',sans-serif;font-size:1.22rem;font-weight:800;margin-bottom:8px}
+  .verdict.best .verdict-title{color:#8FE0B6}
+  .verdict.ok .verdict-title{color:var(--gold-bright)}
+  .verdict.bad .verdict-title{color:#F0987C}
+  .verdict p{font-size:.98rem}
+
+  .timeline{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+  .t-row{display:flex;gap:12px;align-items:flex-start;background:rgba(20,11,4,.55);border-radius:12px;padding:12px 14px;border:1px solid rgba(242,235,221,.12)}
+  .t-when{flex:0 0 auto;font-weight:800;color:var(--asphalt-bright);font-size:.85rem;border-left:1px solid rgba(232,119,44,.4);padding-left:12px;min-width:74px}
+  .t-what{font-size:.95rem;color:var(--sand)}
+
+  .delta{display:inline-flex;align-items:center;gap:8px;font-family:'Cairo',sans-serif;font-weight:800;font-size:1.3rem;border-radius:12px;padding:8px 16px;margin-bottom:18px}
+  .delta.up{background:rgba(95,179,137,.16);color:#8FE0B6;border:1px solid rgba(95,179,137,.5)}
+  .delta.down{background:rgba(210,103,78,.16);color:#F0987C;border:1px solid rgba(210,103,78,.5)}
+  .delta.flat{background:rgba(242,235,221,.08);color:var(--sand-dim);border:1px solid rgba(242,235,221,.22)}
+
+  .btn{
+    display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;
+    color:#1F1408;background:linear-gradient(180deg,var(--asphalt-bright),var(--asphalt-deep));border-radius:14px;padding:15px;
+    transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(181,85,26,.4);
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(181,85,26,.5)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(224,162,59,.55);box-shadow:none;margin-top:10px}
+
+  .final-amount{font-family:'Cairo',sans-serif;font-size:3rem;font-weight:900;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
+  .final-amount.neg{color:var(--ember)}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{text-align:center;font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800;color:var(--sand);margin-bottom:6px}
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:22px}
+  .principles{list-style:none;margin-bottom:22px}
+  .principles li{display:flex;gap:10px;align-items:center;padding:10px 14px;margin-bottom:8px;background:rgba(20,11,4,.55);border-radius:12px;border:1px solid rgba(242,235,221,.12);font-size:.95rem}
+  .p-mark{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+  .p-mark.yes{background:rgba(95,179,137,.2);color:#8FE0B6;border:1px solid rgba(95,179,137,.6)}
+  .p-mark.no{background:rgba(210,103,78,.2);color:#F0987C;border:1px solid rgba(210,103,78,.6)}
+  .quote{font-family:'Cairo',sans-serif;font-size:1.16rem;font-weight:700;line-height:1.85;text-align:center;color:var(--gold-bright);border-top:1px solid rgba(224,162,59,.35);border-bottom:1px solid rgba(224,162,59,.35);padding:18px 6px;margin-bottom:22px}
+  .quote span{display:block;font-family:'Tajawal',sans-serif;font-size:.85rem;font-weight:500;color:var(--sand-dim);margin-top:8px}
+
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--asphalt);display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:radial-gradient(circle at 35% 30%, rgba(232,119,44,.3), rgba(224,162,59,.05));box-shadow:0 0 30px rgba(232,119,44,.3)}
+  .intro-list{margin:0 0 26px;padding:0;list-style:none}
+  .intro-list li{display:block;position:relative;padding-right:22px;color:var(--sand);font-size:.98rem;margin-bottom:10px}
+  .intro-list li::before{content:"◆";color:var(--asphalt);font-size:.7rem;position:absolute;right:0;top:.5em}
+
+  @media (max-width:420px){h1{font-size:1.85rem}h2.situation{font-size:1.25rem}.final-amount{font-size:2.4rem}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div>
+        <div class="ledger-label">رصيد الطريق السريع</div>
+        <div class="ledger-amount" id="wealth">0 <small>نقطة</small></div>
+      </div>
+      <div style="font-size:1.6rem">🏎️</div>
+    </div>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <section class="screen active" id="intro">
+    <div class="intro-seal">🏎️</div>
+    <div style="text-align:center">
+      <div class="eyebrow">لعبة قرارات · كتاب «الطريق السريع للمليونير»</div>
+      <h1>اختر مسارك المالي</h1>
+      <p class="sub">رصيف، طريقٌ بطيء، أو طريقٌ سريع — أيّها يقود نحو الحرّية الحقيقية؟</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>ستواجه <b>6 مواقف</b> على مبادئ إم. جيه. ديماركو في «الطريق السريع».</li>
+        <li>كل قرارٍ يرفع أو يخفض <b>رصيد الطريق السريع</b> لديك.</li>
+        <li>المبدأ: <b>الدخل من النظام لا من الوقت</b> — الثروة الحقيقية تأتي من بناء أصولٍ تعمل دونك.</li>
+        <li>اجمع أعلى رصيدٍ ممكن… حتى تغادر «سباق الفئران» نحو الطريق السريع.</li>
+      </ul>
+      <button class="btn" onclick="startGame()">انطلق في الطريق ▸</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="eyebrow" id="g-eyebrow"></div>
+    <h2 class="situation" id="g-situation"></h2>
+    <div id="g-choices"></div>
+  </section>
+
+  <section class="screen" id="feedback">
+    <div class="card">
+      <div class="verdict" id="f-verdict">
+        <div class="verdict-title" id="f-title"></div>
+        <p id="f-text"></p>
+      </div>
+      <div class="timeline">
+        <div class="t-row"><div class="t-when">بعد سنة</div><div class="t-what" id="f-y1"></div></div>
+        <div class="t-row"><div class="t-when">بعد 5 سنوات</div><div class="t-what" id="f-y5"></div></div>
+      </div>
+      <div style="text-align:center"><span class="delta" id="f-delta"></span></div>
+      <button class="btn" id="f-next" onclick="nextScenario()">متابعة ←</button>
+    </div>
+  </section>
+
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow">اكتملت الجلسة</div></div>
+    <div class="card">
+      <div class="final-label">رصيد الطريق السريع</div>
+      <div class="final-amount" id="r-amount">0</div>
+      <div class="final-label">نقطة &nbsp;·&nbsp; من أصل 116</div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <ul class="principles" id="r-principles"></ul>
+      <div class="quote">«الثراء السريع ليس عن الحظّ، بل عن امتلاك نظامٍ ينتج للملايين»<span>— إم. جيه. ديماركو</span></div>
+      <button class="btn" onclick="restart()">أعد المحاولة 🔄</button>
+      <button class="btn ghost" onclick="restart()">اقرأ الملخص مرة أخرى 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const SCENARIOS = [
+  {
+    cure:"المبدأ · الدخل من النظام لا الوقت",
+    short:"بناء نظامٍ ينتج دخلاً دون مبادلته بالوقت",
+    situation:"تفكّر في زيادة دخلك. أمامك خياران: طلب ساعاتٍ إضافية في وظيفتك، أو بناء نظامٍ (منتج، تطبيق، عملٍ) ينتج دخلاً متكرّراً. ماذا تختار؟",
+    choices:[
+      {t:"أبدأ ببناء نظامٍ صغير ينتج دخلاً دون أن أبادله بساعاتٍ إضافية من وقتي", q:"best", d:20,
+       fb:"جوهر «الطريق السريع»: الدخل من النظام لا الوقت. ساعات العمل الإضافية محدودةٌ بطبيعتها؛ النظام يمكن أن ينمو دون حدٍّ زمني.",
+       y1:"نظامٌ صغيرٌ بدأ ينتج دخلاً", y5:"دخلٌ متكرّرٌ يتضخّم دون ساعاتٍ إضافية"},
+      {t:"أطلب ساعاتٍ إضافية في وظيفتي الحالية لزيادة الدخل", q:"ok", d:5,
+       fb:"الساعات الإضافية تزيد الدخل مؤقّتاً، لكنها تبقيك في «سباق الفئران»: دخلٌ مربوطٌ بوقتك المحدود دائماً.",
+       y1:"دخلٌ إضافيٌّ بوقتٍ إضافي", y5:"سقفٌ زمنيٌّ لم يتغيّر"},
+      {t:"لا أفعل شيئاً وأنتظر ترقيةً مستقبلية محتملة", q:"bad", d:-9,
+       fb:"الانتظار السلبي لا يبني نظاماً ولا يزيد دخلاً؛ يُبقيك معتمداً بالكامل على قرارات الآخرين.",
+       y1:"لا تغيير في الدخل", y5:"اعتمادٌ كاملٌ على وظيفةٍ واحدة"}
+    ]
+  },
+  {
+    cure:"المبدأ · الرصيف مقابل الطريق البطيء مقابل الطريق السريع",
+    short:"تمييز المسارات الثلاثة قبل أي قرارٍ مالي",
+    situation:"صديقٌ يقترح عليك شراء سيارةٍ فاخرة بالتقسيط لتبدو ناجحاً أمام العملاء المحتملين. كيف تردّ؟",
+    choices:[
+      {t:"أرفض — هذا سلوك «الرصيف»: استهلاكٌ يبدو فاخراً لكنه يستنزف موارد بناء نظامي المالي", q:"best", d:19,
+       fb:"ديماركو يصف «الرصيف» بأنه إنفاقٌ استعراضي يُبقيك فقيراً بمظهرٍ غنيّ. المال يجب أن يُوجَّه لبناء النظام لا لإظهاره.",
+       y1:"رأس مالٍ محفوظٌ لبناء النظام", y5:"نظامٌ نما بفضل توجيه الموارد بحكمة"},
+      {t:"أشتريها بالتقسيط لأن «المظهر مهمٌّ في عالم الأعمال»", q:"ok", d:5,
+       fb:"الديون الاستهلاكية لمظهرٍ مؤقّت تستنزف موارد كان يمكن توجيهها لبناء أصولٍ حقيقية.",
+       y1:"التزامٌ ماليٌّ شهريٌّ جديد", y5:"رأس مالٍ أقلّ لبناء النظام"},
+      {t:"أشتريها فوراً نقداً من مدّخراتي بالكامل تأثّراً بالعرض", q:"bad", d:-8,
+       fb:"إنفاق كل المدّخرات على أصلٍ استهلاكي يتناقص قيمةً يُبعدك خطواتٍ عن أي نظامٍ منتج.",
+       y1:"مدّخراتٌ استُهلكت بالكامل", y5:"لا تقدّم نحو الطريق السريع"}
+    ]
+  },
+  {
+    cure:"المبدأ · التحكّم والملكية",
+    short:"امتلاك النظام يمنحك تحكّماً لا يملكه الموظّف",
+    situation:"تختار بين فرصة عملٍ بأجرٍ مرتفع لكن بساعاتٍ ثابتةٍ تحت سيطرة آخرين، وفرصة بناء مشروعٍ صغيرٍ تملكه بالكامل بدخلٍ أقلّ في البداية.",
+    choices:[
+      {t:"أختار بناء المشروع الذي أملكه، فالتحكّم بالنظام أهمّ من الراتب المرتفع المؤقّت", q:"best", d:19,
+       fb:"عند ديماركو، الملكية والتحكّم بالنظام هما ما يسمح بالنموّ غير المحدود؛ الراتب يبقى محدوداً بسقفٍ يحدّده آخرون.",
+       y1:"نظامٌ مملوكٌ بالكامل ينمو", y5:"دخلٌ تجاوز الراتب الأصلي بفضل الملكية"},
+      {t:"أختار الراتب المرتفع لأنه «مضمونٌ أكثر حالياً»", q:"ok", d:6,
+       fb:"الراتب المرتفع مريحٌ مؤقّتاً، لكنه يبقيك معتمداً على قرارات صاحب العمل وسقفه الزمني.",
+       y1:"دخلٌ ثابتٌ ومرتفع نسبياً", y5:"سقفٌ لم يتغيّر رغم مرور السنوات"},
+      {t:"أرفض كلا الخيارين وأنتظر فرصةً «مثالية» أكثر", q:"bad", d:-8,
+       fb:"انتظار الفرصة المثالية يعني عدم البدء أبداً؛ كل نظامٍ كبير بدأ بفرصةٍ غير مثالية تماماً.",
+       y1:"لا فرصةٌ استُغلّت", y5:"موقعٌ لم يتغيّر منذ البداية"}
+    ]
+  },
+  {
+    cure:"المبدأ · سدّ الحاجة لا تتبّع الشغف وحده",
+    short:"الأنظمة الرابحة تحلّ مشكلةً حقيقية للناس",
+    situation:"لديك فكرة مشروعٍ تحبّها شخصياً لكنها لا تحلّ مشكلةً واضحة لأحد. كيف تتصرّف؟",
+    choices:[
+      {t:"أبحث عن مشكلةٍ حقيقية يواجهها الناس وأبني نظاماً يحلّها، حتى لو لم يكن شغفي الأول", q:"best", d:20,
+       fb:"ديماركو يؤكّد أن الأنظمة الرابحة تخدم حاجة السوق الحقيقية؛ الشغف المهنيّ يأتي غالباً بعد رؤية النظام ينجح ويخدم الناس.",
+       y1:"نظامٌ يحلّ مشكلةً حقيقية يبدأ بالنموّ", y5:"عملٌ مزدهرٌ خدم حاجةً واسعة"},
+      {t:"أبني المشروع المفضّل لديّ رغم غياب حاجةٍ واضحةٍ له في السوق", q:"ok", d:5,
+       fb:"الشغف بلا حاجةٍ سوقية واضحة قد ينتج منتجاً جيداً لكنه يفتقر لعملاءٍ كافين.",
+       y1:"منتجٌ جاهزٌ بلا طلبٍ كافٍ", y5:"نموٌّ بطيءٌ أو متوقّف"},
+      {t:"أتجاهل فكرة السوق كلياً وأمضي في شغفي الشخصي وحده دون تحليل", q:"bad", d:-9,
+       fb:"تجاهل حاجة السوق بالكامل يجعل النظام مبنياً على الأمل وحده لا على طلبٍ حقيقي.",
+       y1:"استثمارٌ في فكرةٍ غير مطلوبة", y5:"خسارةٌ في الوقت ورأس المال"}
+    ]
+  },
+  {
+    cure:"المبدأ · القفزات الكبرى لا الخطى البطيئة فقط",
+    short:"الادّخار البطيء وحده لن يصل لحرّيةٍ سريعة",
+    situation:"تدّخر بانضباطٍ شهرياً من راتبك، لكنك تدرك أن هذه الوتيرة قد تستغرق عقوداً لتحقّق الحرّية المالية. كيف تتصرّف؟",
+    choices:[
+      {t:"أحافظ على الادّخار المنضبط مع السعي الجادّ لبناء نظامٍ موازٍ يضخّم دخلي بشكلٍ غير خطّي", q:"best", d:18,
+       fb:"ديماركو لا يرفض الادّخار، لكنه يرى أن «الطريق البطيء» وحده محدود؛ إضافة نظامٍ منتجٍ يحدث القفزة الحقيقية.",
+       y1:"مساران متوازيان: ادّخارٌ ونظامٌ ينمو", y5:"تسارعٌ ملحوظٌ نحو الحرّية المالية"},
+      {t:"أكتفي بالادّخار المنضبط فقط وأقبل أن يستغرق الأمر عقوداً", q:"ok", d:5,
+       fb:"الادّخار وحده فعّالٌ لكنه بطيء؛ الوصول للحرّية المالية بهذه الوتيرة وحدها قد يستغرق حياةً كاملة.",
+       y1:"تقدّمٌ بطيءٌ لكنه ثابت", y5:"تقدّمٌ محدودٌ رغم الانضباط"},
+      {t:"أتخلّى عن الادّخار المنضبط بحثاً عن «طريقةٍ سريعة» محفوفةٍ بالمخاطر دون تحليل", q:"bad", d:-8,
+       fb:"التخلّي عن الأساس المنضبط بحثاً عن مخاطرةٍ غير محسوبة يهدّد ما بنيته أصلاً دون ضمان أي نتيجة.",
+       y1:"مخاطرةٌ غير محسوبة بدأت", y5:"نتيجةٌ غير مضمونة، وربما خسارة"}
+    ]
+  },
+  {
+    cure:"المبدأ · الحرّية الحقيقية هي الهدف النهائي",
+    short:"المال أداةٌ لشراء الوقت والاختيار، لا غاية بذاتها",
+    situation:"بعد سنواتٍ من بناء نظامك المالي، أصبح يولّد دخلاً جيداً. كيف تحدّد ما هو «كافٍ» الآن؟",
+    choices:[
+      {t:"أحدّد مستوى الدخل الذي يمنحني حرّية الوقت والاختيار، وأركّز عليه بدل السباق اللامتناهي خلف المزيد", q:"best", d:19,
+       fb:"الهدف النهائي عند ديماركو هو الحرّية لا تكديس الأرقام؛ المال أداةٌ لشراء وقتٍ واختياراتٍ، وليس غايةً بذاتها.",
+       y1:"وضوحٌ في الهدف الحقيقي للثروة", y5:"حرّيةٌ حقيقية في الوقت والاختيار"},
+      {t:"أستمر في السباق خلف أرقامٍ أكبر دون تحديد هدفٍ واضح لـ«الكافي»", q:"ok", d:5,
+       fb:"بلا تعريفٍ واضح لـ«الكافي»، يتحوّل السعي للثروة إلى سباقٍ لا ينتهي يستهلك كل وقتك.",
+       y1:"نموٌّ ماليٌّ مستمر بلا غاية واضحة", y5:"ثروةٌ متضخّمة لكن بلا حرّيةٍ فعلية"},
+      {t:"أتوقّف عن أي تطوّرٍ بحجة أنني «وصلت» دون مراجعةٍ حقيقية لوضعي", q:"bad", d:-7,
+       fb:"التوقّف غير المدروس قد يعني توقّفاً مبكّراً قبل تحقيق الاستقرار الكافي فعلاً لحياتك.",
+       y1:"توقّفٌ مبكّرٌ قد يهدّد الاستقرار", y5:"حاجةٌ للعودة لاحقاً بسبب نقصٍ غير محسوب"}
+    ]
+  }
+];
+
+const VERDICTS = {
+  best:{title:"🏎️ طريقٌ سريع — هكذا يفكّر ديماركو", cls:"best"},
+  ok:{title:"⚖️ طريقٌ بطيء… لكنه مستقر", cls:"ok"},
+  bad:{title:"🚧 سلوك «الرصيف» يؤخّر حرّيتك", cls:"bad"}
+};
+
+let idx = 0, wealth = 0, mastered = [];
+const $ = id => document.getElementById(id);
+
+function fmt(n){
+  const s = Math.abs(n).toLocaleString('en-US').replace(/,/g,'٬');
+  return (n<0?'−':'')+s;
+}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function renderDots(){
+  $('dots').innerHTML = SCENARIOS.map((_,i)=>`<div class="dot ${i<idx?'on':''} ${i===idx?'now':''}"></div>`).join('');
+}
+function renderWealth(animateFrom){
+  const el = $('wealth');
+  el.classList.toggle('neg', wealth<0);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(animateFrom===undefined || reduce){ el.innerHTML = fmt(wealth)+' <small>نقطة</small>'; return; }
+  const start = animateFrom, diff = wealth-start, dur = 900, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    el.innerHTML = fmt(Math.round(start+diff*e))+' <small>نقطة</small>';
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function startGame(){
+  idx = 0; wealth = 0; mastered = [];
+  $('ledger').style.display = 'block';
+  renderWealth(); renderDots(); renderScenario(); show('game');
+}
+function renderScenario(){
+  const s = SCENARIOS[idx];
+  $('g-eyebrow').textContent = `الموقف ${idx+1} من ${SCENARIOS.length} · ${s.cure}`;
+  $('g-situation').textContent = s.situation;
+  const letters = ['أ','ب','ج'];
+  $('g-choices').innerHTML = s.choices.map((c,i)=>
+    `<button class="choice" onclick="choose(${i})"><span class="badge">${letters[i]}</span><span>${c.t}</span></button>`).join('');
+  renderDots();
+}
+function choose(ci){
+  const s = SCENARIOS[idx], c = s.choices[ci];
+  const before = wealth;
+  wealth += c.d;
+  mastered.push(c.q === 'best');
+  const v = VERDICTS[c.q];
+  $('f-verdict').className = 'verdict '+v.cls;
+  $('f-title').textContent = v.title;
+  $('f-text').textContent = c.fb;
+  $('f-y1').textContent = c.y1;
+  $('f-y5').textContent = c.y5;
+  const dEl = $('f-delta');
+  dEl.className = 'delta '+(c.d>0?'up':c.d<0?'down':'flat');
+  dEl.textContent = (c.d>0?'📈 +':c.d<0?'📉 −':'⏳ ')+(c.d===0?'لا تغيير':Math.abs(c.d)+' نقطة');
+  $('f-next').textContent = (idx === SCENARIOS.length-1) ? 'اكشف نتيجتك النهائية 🏎️' : 'الموقف التالي ←';
+  show('feedback');
+  renderWealth(before);
+}
+function nextScenario(){
+  idx++;
+  if(idx < SCENARIOS.length){ renderScenario(); show('game'); }
+  else showResults();
+}
+function rankOf(w){
+  if(w>=95) return {r:"🏎️ أنت على الطريق السريع حقاً", n:"تفهم الفرق بين الرصيف والطريق البطيء والطريق السريع، وتبني نظاماً يعمل دونك. طبّقه على مالك الحقيقي الآن."};
+  if(w>=60) return {r:"🛣️ نظامك في طور البناء الجيد", n:"تمتلك معظم المبادئ. راجع ما أخطأت فيه أدناه ورسّخه."};
+  if(w>=25) return {r:"⏳ بدأتَ تغادر سباق الفئران", n:"وضعتَ أولى لبنات النظام. أعد قراءة الفصول ثم عُد."};
+  return {r:"🚧 لا تزال على الرصيف", n:"لا بأس — الوعي أول خطوة. ابدأ بسؤالٍ واحد: «هل دخلي من وقتي أم من نظامٍ يعمل دوني؟»"};
+}
+function showResults(){
+  $('ledger').style.display = 'none';
+  const rk = rankOf(wealth);
+  const amountEl = $('r-amount');
+  amountEl.classList.toggle('neg', wealth<0);
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n;
+  $('r-principles').innerHTML = SCENARIOS.map((s,i)=>
+    `<li><span class="p-mark ${mastered[i]?'yes':'no'}">${mastered[i]?'✓':'✗'}</span><span>${s.short}</span></li>`).join('');
+  show('results');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ amountEl.textContent = fmt(wealth); return; }
+  const dur = 1400, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    amountEl.textContent = fmt(Math.round(wealth*e));
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function restart(){ $('ledger').style.display = 'none'; show('intro'); }
+</script>
+</body>
+</html>

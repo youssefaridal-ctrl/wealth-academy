@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اختبار معماريّ القرار — من سيربح المليون</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#0E1A22; --lapis-deep:#081117; --lapis-panel:#16303D;
+    --gold:#D9A23B; --gold-bright:#F0C36B; --sand:#EAF1F2; --sand-dim:#A2B7BD;
+    --ember:#D2674E; --reed:#5FB389; --slate:#4C8CA8; --slate-deep:#346A82; --slate-bright:#7FB9D4;
+    --shadow:0 12px 32px rgba(2,8,11,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Tajawal',sans-serif;background:radial-gradient(1200px 600px at 50% -10%, #1E4656 0%, transparent 60%),linear-gradient(180deg, var(--lapis-night) 0%, #060D11 100%);color:var(--sand);min-height:100vh;line-height:1.7}
+  body::after{content:"";position:fixed;inset:auto 0 0 0;height:3px;z-index:5;background:linear-gradient(90deg, transparent 0, var(--slate) 30%, var(--gold-bright) 50%, var(--slate) 70%, transparent 100%);box-shadow:0 -4px 16px rgba(76,140,168,.35);opacity:.9}
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+  .ledger{position:sticky;top:0;z-index:10;margin:0 -18px 16px;padding:12px 18px;background:linear-gradient(180deg, rgba(14,26,34,.97) 70%, rgba(14,26,34,.85));border-bottom:1px solid rgba(76,140,168,.45);backdrop-filter:blur(6px)}
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .stat-label{font-size:.7rem;color:var(--sand-dim);font-weight:500}
+  .stat-val{font-family:'Cairo',sans-serif;font-weight:800;font-size:1.25rem;color:var(--gold-bright);white-space:nowrap}
+  .ladder-btn{border:1px solid rgba(76,140,168,.55);background:rgba(76,140,168,.12);color:var(--slate-bright);border-radius:99px;padding:7px 14px;font-family:'Tajawal',sans-serif;font-weight:800;font-size:.82rem;cursor:pointer}
+  .lifelines{display:flex;gap:8px;margin-top:10px;justify-content:center}
+  .life{flex:1;max-width:160px;border-radius:12px;padding:8px 6px;cursor:pointer;text-align:center;font-family:'Tajawal',sans-serif;font-weight:800;font-size:.8rem;color:var(--slate-bright);background:rgba(76,140,168,.12);border:1px solid rgba(76,140,168,.55);transition:opacity .2s, transform .15s}
+  .life:hover:not(:disabled){transform:translateY(-1px)}
+  .life:disabled{opacity:.32;cursor:default;text-decoration:line-through}
+  .life:focus-visible{outline:2px solid var(--slate-bright);outline-offset:2px}
+  .ladder-panel{position:fixed;inset:0;z-index:50;background:rgba(2,8,11,.85);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px}
+  .ladder-panel.open{display:flex}
+  .ladder-card{width:100%;max-width:360px;background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(76,140,168,.5);border-radius:18px;padding:20px;box-shadow:var(--shadow);max-height:86vh;overflow:auto}
+  .ladder-title{font-family:'Cairo',sans-serif;font-size:1.3rem;font-weight:800;color:var(--gold-bright);text-align:center;margin-bottom:12px}
+  .rung{display:flex;justify-content:space-between;align-items:center;padding:7px 12px;border-radius:10px;font-size:.92rem;margin-bottom:4px;border:1px solid transparent}
+  .rung .num{color:var(--sand-dim);font-size:.78rem;font-weight:700;min-width:34px}
+  .rung .amt{font-family:'Cairo',sans-serif;font-weight:700;color:var(--sand)}
+  .rung.safe .amt{color:var(--gold-bright)}
+  .rung.safe{border-color:rgba(217,162,59,.35);background:rgba(217,162,59,.06)}
+  .rung.current{background:rgba(76,140,168,.2);border-color:var(--slate);box-shadow:0 0 12px rgba(76,140,168,.3)}
+  .rung.won .amt,.rung.won .num{color:#8FE0B6}
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;color:var(--slate);border:1px solid rgba(76,140,168,.55);border-radius:99px;padding:4px 14px;margin-bottom:14px;background:rgba(76,140,168,.1)}
+  h1{font-family:'Cairo',sans-serif;font-size:2.2rem;font-weight:900;line-height:1.35;color:var(--gold-bright);margin-bottom:6px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+  .card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(76,140,168,.35);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow)}
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--slate);display:flex;align-items:center;justify-content:center;font-size:2.1rem;background:radial-gradient(circle at 35% 30%, rgba(76,140,168,.3), rgba(217,162,59,.05));box-shadow:0 0 30px rgba(76,140,168,.3)}
+  .intro-list{margin:0 0 26px;list-style:none}
+  .intro-list li{display:block;position:relative;padding-right:22px;color:var(--sand);font-size:.98rem;margin-bottom:10px}
+  .intro-list li::before{content:"◆";color:var(--slate);font-size:.7rem;position:absolute;right:0;top:.5em}
+  .q-card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(76,140,168,.4);border-radius:18px;padding:22px;box-shadow:var(--shadow);margin-bottom:16px;text-align:center}
+  .q-text{font-family:'Cairo',sans-serif;font-size:1.3rem;line-height:1.8;font-weight:700;color:var(--sand)}
+  .hintbox{display:none;background:rgba(76,140,168,.12);border:1px solid rgba(76,140,168,.5);border-radius:14px;padding:14px 16px;margin-bottom:14px;font-size:.95rem}
+  .hintbox.show{display:block;animation:fadeUp .3s ease both}
+  .hintbox .who{font-weight:800;color:var(--slate-bright);font-size:.82rem;margin-bottom:4px}
+  .hintbox .txt{font-family:'Cairo',sans-serif;font-size:1.02rem;line-height:1.8}
+  .poll{display:none;margin-bottom:14px}
+  .poll.show{display:block;animation:fadeUp .3s ease both}
+  .poll-row{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+  .poll-letter{flex:0 0 auto;width:24px;font-weight:800;color:var(--slate-bright);font-size:.9rem}
+  .poll-track{flex:1;height:16px;border-radius:99px;background:rgba(234,241,242,.12);overflow:hidden}
+  .poll-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--slate-bright),var(--slate-deep));width:0;transition:width .8s ease}
+  .poll-pct{flex:0 0 auto;min-width:42px;text-align:left;font-size:.82rem;font-weight:800;color:var(--sand-dim)}
+  .opt{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;background:rgba(8,17,23,.55);border:1px solid rgba(234,241,242,.22);border-radius:14px;padding:14px 16px;margin-bottom:11px;color:var(--sand);font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.6;cursor:pointer;transition:border-color .2s, background .2s, transform .15s, opacity .3s}
+  .opt:hover:not(:disabled),.opt:focus-visible{border-color:var(--slate);background:rgba(76,140,168,.12)}
+  .opt:focus-visible{outline:2px solid var(--slate-bright);outline-offset:2px}
+  .opt .badge{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(76,140,168,.18);border:1px solid rgba(76,140,168,.55);color:var(--slate-bright);font-weight:800;font-size:.95rem;margin-top:1px}
+  .opt.removed{opacity:.22;pointer-events:none;text-decoration:line-through}
+  .opt.selected{border-color:var(--slate-bright);background:rgba(76,140,168,.2);box-shadow:0 0 0 2px rgba(127,185,212,.35)}
+  .opt.suspense{animation:pulse 0.55s ease-in-out infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 2px rgba(127,185,212,.25)}50%{box-shadow:0 0 0 6px rgba(127,185,212,.5)}}
+  .opt.correct{border-color:var(--reed);background:rgba(95,179,137,.2);box-shadow:0 0 0 3px rgba(95,179,137,.4)}
+  .opt.correct .badge{background:rgba(95,179,137,.25);border-color:var(--reed);color:#8FE0B6}
+  .opt.wrong{border-color:var(--ember);background:rgba(210,103,78,.2);box-shadow:0 0 0 3px rgba(210,103,78,.4)}
+  .opt.wrong .badge{background:rgba(210,103,78,.25);border-color:var(--ember);color:#F0987C}
+  .opt:disabled{cursor:default}
+  .confirm-bar{display:none;gap:10px;margin-bottom:12px}
+  .confirm-bar.show{display:flex;animation:fadeUp .25s ease both}
+  .cbtn{flex:1;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1rem;border-radius:12px;padding:13px}
+  .cbtn.go{color:#0E1A22;background:linear-gradient(180deg,var(--slate-bright),var(--slate-deep))}
+  .cbtn.back{background:transparent;color:var(--sand-dim);border:1px solid rgba(234,241,242,.3)}
+  .result-banner{display:none;border-radius:14px;padding:14px 16px;margin-bottom:12px;border:1px solid;text-align:center;font-weight:800}
+  .result-banner.show{display:block;animation:fadeUp .3s ease both}
+  .result-banner.win{background:rgba(95,179,137,.15);border-color:rgba(95,179,137,.6);color:#8FE0B6}
+  .result-banner.lose{background:rgba(210,103,78,.15);border-color:rgba(210,103,78,.6);color:#F0987C}
+  .walk{display:block;width:100%;background:transparent;border:1px dashed rgba(210,103,78,.55);color:#E8997A;border-radius:12px;padding:10px;font-family:'Tajawal',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;margin-top:4px}
+  .walk:hover{background:rgba(210,103,78,.08)}
+  .btn{display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;color:#0E1A22;background:linear-gradient(180deg,var(--slate-bright),var(--slate-deep));border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(52,106,130,.4)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(52,106,130,.5)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(217,162,59,.55);box-shadow:none;margin-top:10px}
+  .final-amount{font-family:'Cairo',sans-serif;font-size:3rem;font-weight:900;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{text-align:center;font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800;color:var(--sand);margin-bottom:6px}
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:20px}
+  .kpis{display:flex;gap:10px;margin-bottom:22px}
+  .kpi{flex:1;text-align:center;background:rgba(8,17,23,.5);border:1px solid rgba(234,241,242,.16);border-radius:12px;padding:12px 8px}
+  .kpi b{display:block;font-family:'Cairo',sans-serif;font-size:1.35rem;color:var(--gold-bright)}
+  .kpi span{font-size:.74rem;color:var(--sand-dim)}
+  .quote{font-family:'Cairo',sans-serif;font-size:1.16rem;font-weight:700;line-height:1.85;text-align:center;color:var(--gold-bright);border-top:1px solid rgba(217,162,59,.35);border-bottom:1px solid rgba(217,162,59,.35);padding:18px 6px;margin-bottom:22px}
+  .quote span{display:block;font-family:'Tajawal',sans-serif;font-size:.85rem;font-weight:500;color:var(--sand-dim);margin-top:8px}
+  @media (max-width:420px){h1{font-size:1.9rem} .q-text{font-size:1.16rem} .final-amount{font-size:2.4rem} .life{font-size:.72rem}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div>
+        <div class="stat-label">السؤال <span id="s-q">1</span> من 12 · تلعب على</div>
+        <div class="stat-val" id="s-prize">500 درهم</div>
+      </div>
+      <button class="ladder-btn" onclick="toggleLadder(true)">🪜 سلّم الثروة</button>
+    </div>
+    <div class="lifelines">
+      <button class="life" id="L-fifty" onclick="useFifty()">٥٠:٥٠<br>احذف إجابتين</button>
+      <button class="life" id="L-arkad" onclick="useArkad()">📖 استشر<br>ثالر</button>
+      <button class="life" id="L-poll" onclick="usePoll()">🎟️ تصويت<br>المشاركين</button>
+    </div>
+  </div>
+
+  <div class="ladder-panel" id="ladder-panel" onclick="toggleLadder(false)">
+    <div class="ladder-card" onclick="event.stopPropagation()">
+      <div class="ladder-title">🪜 سلّم الثروة</div>
+      <div id="ladder-rungs"></div>
+      <button class="btn ghost" onclick="toggleLadder(false)" style="margin-top:14px">إغلاق</button>
+    </div>
+  </div>
+
+  <section class="screen active" id="intro">
+    <div class="intro-seal">🐘</div>
+    <div style="text-align:center">
+      <div class="eyebrow">اختبار الكنز · كتاب «الوكزة»</div>
+      <h1>اختبار معماريّ القرار</h1>
+      <p class="sub">12 سؤالاً تصعد بها من 500 درهم إلى المليون… إن صمد فهمك لتصميم الخيارات.</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li><b>12 سؤالاً</b> متدرّجاً من مبادئ ثالر وسانستين في «الوكزة».</li>
+        <li>منطقتا أمان: <b>8,000</b> و<b>250,000</b> — الخطأ يعيدك إلى آخر أمانٍ بلغته.</li>
+        <li>3 وسائل مساعدة: <b>٥٠:٥٠</b>، <b>📖 استشر ثالر</b>، <b>🎟️ تصويت المشاركين</b>.</li>
+        <li>يمكنك <b>الانسحاب</b> في أي لحظةٍ بما ربحته.</li>
+      </ul>
+      <button class="btn" onclick="startGame()">اجلس على كرسي الثروة 🐘</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="q-card"><div class="q-text" id="q-text"></div></div>
+    <div class="hintbox" id="hintbox">
+      <div class="who">📖 ثالر يهمس لك:</div>
+      <div class="txt" id="hint-text"></div>
+    </div>
+    <div class="poll" id="poll"></div>
+    <div id="options"></div>
+    <div class="confirm-bar" id="confirm-bar">
+      <button class="cbtn back" onclick="cancelSelect()">تغيير</button>
+      <button class="cbtn go" onclick="lockAnswer()">🔒 إجابة نهائية</button>
+    </div>
+    <div class="result-banner" id="banner"></div>
+    <button class="btn" id="next-btn" style="display:none" onclick="afterReveal()"></button>
+    <button class="walk" id="walk-btn" onclick="walkAway()"></button>
+  </section>
+
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow" id="r-eyebrow">انتهت الجلسة</div></div>
+    <div class="card">
+      <div class="final-label">غادرتَ كرسي الثروة ومعك</div>
+      <div class="final-amount" id="r-amount">0</div>
+      <div class="final-label">درهم</div>
+      <div class="kpis">
+        <div class="kpi"><b id="r-reached">0</b><span>أسئلة أجبتها صح</span></div>
+        <div class="kpi"><b id="r-lifes">0/3</b><span>وسائل مساعدة استعملتها</span></div>
+      </div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <div class="quote">«الوكزة الجيدة تجعل القرار الصحيح هو الأسهل، دون أن تمنع أحداً من خيارٍ آخر»<span>— ريتشارد ثالر وكاس سانستين</span></div>
+      <button class="btn" onclick="startGame()">حاول بلوغ المليون مجدداً 🐘</button>
+      <button class="btn ghost" onclick="backToIntro()">عُد إلى الملخص 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const LADDER = [500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1000000];
+const SAFE = [4,9];
+
+const QUESTIONS = [
+ {t:1, q:"من مؤلّفا كتاب «الوكزة» (Nudge)؟",
+  opts:[["ريتشارد ثالر وكاس سانستين",true],["دانيال كانمان ودان أريلي",false],["مورغان هاوزل",false],["نسيم طالب",false]],
+  hint:"ثالر اقتصاديٌّ سلوكيٌّ حائزٌ على نوبل، وسانستين أستاذ قانون شاركه تأليف الكتاب."},
+ {t:1, q:"ماذا يُسمّى الخيار الذي يُطبَّق تلقائياً إن لم يتدخّل الشخص لتغييره؟",
+  opts:[["الخيار الافتراضي (default)",true],["الخيار الإلزامي",false],["الخيار العشوائي",false],["الخيار المخفي",false]],
+  hint:"أغلب الناس يبقون عليه أياً كان، لذا تصميمه بحكمةٍ مهمٌّ جداً."},
+ {t:1, q:"ما اسم الفلسفة التي تصف توجيه السلوك دون إلزام أحد أو منع أي خيار؟",
+  opts:[["الأبوية التحرّرية (Libertarian Paternalism)",true],["الحرّية المطلقة",false],["الإلزام الكامل",false],["العشوائية المنظَّمة",false]],
+  hint:"توجيهٌ نحو الأفضل عبر التصميم، مع إبقاء كل الخيارات الأخرى متاحة."},
+ {t:1, q:"كيف يصف الكتاب تأثير «المعايير الاجتماعية» على القرار المالي؟",
+  opts:[["إخبار الناس بسلوك الأغلبية يحفّزهم على محاذاة سلوكهم معها",true],["لا تأثير لها على القرار إطلاقاً",false],["تجعل الناس يرفضون أي توجيه",false],["تؤثّر فقط على الأطفال",false]],
+  hint:"معرفة أن الأغلبية تدّخر أكثر تدفع الفرد لمحاذاة سلوكه مع المعيار الجيد."},
+ {t:2, q:"ما المقصود بـ«معماريّ القرار» (Choice Architecture)؟",
+  opts:[["تصميم البيئة والخيارات بطريقةٍ تسهّل القرار الجيد",true],["بناء مبانٍ للبنوك والمصارف",false],["تصميم واجهات المواقع فقط",false],["كتابة عقود الاستثمار",false]],
+  hint:"كل من يقدّم خياراتٍ للآخرين هو «معماريّ قرار» بشكلٍ أو بآخر، يقصد أم لا."},
+ {t:2, q:"ما أثر «الحمل المعرفي» الزائد من خياراتٍ كثيرة جداً على القرار؟",
+  opts:[["يدفع كثيراً من الناس لتأجيل القرار أو عدم اتخاذه إطلاقاً",true],["يحسّن جودة القرار النهائي دائماً",false],["لا يوجد أي أثرٍ ملحوظ",false],["يجعل القرار أسرع دائماً",false]],
+  hint:"كثرة الخيارات المعقّدة قد تشلّ القرار بدل أن تحسّنه."},
+ {t:2, q:"ما المقصود بـ«أدوات الالتزام المسبق» (Commitment Devices)؟",
+  opts:[["ترتيباتٌ تتّخذها اليوم لحماية قرارك المستقبلي من الإغراءات",true],["عقودٌ قانونيةٌ مع البنوك فقط",false],["وعودٌ شفهيةٌ بلا أي إجراءٍ فعلي",false],["قرارات تُتّخذ تحت الضغط فقط",false]],
+  hint:"تحويلٌ تلقائي للادّخار قبل وصول الإغراء مثالٌ كلاسيكي على هذه الأداة."},
+ {t:2, q:"كيف تساعد «التذكيرات المصمَّمة بذكاء» في القرار المالي؟",
+  opts:[["تمنح لحظة تفكيرٍ قبل قرارٍ اندفاعي وتكسر التسرّع",true],["تُلزم الشخص بشراءٍ معيّن",false],["تُخفي معلوماتٍ عن المستخدم",false],["لا تأثير فعليّ لها",false]],
+  hint:"لحظة توقّف قصيرة قبل الشراء قد تمنع قراراً اندفاعياً لاحقاً يندم عليه الشخص."},
+ {t:3, q:"ما «انحياز الترسيخ» (Anchoring Bias) المذكور في سياقاتٍ سلوكية مشابهة؟",
+  opts:[["تثبيت تقييمك على أول معلومةٍ تصلك حتى لو كانت غير دقيقة",true],["تذكّر كل المعلومات بدقّةٍ متساوية",false],["تجاهل كل المعلومات الجديدة كلياً",false],["اتّخاذ القرار بسرعةٍ فائقة دائماً",false]],
+  hint:"أول رقمٍ أو معلومةٍ تراها يصبح نقطة مرجعيةٍ تؤثّر في تقييمك لما يليها."},
+ {t:3, q:"ما «انحياز التكلفة الغارقة» (Sunk Cost Fallacy)؟",
+  opts:[["الاستمرار في قرارٍ سيءٍ بسبب ما أُنفق فيه سابقاً، لا بسبب مستقبله",true],["حساب التكاليف المستقبلية فقط",false],["تجاهل كل التكاليف السابقة دوماً",false],["تفضيل الاستثمارات الرخيصة فقط",false]],
+  hint:"المال الذي أُنفق بالفعل لا يجب أن يحدّد قرارك المستقبلي، لكنه غالباً يفعل."},
+ {t:3, q:"لماذا تصمَّم بعض واجهات الشراء لتسهيل «الشراء بضغطة واحدة»؟",
+  opts:[["لأنها تستفيد من الانحياز للاندفاع وتقلّل لحظة التفكير قبل الشراء",true],["لأنها تحسّن أمان البيانات فقط",false],["لأنها تقلّل من سعر المنتج",false],["لأنها تتطلّب موافقة البنك المسبقة",false]],
+  hint:"تسهيل الشراء الفوري يحذف الحاجز الطبيعي الذي يمنح وقتاً للتفكير."},
+ {t:3, q:"سؤال المليون: ما جوهر رسالة «الوكزة» كلها في جملة؟",
+  opts:[["تصميم الخيارات يوجّه السلوك دون إلزام، فاستخدمه لصالحك",true],["يجب إلزام الناس بخياراتٍ واحدة فقط دائماً",false],["لا يمكن التأثير على قرارات الناس إطلاقاً",false],["كل القرارات المالية عقلانيةٌ بالكامل دون انحياز",false]],
+  hint:"الوعي بكيفية تأثير التصميم على قرارك هو ما يمكّنك من توجيهه لصالحك."}
+];
+
+let qi=0, lifes={fifty:false,arkad:false,poll:false}, view=[], removedIdx=new Set(), selected=-1, phase='choose', finalAmount=0, lastOutcome='';
+
+const $ = id => document.getElementById(id);
+const fmt = n => n.toLocaleString('en-US').replace(/,/g,'٬');
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el=$(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function shuffle(a){const r=[...a];for(let k=r.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[r[k],r[j]]=[r[j],r[k]];}return r;}
+
+function renderLadder(){
+  $('ladder-rungs').innerHTML = LADDER.map((v,i)=>({v,i})).reverse().map(({v,i})=>{
+    const cls = ['rung'];
+    if(SAFE.includes(i)) cls.push('safe');
+    if(i===qi) cls.push('current');
+    if(i<qi) cls.push('won');
+    return `<div class="${cls.join(' ')}"><span class="num">${i+1}</span><span class="amt">${fmt(v)} ${SAFE.includes(i)?'🛡️':''}</span></div>`;
+  }).join('');
+}
+function toggleLadder(open){ renderLadder(); $('ladder-panel').classList.toggle('open', open); }
+
+function startGame(){
+  qi=0; lifes={fifty:false,arkad:false,poll:false};
+  ['L-fifty','L-arkad','L-poll'].forEach(id=>$(id).disabled=false);
+  $('ledger').style.display='block';
+  renderQuestion(); show('game');
+}
+
+function safeAmount(){
+  let s=0; SAFE.forEach(i=>{ if(qi>i) s=LADDER[i]; }); return s;
+}
+function bankedAmount(){ return qi>0 ? LADDER[qi-1] : 0; }
+
+function renderQuestion(){
+  const Q = QUESTIONS[qi];
+  view = shuffle(Q.opts.map(([text,ok])=>({text,ok})));
+  removedIdx = new Set(); selected=-1; phase='choose';
+  $('s-q').textContent = qi+1;
+  $('s-prize').textContent = fmt(LADDER[qi])+' درهم';
+  $('q-text').textContent = Q.q;
+  $('hintbox').classList.remove('show');
+  $('poll').classList.remove('show'); $('poll').innerHTML='';
+  $('banner').className='result-banner'; $('banner').textContent='';
+  $('next-btn').style.display='none';
+  $('confirm-bar').classList.remove('show');
+  const wb = $('walk-btn');
+  if(qi>0){ wb.style.display='block'; wb.textContent=`🚪 أنسحب الآن وآخذ ${fmt(bankedAmount())} درهم`; wb.dataset.step='0'; }
+  else wb.style.display='none';
+  drawOptions();
+}
+
+const LETTERS=['أ','ب','ج','د'];
+function drawOptions(){
+  $('options').innerHTML = view.map((o,i)=>{
+    const cls=['opt'];
+    if(removedIdx.has(i)) cls.push('removed');
+    if(i===selected) cls.push('selected');
+    return `<button class="${cls.join(' ')}" id="opt-${i}" onclick="pick(${i})"><span class="badge">${LETTERS[i]}</span><span>${o.text}</span></button>`;
+  }).join('');
+}
+
+function pick(i){
+  if(phase!=='choose' && phase!=='picked') return;
+  if(removedIdx.has(i)) return;
+  selected=i; phase='picked';
+  drawOptions();
+  $('confirm-bar').classList.add('show');
+}
+function cancelSelect(){
+  if(phase!=='picked') return;
+  selected=-1; phase='choose';
+  $('confirm-bar').classList.remove('show');
+  drawOptions();
+}
+
+function lockAnswer(){
+  if(phase!=='picked') return;
+  phase='suspense';
+  $('confirm-bar').classList.remove('show');
+  $('walk-btn').style.display='none';
+  document.querySelectorAll('.opt').forEach(b=>b.disabled=true);
+  const sel = $('opt-'+selected);
+  sel.classList.add('suspense');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  setTimeout(reveal, reduce?100:1300);
+}
+
+function reveal(){
+  const sel=$('opt-'+selected);
+  sel.classList.remove('suspense');
+  const ok = view[selected].ok;
+  const correctIdx = view.findIndex(o=>o.ok);
+  $('opt-'+correctIdx).classList.add('correct');
+  const banner=$('banner'), nb=$('next-btn');
+  if(ok){
+    phase='revealed-win';
+    banner.className='result-banner win show';
+    banner.textContent = qi===11 ? '🐘🐘🐘 المليـــون! تصميمك للقرار خالصٌ!' : `✅ صحيح! ضمنتَ ${fmt(LADDER[qi])} درهم`;
+    nb.textContent = qi===11 ? 'استلم كنزك 🐘' : 'السؤال التالي ←';
+    lastOutcome = qi===11 ? 'million' : 'next';
+  }else{
+    phase='revealed-lose';
+    sel.classList.add('wrong');
+    banner.className='result-banner lose show';
+    banner.textContent = `✗ للأسف… تنزل إلى منطقة أمانك: ${fmt(safeAmount())} درهم`;
+    nb.textContent='شاهد النتيجة';
+    lastOutcome='lose';
+  }
+  nb.style.display='block';
+}
+
+function afterReveal(){
+  if(lastOutcome==='next'){ qi++; renderQuestion(); }
+  else if(lastOutcome==='million'){ finalAmount=1000000; showResults('بلغتَ المليون!'); }
+  else { finalAmount=safeAmount(); showResults('سؤالٌ أطاح بك'); }
+}
+
+function walkAway(){
+  const wb=$('walk-btn');
+  if(wb.dataset.step==='0'){ wb.dataset.step='1'; wb.textContent=`متأكد؟ اضغط مجدداً لتأكيد الانسحاب بـ ${fmt(bankedAmount())} درهم`; return; }
+  finalAmount = bankedAmount();
+  showResults('انسحابٌ حكيم');
+}
+
+function useFifty(){
+  if(lifes.fifty || phase!=='choose' && phase!=='picked') return;
+  lifes.fifty=true; $('L-fifty').disabled=true;
+  const wrongs = view.map((o,i)=>!o.ok&&!removedIdx.has(i)?i:-1).filter(i=>i>=0);
+  shuffle(wrongs).slice(0,2).forEach(i=>removedIdx.add(i));
+  if(removedIdx.has(selected)){ selected=-1; phase='choose'; $('confirm-bar').classList.remove('show'); }
+  drawOptions();
+}
+function useArkad(){
+  if(lifes.arkad || (phase!=='choose' && phase!=='picked')) return;
+  lifes.arkad=true; $('L-arkad').disabled=true;
+  $('hint-text').textContent = QUESTIONS[qi].hint;
+  $('hintbox').classList.add('show');
+}
+function usePoll(){
+  if(lifes.poll || (phase!=='choose' && phase!=='picked')) return;
+  lifes.poll=true; $('L-poll').disabled=true;
+  const alive = view.map((o,i)=>removedIdx.has(i)?null:{o,i}).filter(Boolean);
+  const tier = QUESTIONS[qi].t;
+  const base = tier===1 ? 68+Math.random()*16 : tier===2 ? 52+Math.random()*16 : 34+Math.random()*20;
+  let rest = 100 - base;
+  const pct = {};
+  const others = alive.filter(x=>!x.o.ok);
+  others.forEach((x,k)=>{
+    if(k===others.length-1){ pct[x.i]=Math.round(rest); }
+    else { const v = Math.round(Math.random()*rest*0.7); pct[x.i]=v; rest-=v; }
+  });
+  alive.forEach(x=>{ if(x.o.ok) pct[x.i]=100-Object.values(pct).reduce((a,b)=>a+b,0); });
+  const box=$('poll');
+  box.innerHTML = alive.map(x=>`
+    <div class="poll-row">
+      <span class="poll-letter">${LETTERS[x.i]}</span>
+      <div class="poll-track"><div class="poll-fill" data-w="${pct[x.i]}"></div></div>
+      <span class="poll-pct">${pct[x.i]}%</span>
+    </div>`).join('');
+  box.classList.add('show');
+  requestAnimationFrame(()=>box.querySelectorAll('.poll-fill').forEach(f=>f.style.width=f.dataset.w+'%'));
+}
+
+function rankOf(a){
+  if(a>=1000000) return {r:"🐘 معماريّ قرارٍ بارع!", n:"تفهم تصميم الخيارات بالكامل — ثالر وسانستين سيصفّقان لك. طبّق هذا على قراراتك المالية الحقيقية الآن."};
+  if(a>=250000) return {r:"🔧 فهمٌ في طور الإتقان", n:"تجاوزتَ أصعب المبادئ. سؤالٌ أو سؤالان عن القمّة — راجع الكتاب وعُد."};
+  if(a>=8000)  return {r:"🌱 بدأتَ تعي قوة التصميم", n:"أساسك جيّد لكن المبادئ العميقة أوقعتك. أعد قراءة الكتاب ثم عُد للكرسي."};
+  return {r:"🌀 خياراتك تحتاج تصميماً أوضح", n:"لا ثروةَ اليوم… لكنك عرفتَ قوة الخيار الافتراضي. الملخص بانتظارك!"};
+}
+function showResults(eyebrow){
+  $('ledger').style.display='none';
+  $('r-eyebrow').textContent = eyebrow;
+  const used = Object.values(lifes).filter(Boolean).length;
+  $('r-reached').textContent = (lastOutcome==='million'? 12 : qi) + '/12';
+  $('r-lifes').textContent = used+'/3';
+  const rk = rankOf(finalAmount);
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n;
+  const el=$('r-amount');
+  show('results');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ el.textContent = fmt(finalAmount); return; }
+  const dur=1500, t0=performance.now();
+  (function tick(t){
+    const p=Math.min((t-t0)/dur,1), e=1-Math.pow(1-p,3);
+    el.textContent = fmt(Math.round(finalAmount*e));
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function backToIntro(){ $('ledger').style.display='none'; show('intro'); }
+</script>
+</body>
+</html>

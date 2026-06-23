@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>فكّر من المستوى الثاني — لعبة القرارات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#071B26; --lapis-deep:#04111A; --lapis-panel:#0F2C3A;
+    --gold:#D9A23B; --gold-bright:#F0C36B; --sand:#E9F2F2; --sand-dim:#9FB8BC;
+    --ember:#D2674E; --reed:#5FB389; --teal:#2FA8B8; --teal-deep:#1C7E8C; --teal-bright:#62D3DE;
+    --shadow:0 12px 32px rgba(2,10,14,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:'Tajawal',sans-serif;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #123F4D 0%, transparent 60%),
+      linear-gradient(180deg, var(--lapis-night) 0%, #03090E 100%);
+    color:var(--sand); min-height:100vh; line-height:1.7;
+  }
+  body::after{
+    content:""; position:fixed; inset:auto 0 0 0; height:3px; z-index:5;
+    background:linear-gradient(90deg, transparent 0, var(--teal) 30%, var(--gold-bright) 50%, var(--teal) 70%, transparent 100%);
+    box-shadow:0 -4px 16px rgba(47,168,184,.35); opacity:.9;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+
+  .ledger{
+    position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:14px 18px 12px;
+    background:linear-gradient(180deg, rgba(7,27,38,.97) 70%, rgba(7,27,38,.85));
+    border-bottom:1px solid rgba(47,168,184,.45);backdrop-filter:blur(6px);
+  }
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .ledger-label{font-size:.78rem;color:var(--sand-dim);font-weight:500}
+  .ledger-amount{font-family:'Cairo',sans-serif;font-weight:800;font-size:1.4rem;color:var(--gold-bright);letter-spacing:.3px;white-space:nowrap}
+  .ledger-amount small{font-size:.82rem;color:var(--sand-dim);font-family:'Tajawal',sans-serif;font-weight:500;margin-right:4px}
+  .ledger-amount.neg{color:var(--ember)}
+  .dots{display:flex;gap:6px;margin-top:8px;justify-content:center}
+  .dot{width:26px;height:4px;border-radius:99px;background:rgba(233,242,242,.16);transition:background .4s}
+  .dot.on{background:var(--teal)}
+  .dot.now{background:var(--teal-bright);box-shadow:0 0 8px rgba(98,211,222,.8)}
+
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  .eyebrow{
+    display:inline-block;font-size:.78rem;font-weight:700;color:var(--teal-bright);
+    border:1px solid rgba(47,168,184,.55);border-radius:99px;padding:4px 14px;
+    margin-bottom:14px;letter-spacing:.3px;background:rgba(47,168,184,.1);
+  }
+  h1{font-family:'Cairo',sans-serif;font-size:2.2rem;font-weight:900;line-height:1.3;color:var(--gold-bright);margin-bottom:6px}
+  h2.situation{font-family:'Tajawal',sans-serif;font-size:1.4rem;line-height:1.75;color:var(--sand);font-weight:700;margin-bottom:22px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+
+  .card{
+    background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));
+    border:1px solid rgba(47,168,184,.32);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow);
+  }
+
+  .choice{
+    display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;
+    background:rgba(4,17,26,.6);border:1px solid rgba(233,242,242,.16);
+    border-radius:14px;padding:15px 16px;margin-bottom:12px;color:var(--sand);
+    font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.65;cursor:pointer;
+    transition:border-color .2s, background .2s, transform .15s;
+  }
+  .choice:hover,.choice:focus-visible{border-color:var(--teal);background:rgba(47,168,184,.12);transform:translateY(-1px)}
+  .choice:focus-visible{outline:2px solid var(--teal-bright);outline-offset:2px}
+  .badge{
+    flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:rgba(47,168,184,.18);border:1px solid rgba(47,168,184,.55);color:var(--teal-bright);font-weight:800;font-size:.95rem;margin-top:2px;
+  }
+
+  .verdict{border-radius:14px;padding:18px;margin-bottom:16px;border:1px solid}
+  .verdict.best{background:rgba(95,179,137,.14);border-color:rgba(95,179,137,.6)}
+  .verdict.ok{background:rgba(217,162,59,.12);border-color:rgba(217,162,59,.55)}
+  .verdict.bad{background:rgba(210,103,78,.14);border-color:rgba(210,103,78,.6)}
+  .verdict-title{font-family:'Cairo',sans-serif;font-size:1.22rem;font-weight:800;margin-bottom:8px}
+  .verdict.best .verdict-title{color:#8FE0B6}
+  .verdict.ok .verdict-title{color:var(--gold-bright)}
+  .verdict.bad .verdict-title{color:#F0987C}
+  .verdict p{font-size:.98rem}
+
+  .timeline{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+  .t-row{display:flex;gap:12px;align-items:flex-start;background:rgba(4,17,26,.55);border-radius:12px;padding:12px 14px;border:1px solid rgba(233,242,242,.12)}
+  .t-when{flex:0 0 auto;font-weight:800;color:var(--teal-bright);font-size:.85rem;border-left:1px solid rgba(47,168,184,.4);padding-left:12px;min-width:74px}
+  .t-what{font-size:.95rem;color:var(--sand)}
+
+  .delta{display:inline-flex;align-items:center;gap:8px;font-family:'Cairo',sans-serif;font-weight:800;font-size:1.3rem;border-radius:12px;padding:8px 16px;margin-bottom:18px}
+  .delta.up{background:rgba(95,179,137,.16);color:#8FE0B6;border:1px solid rgba(95,179,137,.5)}
+  .delta.down{background:rgba(210,103,78,.16);color:#F0987C;border:1px solid rgba(210,103,78,.5)}
+  .delta.flat{background:rgba(233,242,242,.08);color:var(--sand-dim);border:1px solid rgba(233,242,242,.22)}
+
+  .btn{
+    display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;
+    color:#071B26;background:linear-gradient(180deg,var(--teal-bright),var(--teal-deep));border-radius:14px;padding:15px;
+    transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(28,126,140,.4);
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(28,126,140,.5)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(217,162,59,.55);box-shadow:none;margin-top:10px}
+
+  .final-amount{font-family:'Cairo',sans-serif;font-size:3rem;font-weight:900;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
+  .final-amount.neg{color:var(--ember)}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{text-align:center;font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800;color:var(--sand);margin-bottom:6px}
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:22px}
+  .principles{list-style:none;margin-bottom:22px}
+  .principles li{display:flex;gap:10px;align-items:center;padding:10px 14px;margin-bottom:8px;background:rgba(4,17,26,.55);border-radius:12px;border:1px solid rgba(233,242,242,.12);font-size:.95rem}
+  .p-mark{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+  .p-mark.yes{background:rgba(95,179,137,.2);color:#8FE0B6;border:1px solid rgba(95,179,137,.6)}
+  .p-mark.no{background:rgba(210,103,78,.2);color:#F0987C;border:1px solid rgba(210,103,78,.6)}
+  .quote{font-family:'Cairo',sans-serif;font-size:1.16rem;font-weight:700;line-height:1.85;text-align:center;color:var(--gold-bright);border-top:1px solid rgba(217,162,59,.35);border-bottom:1px solid rgba(217,162,59,.35);padding:18px 6px;margin-bottom:22px}
+  .quote span{display:block;font-family:'Tajawal',sans-serif;font-size:.85rem;font-weight:500;color:var(--sand-dim);margin-top:8px}
+
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--teal);display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:radial-gradient(circle at 35% 30%, rgba(47,168,184,.3), rgba(217,162,59,.05));box-shadow:0 0 30px rgba(47,168,184,.3)}
+  .intro-list{margin:0 0 26px;padding:0;list-style:none}
+  .intro-list li{display:block;position:relative;padding-right:22px;color:var(--sand);font-size:.98rem;margin-bottom:10px}
+  .intro-list li::before{content:"◆";color:var(--teal);font-size:.7rem;position:absolute;right:0;top:.5em}
+
+  @media (max-width:420px){h1{font-size:1.85rem}h2.situation{font-size:1.25rem}.final-amount{font-size:2.4rem}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div>
+        <div class="ledger-label">رصيد التفكير من المستوى الثاني</div>
+        <div class="ledger-amount" id="wealth">0 <small>نقطة</small></div>
+      </div>
+      <div style="font-size:1.6rem">🎯</div>
+    </div>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <section class="screen active" id="intro">
+    <div class="intro-seal">🎯</div>
+    <div style="text-align:center">
+      <div class="eyebrow">لعبة قرارات · كتاب «أهمّ شيء»</div>
+      <h1>فكّر من المستوى الثاني</h1>
+      <p class="sub">هل تفكّر كالجميع… أم تفكّر فيما يفكّر فيه الجميع؟</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>ستواجه <b>6 مواقف استثمارية</b> من مبادئ هاوارد ماركس.</li>
+        <li>كل قرارٍ يرفع أو يخفض <b>رصيد التفكير من المستوى الثاني</b> لديك.</li>
+        <li>المبدأ: <b>الفكر من المستوى الأول يقول «شركة جيدة، اشترِ»؛ المستوى الثاني يسأل «هل يعرف السوق ذلك بالفعل؟»</b>.</li>
+        <li>اجمع أعلى رصيدٍ ممكن… حتى تتقن <b>التفكير العكسي المنضبط</b>.</li>
+      </ul>
+      <button class="btn" onclick="startGame()">ابدأ التفكير ▸</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="eyebrow" id="g-eyebrow"></div>
+    <h2 class="situation" id="g-situation"></h2>
+    <div id="g-choices"></div>
+  </section>
+
+  <section class="screen" id="feedback">
+    <div class="card">
+      <div class="verdict" id="f-verdict">
+        <div class="verdict-title" id="f-title"></div>
+        <p id="f-text"></p>
+      </div>
+      <div class="timeline">
+        <div class="t-row"><div class="t-when">بعد سنة</div><div class="t-what" id="f-y1"></div></div>
+        <div class="t-row"><div class="t-when">بعد 5 سنوات</div><div class="t-what" id="f-y5"></div></div>
+      </div>
+      <div style="text-align:center"><span class="delta" id="f-delta"></span></div>
+      <button class="btn" id="f-next" onclick="nextScenario()">متابعة ←</button>
+    </div>
+  </section>
+
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow">اكتملت الجلسة</div></div>
+    <div class="card">
+      <div class="final-label">رصيد التفكير من المستوى الثاني</div>
+      <div class="final-amount" id="r-amount">0</div>
+      <div class="final-label">نقطة &nbsp;·&nbsp; من أصل 116</div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <ul class="principles" id="r-principles"></ul>
+      <div class="quote">«لكي تتفوّق على السوق، يجب أن تفكّر بشكلٍ مختلف عن الآخرين… وأن تكون مُحقّاً»<span>— هاوارد ماركس</span></div>
+      <button class="btn" onclick="restart()">أعد المحاولة 🔄</button>
+      <button class="btn ghost" onclick="restart()">اقرأ الملخص مرة أخرى 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const SCENARIOS = [
+  {
+    cure:"المبدأ · التفكير من المستوى الثاني",
+    short:"سؤال «هل يعرف السوق ذلك أصلاً؟»",
+    situation:"وجدتَ شركةً ذات أخبارٍ إيجابيةٍ واضحة يتحدّث عنها الجميع. ما خطوتك التالية؟",
+    choices:[
+      {t:"أسأل: «هل هذه الأخبار معروفةٌ ومُسعَّرةٌ في السهم بالفعل؟» قبل أي قرار", q:"best", d:20,
+       fb:"التفكير من المستوى الثاني يسأل ما لا يسأله الآخرون. الخبر الجيد المعروف للجميع غالباً مُسعَّرٌ مسبقاً، فلا ميزة فيه.",
+       y1:"تجنّبتَ شراء «خبرٍ قديم» بسعرٍ مرتفع", y5:"عادة تحليلٍ ميّزتك عن السوق"},
+      {t:"أشتري لأن الخبر إيجابي والشركة جيدة بلا تحليلٍ إضافي", q:"ok", d:5,
+       fb:"شركةٌ جيدة لا تعني استثماراً جيداً إن كان سعرها يعكس الجودة بالفعل أو أكثر.",
+       y1:"عائدٌ متواضعٌ أو معدوم", y5:"محفظةٌ من «الأخبار الجيدة» المكلفة"},
+      {t:"أتجاهل التحليل تماماً وأقلّد من يشترون حولي فوراً", q:"bad", d:-9,
+       fb:"تقليد القطيع عند الذروة هو جوهر فكر المستوى الأول. من يشتري آخراً يدفع أعلى سعر.",
+       y1:"دخلتَ قرب القمة", y5:"خسارةٌ حين عاد السعر لمتوسطه"}
+    ]
+  },
+  {
+    cure:"المبدأ · السعر لا الجودة وحدها",
+    short:"السؤال ليس «ماذا تشتري؟» بل «بأي سعر؟»",
+    situation:"سهمان: شركةٌ متوسطة بسعرٍ رخيص جداً، وشركةٌ رائعة بسعرٍ مرتفع جداً. كيف تقرّر؟",
+    choices:[
+      {t:"أُقيّم الفارق بين السعر والقيمة الحقيقية في كلٍّ منهما — فالاستثمار الجيد سعرٌ جيد لا أصلٌ جيد فقط", q:"best", d:19,
+       fb:"عند ماركس، «أيّ أصلٍ يمكن أن يكون استثماراً جيداً بسعرٍ واحد، وسيئاً بسعرٍ آخر». الجودة بلا سعرٍ مناسب فخّ.",
+       y1:"اشتريتَ قيمةً لا ضجيجاً", y5:"محفظةٌ بُنيت على هامش أمان"},
+      {t:"أختار الشركة الرائعة دائماً لأن «الجودة تفوز على المدى الطويل»", q:"ok", d:6,
+       fb:"الجودة مهمة، لكن دفع سعرٍ أعلى من القيمة لشركةٍ رائعة يحوّلها لاستثمارٍ سيئ.",
+       y1:"دخولٌ بسعرٍ متضخّم", y5:"تعويضٌ بطيءٌ للفارق إن حدث"},
+      {t:"أختار الأرخص دائماً بحجة أنه «صفقة» بلا فحص القيمة الحقيقية", q:"bad", d:-8,
+       fb:"رخيصٌ ليس مرادفاً لقيّم؛ قد يكون السهم رخيصاً لأنه يستحق أن يكون أرخص.",
+       y1:"وقعتَ في «فخّ القيمة»", y5:"رأس مالٍ تآكل في شركةٍ ضعيفة"}
+    ]
+  },
+  {
+    cure:"المبدأ · إدراك دورة السوق",
+    short:"تذكّر أن السوق يتأرجح كالبندول",
+    situation:"الأسواق ترتفع منذ سنوات والتفاؤل يعمّ كل الأخبار والمحادثات. ما موقفك؟",
+    choices:[
+      {t:"أتذكّر أن السوق يتأرجح كبندولٍ بين النشوة والتشاؤم، وأزيد حذري كلما اشتدّ التفاؤل العام", q:"best", d:20,
+       fb:"دورات السوق حقيقةٌ لا يمكن تجاهلها عند ماركس. أقصى الخطر يكمن غالباً حين يبدو كل شيءٍ مثالياً.",
+       y1:"خفّفتَ مخاطرك قرب القمة", y5:"محفظةٌ نجت من التصحيح اللاحق"},
+      {t:"أبقى متفائلاً مثل الجميع لأن «هذه المرة مختلفة»", q:"ok", d:5,
+       fb:"عبارة «هذه المرة مختلفة» غالباً ما تتكرّر قبل كل تصحيحٍ كبير في تاريخ الأسواق.",
+       y1:"تعرّضٌ كاملٌ للمخاطر", y5:"تصحيحٌ غير متوقَّع"},
+      {t:"أزيد مخاطرتي ورافعتي المالية لأن السوق «لن يتوقف عن الصعود»", q:"bad", d:-9,
+       fb:"الإفراط في المخاطرة عند القمة هو سلوك «المستوى الأول» الكلاسيكي الذي يصنع أكبر الخسائر.",
+       y1:"تعرّضٌ مُفرطٌ للهبوط", y5:"خسارةٌ كبيرة عند انعكاس البندول"}
+    ]
+  },
+  {
+    cure:"المبدأ · التحكّم بالمخاطر",
+    short:"النجاة من الخسائر قبل السعي للأرباح",
+    situation:"تدرس فرصةً تَعِد بعوائد مرتفعة جداً مقابل مخاطرةٍ غير واضحة المعالم. كيف تتصرّف؟",
+    choices:[
+      {t:"أحدّد أولاً أقصى ما يمكن أن أخسره، وأتجاهل الفرصة إن كانت المخاطرة المحتملة غير مفهومة", q:"best", d:19,
+       fb:"«تجنّب الخسائر الكبيرة» أهم من «تحقيق أرباحٍ كبيرة» عند ماركس. النجاة تسبق التفوّق.",
+       y1:"حميتَ رأس مالك من مخاطرةٍ مجهولة", y5:"استمراريةٌ سمحت بفرصٍ أفضل لاحقاً"},
+      {t:"أدخل بجزءٍ صغير «للتجربة» دون فهم المخاطرة كاملةً", q:"ok", d:5,
+       fb:"حتى الجزء الصغير قد يتضخّم إن كانت المخاطرة غير محدودةٍ بوضوح.",
+       y1:"تعرّضٌ محدودٌ لكن غير مفهوم", y5:"نتيجةٌ غامضة"},
+      {t:"أدخل بكامل ما أملك مُنجذباً للعائد المرتفع المعلن", q:"bad", d:-9,
+       fb:"المخاطرة غير المفهومة مع رأس مالٍ كامل هي وصفةٌ كلاسيكية للخسارة الكارثية.",
+       y1:"خسارةٌ كبيرة محتملة", y5:"رأس مالٍ يصعب تعويضه"}
+    ]
+  },
+  {
+    cure:"المبدأ · التفكير العكسي المنضبط",
+    short:"العكسية وحدها لا تكفي دون تحليل",
+    situation:"يكره معظم المستثمرين قطاعاً معيّناً ويتجنّبونه تماماً. كيف تستفيد من ذلك؟",
+    choices:[
+      {t:"أبحث فيه بعمقٍ لأرى إن كانت الكراهية مُبرَّرة أم مبالغاً فيها — العكسية المدروسة لا العشوائية", q:"best", d:20,
+       fb:"كون شيءٍ غير محبوب لا يعني أنه فرصة تلقائياً، ولا أنه يجب تجنّبه دائماً. التحليل وحده يحدّد إن كانت الكراهية مبرَّرة.",
+       y1:"اكتشفتَ فرصةً مهجورة بسعرٍ منخفض", y5:"عائدٌ ممتاز إن أثبت التحليل صحته"},
+      {t:"أشتريه فوراً لمجرّد أن الجميع يكرهه دون تحليلٍ إضافي", q:"ok", d:5,
+       fb:"العكسية العشوائية بلا تحليل قد تقودك لشراء أصلٍ سيءٍ لأسبابٍ مستحقة.",
+       y1:"نتيجةٌ تعتمد على الحظ", y5:"قد تربح أو تخسر بلا منطق واضح"},
+      {t:"أتجنّبه تماماً لأن «الجميع يكرهه فلا بد أنه سيء»", q:"bad", d:-8,
+       fb:"اتّباع رأي القطيع — سلباً أو إيجاباً — هو بالضبط ما يمنعك من اكتشاف الفرص الحقيقية.",
+       y1:"فرصةٌ ضائعة محتملة", y5:"بقاءٌ في القطيع دون تمييز"}
+    ]
+  },
+  {
+    cure:"المبدأ · الصبر وانتظار الفرصة المناسبة",
+    short:"لا تشتري لمجرّد أن لديك نقداً",
+    situation:"السوق غالٍ في كل القطاعات وليس أمامك فرصةٌ واضحة، لكنك تشعر بضرورة «فعل شيءٍ» بأموالك.",
+    choices:[
+      {t:"أنتظر بصبرٍ حتى تظهر فرصةٌ حقيقية بهامش أمانٍ واضح، فالنقد ليس عدوّك", q:"best", d:18,
+       fb:"الانضباط في الانتظار من أصعب المهارات وأكثرها ربحيةً. لا حاجة للاستثمار إن كانت الفرص غير مقنعة.",
+       y1:"حافظتَ على ذخيرتك المالية", y5:"استثمارٌ ذكيٌّ حين ظهرت الفرصة المناسبة"},
+      {t:"أستثمر جزءاً صغيراً «حتى لا يبقى نقدي عاطلاً»", q:"ok", d:5,
+       fb:"الشعور بالحاجة لفعل شيءٍ يدفعك لقراراتٍ متوسطة الجودة في أوقاتٍ غير مناسبة.",
+       y1:"عائدٌ متواضعٌ غير مُبرَّر", y5:"فرصٌ أفضل ضاعت بسبب التعجّل"},
+      {t:"أستثمر كل نقدي فوراً في أي شيءٍ متاح كي لا يبقى «عاطلاً»", q:"bad", d:-8,
+       fb:"الخوف من النقد العاطل أسوأ من النقد نفسه؛ يدفعك لشراء أصولٍ سيئة بأسعارٍ غير منطقية.",
+       y1:"استثمارٌ ضعيف القيمة", y5:"رأس مالٍ تآكل دون داعٍ"}
+    ]
+  }
+];
+
+const VERDICTS = {
+  best:{title:"🎯 تفكيرٌ من المستوى الثاني — هذا منطق ماركس", cls:"best"},
+  ok:{title:"⚖️ مقبول… لكنك ما زلت في المستوى الأول", cls:"ok"},
+  bad:{title:"🌀 فكرٌ سطحيٌّ يتبع القطيع", cls:"bad"}
+};
+
+let idx = 0, wealth = 0, mastered = [];
+const $ = id => document.getElementById(id);
+
+function fmt(n){
+  const s = Math.abs(n).toLocaleString('en-US').replace(/,/g,'٬');
+  return (n<0?'−':'')+s;
+}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function renderDots(){
+  $('dots').innerHTML = SCENARIOS.map((_,i)=>`<div class="dot ${i<idx?'on':''} ${i===idx?'now':''}"></div>`).join('');
+}
+function renderWealth(animateFrom){
+  const el = $('wealth');
+  el.classList.toggle('neg', wealth<0);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(animateFrom===undefined || reduce){ el.innerHTML = fmt(wealth)+' <small>نقطة</small>'; return; }
+  const start = animateFrom, diff = wealth-start, dur = 900, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    el.innerHTML = fmt(Math.round(start+diff*e))+' <small>نقطة</small>';
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function startGame(){
+  idx = 0; wealth = 0; mastered = [];
+  $('ledger').style.display = 'block';
+  renderWealth(); renderDots(); renderScenario(); show('game');
+}
+function renderScenario(){
+  const s = SCENARIOS[idx];
+  $('g-eyebrow').textContent = `الموقف ${idx+1} من ${SCENARIOS.length} · ${s.cure}`;
+  $('g-situation').textContent = s.situation;
+  const letters = ['أ','ب','ج'];
+  $('g-choices').innerHTML = s.choices.map((c,i)=>
+    `<button class="choice" onclick="choose(${i})"><span class="badge">${letters[i]}</span><span>${c.t}</span></button>`).join('');
+  renderDots();
+}
+function choose(ci){
+  const s = SCENARIOS[idx], c = s.choices[ci];
+  const before = wealth;
+  wealth += c.d;
+  mastered.push(c.q === 'best');
+  const v = VERDICTS[c.q];
+  $('f-verdict').className = 'verdict '+v.cls;
+  $('f-title').textContent = v.title;
+  $('f-text').textContent = c.fb;
+  $('f-y1').textContent = c.y1;
+  $('f-y5').textContent = c.y5;
+  const dEl = $('f-delta');
+  dEl.className = 'delta '+(c.d>0?'up':c.d<0?'down':'flat');
+  dEl.textContent = (c.d>0?'📈 +':c.d<0?'📉 −':'⏳ ')+(c.d===0?'لا تغيير':Math.abs(c.d)+' نقطة');
+  $('f-next').textContent = (idx === SCENARIOS.length-1) ? 'اكشف نتيجتك النهائية 🎯' : 'الموقف التالي ←';
+  show('feedback');
+  renderWealth(before);
+}
+function nextScenario(){
+  idx++;
+  if(idx < SCENARIOS.length){ renderScenario(); show('game'); }
+  else showResults();
+}
+function rankOf(w){
+  if(w>=95) return {r:"🎯 مستثمرٌ من المستوى الثاني حقاً", n:"تفكّر فيما لا يفكّر فيه السوق، وتعرف أن السعر لا الجودة وحدها هو ما يحدّد الاستثمار الجيد. طبّقه على محفظتك الحقيقية."};
+  if(w>=60) return {r:"🌊 تتقن قراءة دورة السوق تدريجياً", n:"تمتلك معظم مبادئ ماركس. راجع ما أخطأت فيه أدناه ورسّخه."};
+  if(w>=25) return {r:"⏳ بدأتَ تتجاوز المستوى الأول", n:"وضعتَ أولى لبنات التفكير العكسي المنضبط. أعد قراءة الفصول ثم عُد."};
+  return {r:"🌀 لا تزال تتبع القطيع", n:"لا بأس — الوعي أول خطوة. ابدأ بسؤالٍ واحد: «هل يعرف السوق هذا بالفعل؟»"};
+}
+function showResults(){
+  $('ledger').style.display = 'none';
+  const rk = rankOf(wealth);
+  const amountEl = $('r-amount');
+  amountEl.classList.toggle('neg', wealth<0);
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n;
+  $('r-principles').innerHTML = SCENARIOS.map((s,i)=>
+    `<li><span class="p-mark ${mastered[i]?'yes':'no'}">${mastered[i]?'✓':'✗'}</span><span>${s.short}</span></li>`).join('');
+  show('results');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ amountEl.textContent = fmt(wealth); return; }
+  const dur = 1400, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    amountEl.textContent = fmt(Math.round(wealth*e));
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function restart(){ $('ledger').style.display = 'none'; show('intro'); }
+</script>
+</body>
+</html>

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>فكّر بشكلٍ أكبر — لعبة القرارات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#1A1228; --lapis-deep:#100A1A; --lapis-panel:#2C1F42;
+    --gold:#D9A23B; --gold-bright:#F0C36B; --sand:#EEEAF5; --sand-dim:#B3A6C9;
+    --ember:#D2674E; --reed:#5FB389; --violet:#7C5FC9; --violet-deep:#5C45A0; --violet-bright:#A98BE8;
+    --shadow:0 12px 32px rgba(8,4,16,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:'Tajawal',sans-serif;background:radial-gradient(1200px 600px at 50% -10%, #402C66 0%, transparent 60%),linear-gradient(180deg, var(--lapis-night) 0%, #0A0712 100%);color:var(--sand);min-height:100vh;line-height:1.7}
+  body::after{content:"";position:fixed;inset:auto 0 0 0;height:3px;z-index:5;background:linear-gradient(90deg, transparent 0, var(--violet) 30%, var(--gold-bright) 50%, var(--violet) 70%, transparent 100%);box-shadow:0 -4px 16px rgba(124,95,201,.35);opacity:.9}
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+  .ledger{position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:14px 18px 12px;background:linear-gradient(180deg, rgba(26,18,40,.97) 70%, rgba(26,18,40,.85));border-bottom:1px solid rgba(124,95,201,.45);backdrop-filter:blur(6px)}
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .ledger-label{font-size:.78rem;color:var(--sand-dim);font-weight:500}
+  .ledger-amount{font-family:'Cairo',sans-serif;font-weight:800;font-size:1.4rem;color:var(--gold-bright);letter-spacing:.3px;white-space:nowrap}
+  .ledger-amount small{font-size:.82rem;color:var(--sand-dim);font-family:'Tajawal',sans-serif;font-weight:500;margin-right:4px}
+  .ledger-amount.neg{color:var(--ember)}
+  .think-gauge{position:relative;height:14px;border-radius:99px;background:rgba(238,234,245,.12);overflow:hidden;margin-top:10px}
+  .think-gauge-fill{position:absolute;inset:0;width:0%;border-radius:99px;background:linear-gradient(90deg,var(--violet),var(--gold-bright));transition:width .8s cubic-bezier(.2,.8,.2,1)}
+  .think-gauge-label{display:flex;justify-content:space-between;font-size:.68rem;color:var(--sand-dim);margin-top:4px}
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;color:var(--violet-bright);border:1px solid rgba(124,95,201,.55);border-radius:99px;padding:4px 14px;margin-bottom:14px;letter-spacing:.3px;background:rgba(124,95,201,.1)}
+  h1{font-family:'Cairo',sans-serif;font-size:2.2rem;font-weight:900;line-height:1.3;color:var(--gold-bright);margin-bottom:6px}
+  h2.situation{font-family:'Tajawal',sans-serif;font-size:1.4rem;line-height:1.75;color:var(--sand);font-weight:700;margin-bottom:22px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+  .card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(124,95,201,.32);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow)}
+  .choice{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;background:rgba(16,10,26,.6);border:1px solid rgba(238,234,245,.16);border-radius:14px;padding:15px 16px;margin-bottom:12px;color:var(--sand);font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.65;cursor:pointer;transition:border-color .2s, background .2s, transform .15s}
+  .choice:hover,.choice:focus-visible{border-color:var(--violet);background:rgba(124,95,201,.12);transform:translateY(-1px)}
+  .choice:focus-visible{outline:2px solid var(--violet-bright);outline-offset:2px}
+  .badge{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(124,95,201,.18);border:1px solid rgba(124,95,201,.55);color:var(--violet-bright);font-weight:800;font-size:.95rem;margin-top:2px}
+  .verdict{border-radius:14px;padding:18px;margin-bottom:16px;border:1px solid}
+  .verdict.best{background:rgba(95,179,137,.14);border-color:rgba(95,179,137,.6)}
+  .verdict.ok{background:rgba(217,162,59,.12);border-color:rgba(217,162,59,.55)}
+  .verdict.bad{background:rgba(210,103,78,.14);border-color:rgba(210,103,78,.6)}
+  .verdict-title{font-family:'Cairo',sans-serif;font-size:1.22rem;font-weight:800;margin-bottom:8px}
+  .verdict.best .verdict-title{color:#8FE0B6}
+  .verdict.ok .verdict-title{color:var(--gold-bright)}
+  .verdict.bad .verdict-title{color:#F0987C}
+  .verdict p{font-size:.98rem}
+  .timeline{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+  .t-row{display:flex;gap:12px;align-items:flex-start;background:rgba(16,10,26,.55);border-radius:12px;padding:12px 14px;border:1px solid rgba(238,234,245,.12)}
+  .t-when{flex:0 0 auto;font-weight:800;color:var(--violet-bright);font-size:.85rem;border-left:1px solid rgba(124,95,201,.4);padding-left:12px;min-width:74px}
+  .t-what{font-size:.95rem;color:var(--sand)}
+  .delta{display:inline-flex;align-items:center;gap:8px;font-family:'Cairo',sans-serif;font-weight:800;font-size:1.3rem;border-radius:12px;padding:8px 16px;margin-bottom:18px}
+  .delta.up{background:rgba(95,179,137,.16);color:#8FE0B6;border:1px solid rgba(95,179,137,.5)}
+  .delta.down{background:rgba(210,103,78,.16);color:#F0987C;border:1px solid rgba(210,103,78,.5)}
+  .delta.flat{background:rgba(238,234,245,.08);color:var(--sand-dim);border:1px solid rgba(238,234,245,.22)}
+  .btn{display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;color:#1A1228;background:linear-gradient(180deg,var(--violet-bright),var(--violet-deep));border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(92,69,160,.4)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(92,69,160,.5)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(217,162,59,.55);box-shadow:none;margin-top:10px}
+  .final-amount{font-family:'Cairo',sans-serif;font-size:3rem;font-weight:900;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
+  .final-amount.neg{color:var(--ember)}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{text-align:center;font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800;color:var(--sand);margin-bottom:6px}
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:22px}
+  .principles{list-style:none;margin-bottom:22px}
+  .principles li{display:flex;gap:10px;align-items:center;padding:10px 14px;margin-bottom:8px;background:rgba(16,10,26,.55);border-radius:12px;border:1px solid rgba(238,234,245,.12);font-size:.95rem}
+  .p-mark{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+  .p-mark.yes{background:rgba(95,179,137,.2);color:#8FE0B6;border:1px solid rgba(95,179,137,.6)}
+  .p-mark.no{background:rgba(210,103,78,.2);color:#F0987C;border:1px solid rgba(210,103,78,.6)}
+  .quote{font-family:'Cairo',sans-serif;font-size:1.16rem;font-weight:700;line-height:1.85;text-align:center;color:var(--gold-bright);border-top:1px solid rgba(217,162,59,.35);border-bottom:1px solid rgba(217,162,59,.35);padding:18px 6px;margin-bottom:22px}
+  .quote span{display:block;font-family:'Tajawal',sans-serif;font-size:.85rem;font-weight:500;color:var(--sand-dim);margin-top:8px}
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--violet);display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:radial-gradient(circle at 35% 30%, rgba(124,95,201,.3), rgba(217,162,59,.05));box-shadow:0 0 30px rgba(124,95,201,.3)}
+  .intro-list{margin:0 0 26px;padding:0;list-style:none}
+  .intro-list li{display:block;position:relative;padding-right:22px;color:var(--sand);font-size:.98rem;margin-bottom:10px}
+  .intro-list li::before{content:"◆";color:var(--violet);font-size:.7rem;position:absolute;right:0;top:.5em}
+  @media (max-width:420px){h1{font-size:1.85rem}h2.situation{font-size:1.25rem}.final-amount{font-size:2.4rem}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div>
+        <div class="ledger-label">رصيد التفكير الكبير</div>
+        <div class="ledger-amount" id="wealth">0 <small>نقطة</small></div>
+      </div>
+      <div style="font-size:1.6rem">🌟</div>
+    </div>
+    <div class="think-gauge"><div class="think-gauge-fill" id="gauge-fill"></div></div>
+    <div class="think-gauge-label"><span>تفكيرٌ صغير</span><span>تفكيرٌ كبير</span></div>
+  </div>
+
+  <section class="screen active" id="intro">
+    <div class="intro-seal">🌟</div>
+    <div style="text-align:center">
+      <div class="eyebrow">لعبة قرارات · كتاب «سحر التفكير بشكل أكبر»</div>
+      <h1>فكّر بشكلٍ أكبر</h1>
+      <p class="sub">حجم نجاحك يتحدّد بحجم تفكيرك، لا بقدراتك الفعلية وحدها.</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>ستواجه <b>6 مواقف</b> على مبادئ ديفيد شوارتز في «سحر التفكير بشكل أكبر».</li>
+        <li>كل قرارٍ يرفع أو يخفض <b>رصيد التفكير الكبير</b>، وتشاهد «مقياس التفكير» يتحرّك تفاعلياً.</li>
+        <li>المبدأ: <b>«أنت لست بحاجةٍ لتكون عبقرياً لتفكّر بشكلٍ كبير؛ تحتاج فقط لتصديق أنك تستطيع»</b>.</li>
+        <li>اجمع أعلى رصيدٍ ممكن… حتى تتجاوز خوف الفشل ومحدودية التفكير الصغير.</li>
+      </ul>
+      <button class="btn" onclick="startGame()">ابدأ التفكير الكبير ▸</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="eyebrow" id="g-eyebrow"></div>
+    <h2 class="situation" id="g-situation"></h2>
+    <div id="g-choices"></div>
+  </section>
+
+  <section class="screen" id="feedback">
+    <div class="card">
+      <div class="verdict" id="f-verdict">
+        <div class="verdict-title" id="f-title"></div>
+        <p id="f-text"></p>
+      </div>
+      <div class="timeline">
+        <div class="t-row"><div class="t-when">بعد سنة</div><div class="t-what" id="f-y1"></div></div>
+        <div class="t-row"><div class="t-when">بعد 5 سنوات</div><div class="t-what" id="f-y5"></div></div>
+      </div>
+      <div style="text-align:center"><span class="delta" id="f-delta"></span></div>
+      <button class="btn" id="f-next" onclick="nextScenario()">متابعة ←</button>
+    </div>
+  </section>
+
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow">اكتملت الجلسة</div></div>
+    <div class="card">
+      <div class="final-label">رصيد التفكير الكبير</div>
+      <div class="final-amount" id="r-amount">0</div>
+      <div class="final-label">نقطة &nbsp;·&nbsp; من أصل 116</div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <ul class="principles" id="r-principles"></ul>
+      <div class="quote">«ليس عليك أن تكون كبيراً لتبدأ، لكن عليك أن تبدأ لتكون كبيراً»<span>— ديفيد شوارتز</span></div>
+      <button class="btn" onclick="restart()">أعد المحاولة 🔄</button>
+      <button class="btn ghost" onclick="restart()">اقرأ الملخص مرة أخرى 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const SCENARIOS = [
+  {
+    cure:"المبدأ · حجم تفكيرك يحدّد حجم نتائجك",
+    short:"التفكير الكبير ليس عن الذكاء بل عن الجرأة في الطموح",
+    situation:"تفكّر في هدفٍ مالي، وتجد نفسك تخفّض الرقم تلقائياً لأنه «يبدو طموحاً أكثر من اللازم بالنسبة لشخصٍ مثلي».",
+    choices:[
+      {t:"أتحدّى هذا التفكير المحدود وأحدّد هدفاً أكبر فعلياً، فالحجم الذي أتخيّله يحدّد سقف ما أحاول الوصول إليه", q:"best", d:20,
+       fb:"شوارتز يؤكّد أن النجاح ليس دالةً للذكاء وحده، بل لحجم التفكير؛ خفض الأهداف تلقائياً يضمن نتائج صغيرة بصرف النظر عن القدرة الفعلية.",
+       y1:"هدفٌ أكبر يوجّه جهداً أكبر", y5:"نتيجةٌ تتناسب مع حجم الطموح الموسَّع"},
+      {t:"أحدّد هدفاً «معقولاً» متوسّطاً لأتجنّب خيبة الأمل المحتملة من هدفٍ كبير", q:"ok", d:5,
+       fb:"الهدف المتوسّط «الآمن» يحدّ من النتيجة المحتملة، حتى لو كانت القدرة الفعلية تسمح بأكثر من ذلك بكثير.",
+       y1:"تقدّمٌ متوسّطٌ يطابق الهدف المتوسّط", y5:"نتيجةٌ محدودة بسقفٍ ذاتيٍّ منخفض"},
+      {t:"أخفّض الهدف إلى أقصى درجة «لأكون واقعياً وأتجنّب الإحباط»", q:"bad", d:-8,
+       fb:"التخفيض المتطرّف للهدف بدافع تجنّب الإحباط يضمن نتيجةً صغيرة جداً مهما كانت القدرة الفعلية متاحة.",
+       y1:"تقدّمٌ ضئيلٌ يطابق الهدف المنخفض جداً", y5:"فرصةٌ كبيرة ضاعت بسبب التفكير الصغير"}
+    ]
+  },
+  {
+    cure:"المبدأ · علاج خوف الفشل بالفعل لا بالانتظار",
+    short:"الفعل يقتل الخوف؛ الانتظار يغذّيه",
+    situation:"لديك فرصةٌ مالية جيدة، لكن الخوف من الفشل يجعلك تؤجّل القرار أسبوعاً بعد أسبوع دون أي خطوةٍ فعلية.",
+    choices:[
+      {t:"أتّخذ خطوةً فعليةً صغيرة الآن تجاه الفرصة، فالفعل يقلّل الخوف بعكس الانتظار الذي يضخّمه تدريجياً", q:"best", d:19,
+       fb:"شوارتز يصف الخوف كحالةٍ تكبر مع الانتظار وتصغر مع الفعل؛ أي خطوةٍ عملية، حتى الصغيرة، تكسر حلقة التردّد المتصاعد.",
+       y1:"خطوةٌ فعلية كسرت حلقة التردّد", y5:"تقدّمٌ ملموسٌ بدل الانتظار اللامتناهي"},
+      {t:"أستمر في «التفكير في الأمر» دون أي خطوةٍ فعلية لأسابيعَ إضافية", q:"ok", d:5,
+       fb:"التفكير المستمر بلا فعلٍ يزيد القلق دون أي تقدّمٍ فعلي تجاه الفرصة المتاحة.",
+       y1:"قلقٌ متزايدٌ دون أي تقدّم", y5:"فرصةٌ قد تنتهي بسبب التأجيل المستمر"},
+      {t:"أرفض الفرصة كلياً لأن «الخوف من الفشل أقوى من أي رغبةٍ في المحاولة»", q:"bad", d:-8,
+       fb:"الرفض الكامل بدافع الخوف يضمن عدم الفشل، لكنه يضمن أيضاً عدم أي نجاحٍ ممكن كان متاحاً.",
+       y1:"لا تقدّمٌ ولا مخاطرة", y5:"فرصةٌ ضائعةٌ بالكامل بسبب الخوف"}
+    ]
+  },
+  {
+    cure:"المبدأ · بيئتك تشكّل تفكيرك",
+    short:"المحيط المتشائم يقلّص الطموح دون أن تشعر",
+    situation:"محيطك الاجتماعي يثني عليك دائماً البقاء «واقعياً» وعدم «المخاطرة» بأي هدفٍ طموح.",
+    choices:[
+      {t:"أبحث عن أشخاصٍ ذوي تفكيرٍ كبيرٍ وطموحٍ إيجابي لأتعلّم منهم وأقلّل تأثير المحيط المتشائم على طموحي", q:"best", d:18,
+       fb:"شوارتز يؤكّد أن البيئة المحيطة تؤثّر بقوة على حجم تفكيرنا؛ التواصل مع أصحاب التفكير الكبير يوسّع منظورك تدريجياً.",
+       y1:"منظورٌ أوسع بفضل محيطٍ جديد إيجابي", y5:"طموحٌ نما بفضل القدوة الإيجابية المستمرة"},
+      {t:"أحاول تجاهل تعليقات المحيط لكنني أبقى في نفس البيئة الاجتماعية تماماً دون أي تغيير", q:"ok", d:5,
+       fb:"التجاهل وحده صعبٌ مع التعرّض المستمر للتأثير السلبي؛ المحيط يتسرّب لتفكيرك شئتَ أم أبيت.",
+       y1:"شدٌّ وجذبٌ مستمرٌّ مع المحيط", y5:"طموحٌ يكافح ضدّ تيارٍ مستمر"},
+      {t:"أتبنّى نظرة محيطي تماماً وأتخلّى عن أي هدفٍ طموح «لأكون واقعياً مثلهم»", q:"bad", d:-9,
+       fb:"تبنّي التشاؤم المحيط بالكامل يُثبّت تفكيراً صغيراً ويُلغي أي إمكانية نموٍّ شخصيٍّ حقيقي.",
+       y1:"تراجعٌ كاملٌ نحو التفكير الصغير", y5:"طموحٌ تلاشى بفعل التأثير السلبي المستمر"}
+    ]
+  },
+  {
+    cure:"المبدأ · التفكير بالحلول لا بالعقبات",
+    short:"من يفكّر «كيف ينجح هذا؟» يجد طرقاً يفوّتها من يفكّر «لماذا سيفشل؟»",
+    situation:"تواجه عقبةً واضحة في مشروعٍ ماليٍّ تخطّط له، وتجد نفسك تفكّر فقط في كل الأسباب التي قد تجعله يفشل.",
+    choices:[
+      {t:"أُعيد توجيه تفكيري نحو «كيف يمكن أن ينجح هذا رغم العقبة؟» وأبحث عن حلولٍ عملية بدل التركيز على المخاوف فقط", q:"best", d:19,
+       fb:"شوارتز يميّز بوضوح بين عقلية «لماذا سيفشل» المشلولة وعقلية «كيف ينجح» الباحثة عن الحلول؛ نفس العقبة، منظورٌ مختلفٌ تماماً.",
+       y1:"حلولٌ عملية ظهرت بفعل التوجيه الإيجابي", y5:"مشروعٌ تقدّم رغم العقبة الأصلية"},
+      {t:"أحلّل العقبة بحياد، لكنني لا أبحث بنشاطٍ عن حلولٍ إبداعية لتجاوزها", q:"ok", d:5,
+       fb:"التحليل الحيادي بلا بحثٍ نشطٍ عن حلولٍ يُبقي العقبة قائمةً دون أي تقدّمٍ عملي.",
+       y1:"وعيٌ بالعقبة دون أي تقدّمٍ فعلي", y5:"مشروعٌ متوقّفٌ عند نفس العقبة"},
+      {t:"أتوقّف عن المشروع كلياً عند أول عقبةٍ واضحة دون أي محاولة حلٍّ إبداعي", q:"bad", d:-8,
+       fb:"التوقّف الفوري عند أول عقبة، دون أي محاولة حلٍّ، يُلغي مشاريع كان يمكن أن تنجح بحلٍّ إبداعيٍّ بسيط.",
+       y1:"مشروعٌ توقّف بالكامل", y5:"فرصةٌ ضاعت بسبب الاستسلام السريع"}
+    ]
+  },
+  {
+    cure:"المبدأ · تصرّف بثقةٍ كي تشعر بالثقة",
+    short:"الفعل بثقةٍ يصنع الثقة الفعلية، لا انتظارها قبل الفعل",
+    situation:"تشعر بعدم ثقةٍ كافية للتفاوض على راتبٍ أعلى أو شروطٍ ماليةٍ أفضل، وتفكّر في الانتظار «حتى تشعر بثقةٍ كاملة».",
+    choices:[
+      {t:"أتصرّف بثقةٍ (لغة جسدٍ واثقة، صوتٌ ثابت) حتى قبل أن أشعر بها كاملةً، فالفعل يخلق الشعور لا العكس", q:"best", d:18,
+       fb:"شوارتز يصف مبدأ «التصرّف بثقة» كأداةٍ عملية: تبنّي سلوك الثقة فعلياً يولّد الشعور بها تدريجياً، عكس انتظار شعورٍ كاملٍ قد لا يأتي أبداً.",
+       y1:"تفاوضٌ أفضل بفضل السلوك الواثق", y5:"ثقةٌ حقيقية ترسّخت من التكرار العملي"},
+      {t:"أنتظر «الشعور بالثقة الكاملة» قبل أي محاولة تفاوضٍ فعلية", q:"ok", d:5,
+       fb:"انتظار ثقةٍ كاملة قبل الفعل قد يعني انتظاراً لا ينتهي؛ الثقة غالباً تأتي بعد الفعل لا قبله.",
+       y1:"تأجيلٌ مستمرٌّ للتفاوض", y5:"فرصةٌ تفاوضٍ ضاعت بسبب الانتظار"},
+      {t:"أتجنّب أي تفاوضٍ كلياً لأن «الثقة لن تأتي أبداً بالنسبة لي»", q:"bad", d:-7,
+       fb:"الاعتقاد بأن الثقة «لن تأتي أبداً» يُلغي أي محاولةٍ مستقبلية للتفاوض على شروطٍ ماليةٍ أفضل.",
+       y1:"لا تفاوضٌ ولا تحسّنٌ في الشروط", y5:"شروطٌ ماليةٌ ثابتة دون أي تحسّن"}
+    ]
+  },
+  {
+    cure:"المبدأ · الأفكار الكبرى تحتاج جدولاً زمنياً واقعياً وعملاً مستمراً",
+    short:"التفكير الكبير بلا عملٍ مستمرٍّ يبقى خيالاً",
+    situation:"حدّدتَ هدفاً مالياً كبيراً وطموحاً، وتتساءل كيف توازن بين الطموح الكبير والعمل اليومي العملي اللازم لتحقيقه.",
+    choices:[
+      {t:"أحوّل الهدف الكبير لخطواتٍ عمليةٍ يوميةٍ وأسبوعية محدّدة، فالطموح الكبير يحتاج عملاً مستمراً لا حلماً مجرّداً فقط", q:"best", d:20,
+       fb:"شوارتز يؤكّد أن التفكير الكبير ليس خيالاً سلبياً، بل رؤيةٌ تُترجَم لخطواتٍ عملية يومية تتراكم نحو الهدف الكبير تدريجياً.",
+       y1:"خطواتٌ عملية تتراكم نحو الهدف الكبير", y5:"تقدّمٌ ملموسٌ يقترب من الطموح الأصلي"},
+      {t:"أكتفي بتخيّل الهدف الكبير والشعور الجيد المرافق له دون خطواتٍ عملية محدّدة", q:"ok", d:5,
+       fb:"الحلم الكبير بلا خطواتٍ عملية يبقى خيالاً مجرّداً لا يتحوّل لنتيجةٍ فعلية على الأرض.",
+       y1:"شعورٌ جيدٌ مؤقّتٌ دون تقدّمٍ فعلي", y5:"هدفٌ بقي حلماً دون أي تحقّقٍ ملموس"},
+      {t:"أتخلّى عن الهدف الكبير بعد أسابيعَ قليلة لأن «التقدّم يبدو بطيئاً جداً»", q:"bad", d:-8,
+       fb:"التخلّي السريع بسبب بطء التقدّم الملحوظ يُلغي فرصة الوصول للهدف الكبير الذي يحتاج وقتاً وصبراً واستمرارية.",
+       y1:"تراجعٌ كاملٌ عن الهدف الكبير", y5:"عودةٌ لتفكيرٍ صغيرٍ بعد طموحٍ مبدئي"}
+    ]
+  }
+];
+
+const VERDICTS = {
+  best:{title:"🌟 تفكيرٌ كبير — هكذا يفكّر ديفيد شوارتز", cls:"best"},
+  ok:{title:"⚖️ مقبول… لكن التفكير لا يزال متوسّطاً", cls:"ok"},
+  bad:{title:"🌀 تفكيرٌ صغيرٌ يحدّ من نتائجك", cls:"bad"}
+};
+
+let idx = 0, wealth = 0, mastered = [];
+const $ = id => document.getElementById(id);
+
+function fmt(n){
+  const s = Math.abs(n).toLocaleString('en-US').replace(/,/g,'٬');
+  return (n<0?'−':'')+s;
+}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function renderGauge(){
+  const pct = Math.max(0, Math.min(100, 50 + wealth/1.3));
+  requestAnimationFrame(()=>{ $('gauge-fill').style.width = pct+'%'; });
+}
+function renderWealth(animateFrom){
+  const el = $('wealth');
+  el.classList.toggle('neg', wealth<0);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(animateFrom===undefined || reduce){ el.innerHTML = fmt(wealth)+' <small>نقطة</small>'; renderGauge(); return; }
+  const start = animateFrom, diff = wealth-start, dur = 900, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    el.innerHTML = fmt(Math.round(start+diff*e))+' <small>نقطة</small>';
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+  renderGauge();
+}
+function startGame(){
+  idx = 0; wealth = 0; mastered = [];
+  $('ledger').style.display = 'block';
+  renderWealth(); renderScenario(); show('game');
+}
+function renderScenario(){
+  const s = SCENARIOS[idx];
+  $('g-eyebrow').textContent = `الموقف ${idx+1} من ${SCENARIOS.length} · ${s.cure}`;
+  $('g-situation').textContent = s.situation;
+  const letters = ['أ','ب','ج'];
+  $('g-choices').innerHTML = s.choices.map((c,i)=>
+    `<button class="choice" onclick="choose(${i})"><span class="badge">${letters[i]}</span><span>${c.t}</span></button>`).join('');
+}
+function choose(ci){
+  const s = SCENARIOS[idx], c = s.choices[ci];
+  const before = wealth;
+  wealth += c.d;
+  mastered.push(c.q === 'best');
+  const v = VERDICTS[c.q];
+  $('f-verdict').className = 'verdict '+v.cls;
+  $('f-title').textContent = v.title;
+  $('f-text').textContent = c.fb;
+  $('f-y1').textContent = c.y1;
+  $('f-y5').textContent = c.y5;
+  const dEl = $('f-delta');
+  dEl.className = 'delta '+(c.d>0?'up':c.d<0?'down':'flat');
+  dEl.textContent = (c.d>0?'📈 +':c.d<0?'📉 −':'⏳ ')+(c.d===0?'لا تغيير':Math.abs(c.d)+' نقطة');
+  $('f-next').textContent = (idx === SCENARIOS.length-1) ? 'اكشف نتيجتك النهائية 🌟' : 'الموقف التالي ←';
+  show('feedback');
+  renderWealth(before);
+}
+function nextScenario(){
+  idx++;
+  if(idx < SCENARIOS.length){ renderScenario(); show('game'); }
+  else showResults();
+}
+function rankOf(w){
+  if(w>=95) return {r:"🌟 تفكيرٌ كبيرٌ بإتقان كامل", n:"تطبّق مبادئ ديفيد شوارتز بإتقان: الطموح الكبير، والفعل بدل الانتظار، والمحيط الإيجابي، والحلول بدل العقبات. طبّقها على حياتك الحقيقية الآن."};
+  if(w>=60) return {r:"🔆 تفكيرك يتوسّع تدريجياً", n:"تمتلك معظم المبادئ. راجع ما أخطأت فيه أدناه ورسّخه."};
+  if(w>=25) return {r:"⏳ بدأتَ تتجاوز التفكير الصغير", n:"وضعتَ أولى لبنات الطموح الكبير. أعد قراءة الفصول ثم عُد."};
+  return {r:"🌀 تفكيرك الصغير يحدّ من نتائجك", n:"لا بأس — الوعي أول خطوة. ابدأ بسؤالٍ واحد: «ما الهدف الذي أخفّضه تلقائياً دون داعٍ؟»"};
+}
+function showResults(){
+  $('ledger').style.display = 'none';
+  const rk = rankOf(wealth);
+  const amountEl = $('r-amount');
+  amountEl.classList.toggle('neg', wealth<0);
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n;
+  $('r-principles').innerHTML = SCENARIOS.map((s,i)=>
+    `<li><span class="p-mark ${mastered[i]?'yes':'no'}">${mastered[i]?'✓':'✗'}</span><span>${s.short}</span></li>`).join('');
+  show('results');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ amountEl.textContent = fmt(wealth); return; }
+  const dur = 1400, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    amountEl.textContent = fmt(Math.round(wealth*e));
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function restart(){ $('ledger').style.display = 'none'; show('intro'); }
+</script>
+</body>
+</html>

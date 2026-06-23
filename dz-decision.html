@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>وزّع ثروتك على عمرك — لعبة القرارات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#1A0E26; --lapis-deep:#11081A; --lapis-panel:#2A163E;
+    --gold:#D9A23B; --gold-bright:#F0C36B; --sand:#EDE7F5; --sand-dim:#AFA0C2;
+    --ember:#D2674E; --reed:#5FB389; --plum:#8C5FC9; --plum-deep:#6940A0; --plum-bright:#B294E8;
+    --shadow:0 12px 32px rgba(10,4,18,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:'Tajawal',sans-serif;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #3D2360 0%, transparent 60%),
+      linear-gradient(180deg, var(--lapis-night) 0%, #0B0612 100%);
+    color:var(--sand); min-height:100vh; line-height:1.7;
+  }
+  body::after{
+    content:""; position:fixed; inset:auto 0 0 0; height:3px; z-index:5;
+    background:linear-gradient(90deg, transparent 0, var(--plum) 30%, var(--gold-bright) 50%, var(--plum) 70%, transparent 100%);
+    box-shadow:0 -4px 16px rgba(140,95,201,.35); opacity:.9;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+
+  .ledger{
+    position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:14px 18px 12px;
+    background:linear-gradient(180deg, rgba(26,14,38,.97) 70%, rgba(26,14,38,.85));
+    border-bottom:1px solid rgba(140,95,201,.45);backdrop-filter:blur(6px);
+  }
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .ledger-label{font-size:.78rem;color:var(--sand-dim);font-weight:500}
+  .ledger-amount{font-family:'Cairo',sans-serif;font-weight:800;font-size:1.4rem;color:var(--gold-bright);letter-spacing:.3px;white-space:nowrap}
+  .ledger-amount small{font-size:.82rem;color:var(--sand-dim);font-family:'Tajawal',sans-serif;font-weight:500;margin-right:4px}
+  .ledger-amount.neg{color:var(--ember)}
+  .dots{display:flex;gap:6px;margin-top:8px;justify-content:center}
+  .dot{width:26px;height:4px;border-radius:99px;background:rgba(237,231,245,.16);transition:background .4s}
+  .dot.on{background:var(--plum)}
+  .dot.now{background:var(--plum-bright);box-shadow:0 0 8px rgba(178,148,232,.8)}
+
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  .eyebrow{
+    display:inline-block;font-size:.78rem;font-weight:700;color:var(--plum-bright);
+    border:1px solid rgba(140,95,201,.55);border-radius:99px;padding:4px 14px;
+    margin-bottom:14px;letter-spacing:.3px;background:rgba(140,95,201,.1);
+  }
+  h1{font-family:'Cairo',sans-serif;font-size:2.2rem;font-weight:900;line-height:1.3;color:var(--gold-bright);margin-bottom:6px}
+  h2.situation{font-family:'Tajawal',sans-serif;font-size:1.4rem;line-height:1.75;color:var(--sand);font-weight:700;margin-bottom:22px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+
+  .card{
+    background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));
+    border:1px solid rgba(140,95,201,.32);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow);
+  }
+
+  .choice{
+    display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;
+    background:rgba(17,8,26,.6);border:1px solid rgba(237,231,245,.16);
+    border-radius:14px;padding:15px 16px;margin-bottom:12px;color:var(--sand);
+    font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.65;cursor:pointer;
+    transition:border-color .2s, background .2s, transform .15s;
+  }
+  .choice:hover,.choice:focus-visible{border-color:var(--plum);background:rgba(140,95,201,.12);transform:translateY(-1px)}
+  .choice:focus-visible{outline:2px solid var(--plum-bright);outline-offset:2px}
+  .badge{
+    flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:rgba(140,95,201,.18);border:1px solid rgba(140,95,201,.55);color:var(--plum-bright);font-weight:800;font-size:.95rem;margin-top:2px;
+  }
+
+  .verdict{border-radius:14px;padding:18px;margin-bottom:16px;border:1px solid}
+  .verdict.best{background:rgba(95,179,137,.14);border-color:rgba(95,179,137,.6)}
+  .verdict.ok{background:rgba(217,162,59,.12);border-color:rgba(217,162,59,.55)}
+  .verdict.bad{background:rgba(210,103,78,.14);border-color:rgba(210,103,78,.6)}
+  .verdict-title{font-family:'Cairo',sans-serif;font-size:1.22rem;font-weight:800;margin-bottom:8px}
+  .verdict.best .verdict-title{color:#8FE0B6}
+  .verdict.ok .verdict-title{color:var(--gold-bright)}
+  .verdict.bad .verdict-title{color:#F0987C}
+  .verdict p{font-size:.98rem}
+
+  .timeline{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+  .t-row{display:flex;gap:12px;align-items:flex-start;background:rgba(17,8,26,.55);border-radius:12px;padding:12px 14px;border:1px solid rgba(237,231,245,.12)}
+  .t-when{flex:0 0 auto;font-weight:800;color:var(--plum-bright);font-size:.85rem;border-left:1px solid rgba(140,95,201,.4);padding-left:12px;min-width:74px}
+  .t-what{font-size:.95rem;color:var(--sand)}
+
+  .delta{display:inline-flex;align-items:center;gap:8px;font-family:'Cairo',sans-serif;font-weight:800;font-size:1.3rem;border-radius:12px;padding:8px 16px;margin-bottom:18px}
+  .delta.up{background:rgba(95,179,137,.16);color:#8FE0B6;border:1px solid rgba(95,179,137,.5)}
+  .delta.down{background:rgba(210,103,78,.16);color:#F0987C;border:1px solid rgba(210,103,78,.5)}
+  .delta.flat{background:rgba(237,231,245,.08);color:var(--sand-dim);border:1px solid rgba(237,231,245,.22)}
+
+  .btn{
+    display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;
+    color:#1A0E26;background:linear-gradient(180deg,var(--plum-bright),var(--plum-deep));border-radius:14px;padding:15px;
+    transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(105,64,160,.4);
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(105,64,160,.5)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(217,162,59,.55);box-shadow:none;margin-top:10px}
+
+  .final-amount{font-family:'Cairo',sans-serif;font-size:3rem;font-weight:900;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
+  .final-amount.neg{color:var(--ember)}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{text-align:center;font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800;color:var(--sand);margin-bottom:6px}
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:22px}
+  .principles{list-style:none;margin-bottom:22px}
+  .principles li{display:flex;gap:10px;align-items:center;padding:10px 14px;margin-bottom:8px;background:rgba(17,8,26,.55);border-radius:12px;border:1px solid rgba(237,231,245,.12);font-size:.95rem}
+  .p-mark{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+  .p-mark.yes{background:rgba(95,179,137,.2);color:#8FE0B6;border:1px solid rgba(95,179,137,.6)}
+  .p-mark.no{background:rgba(210,103,78,.2);color:#F0987C;border:1px solid rgba(210,103,78,.6)}
+  .quote{font-family:'Cairo',sans-serif;font-size:1.16rem;font-weight:700;line-height:1.85;text-align:center;color:var(--gold-bright);border-top:1px solid rgba(217,162,59,.35);border-bottom:1px solid rgba(217,162,59,.35);padding:18px 6px;margin-bottom:22px}
+  .quote span{display:block;font-family:'Tajawal',sans-serif;font-size:.85rem;font-weight:500;color:var(--sand-dim);margin-top:8px}
+
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--plum);display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:radial-gradient(circle at 35% 30%, rgba(140,95,201,.3), rgba(217,162,59,.05));box-shadow:0 0 30px rgba(140,95,201,.3)}
+  .intro-list{margin:0 0 26px;padding:0;list-style:none}
+  .intro-list li{display:block;position:relative;padding-right:22px;color:var(--sand);font-size:.98rem;margin-bottom:10px}
+  .intro-list li::before{content:"◆";color:var(--plum);font-size:.7rem;position:absolute;right:0;top:.5em}
+
+  @media (max-width:420px){h1{font-size:1.85rem}h2.situation{font-size:1.25rem}.final-amount{font-size:2.4rem}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div>
+        <div class="ledger-label">رصيد عوائد الذكريات</div>
+        <div class="ledger-amount" id="wealth">0 <small>نقطة</small></div>
+      </div>
+      <div style="font-size:1.6rem">💎</div>
+    </div>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <section class="screen active" id="intro">
+    <div class="intro-seal">💎</div>
+    <div style="text-align:center">
+      <div class="eyebrow">لعبة قرارات · كتاب «مُت وأنت تملك صفراً»</div>
+      <h1>وزّع ثروتك على عمرك</h1>
+      <p class="sub">المال أداةٌ لشراء التجارب… لا غاية تتراكم بلا فائدةٍ بعد الموت.</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>ستواجه <b>6 مواقف</b> من مبادئ بيل بيركنز في «مُت وأنت تملك صفراً».</li>
+        <li>كل قرارٍ يرفع أو يخفض <b>رصيد عوائد الذكريات</b> لديك.</li>
+        <li>المبدأ: <b>«عوائد الذكريات» تتضاعف كلما عشتَ التجربة في عمرٍ مناسبٍ لها</b> — لا في كل عمرٍ نفس القيمة.</li>
+        <li>اجمع أعلى رصيدٍ ممكن… حتى توازن بين الادّخار والعيش الحقيقي.</li>
+      </ul>
+      <button class="btn" onclick="startGame()">ابدأ التوزيع ▸</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="eyebrow" id="g-eyebrow"></div>
+    <h2 class="situation" id="g-situation"></h2>
+    <div id="g-choices"></div>
+  </section>
+
+  <section class="screen" id="feedback">
+    <div class="card">
+      <div class="verdict" id="f-verdict">
+        <div class="verdict-title" id="f-title"></div>
+        <p id="f-text"></p>
+      </div>
+      <div class="timeline">
+        <div class="t-row"><div class="t-when">بعد سنة</div><div class="t-what" id="f-y1"></div></div>
+        <div class="t-row"><div class="t-when">بعد 5 سنوات</div><div class="t-what" id="f-y5"></div></div>
+      </div>
+      <div style="text-align:center"><span class="delta" id="f-delta"></span></div>
+      <button class="btn" id="f-next" onclick="nextScenario()">متابعة ←</button>
+    </div>
+  </section>
+
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow">اكتملت الجلسة</div></div>
+    <div class="card">
+      <div class="final-label">رصيد عوائد الذكريات</div>
+      <div class="final-amount" id="r-amount">0</div>
+      <div class="final-label">نقطة &nbsp;·&nbsp; من أصل 116</div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <ul class="principles" id="r-principles"></ul>
+      <div class="quote">«الهدف ليس أن تموت بأقصى ثروة، بل أن تستخرج أقصى قيمةٍ من حياتك»<span>— بيل بيركنز</span></div>
+      <button class="btn" onclick="restart()">أعد المحاولة 🔄</button>
+      <button class="btn ghost" onclick="restart()">اقرأ الملخص مرة أخرى 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const SCENARIOS = [
+  {
+    cure:"المبدأ · عوائد الذكريات تتضاعف مبكّراً",
+    short:"التجارب تُثمر أكثر كلما عِشتَها في وقتها المناسب",
+    situation:"لديك مدّخراتٌ تكفي رحلةً طويلة تحلم بها منذ شبابك، لكنك تفكّر في تأجيلها للتقاعد «لتكون أكثر استقراراً مادياً».",
+    choices:[
+      {t:"أخطّط للرحلة الآن في عمرٍ يسمح لي بالاستمتاع الكامل بها جسدياً وعقلياً", q:"best", d:20,
+       fb:"بيركنز يسمّي هذا «عوائد الذكريات»: التجربة نفسها تُنتج فرحاً تتذكّره وتستثمر فيه عاطفياً لعقود؛ هذا العائد يتضاعف إن عِشتها في عمرها المناسب لا متأخّراً.",
+       y1:"ذكرى حيّةٌ تستمر تأثيرها سنوات", y5:"تجربةٌ أثْرَت حياتك في وقتها الأمثل"},
+      {t:"أؤجّلها للتقاعد لأنها «أكثر أماناً مادياً» حتى لو قلّت قدرتي على الاستمتاع الكامل بها", q:"ok", d:5,
+       fb:"الأمان مهمّ، لكن بعض التجارب (التسلّق، السفر الشاق) تُفقِد كثيراً من قيمتها إن تأجّلت لعمرٍ متأخّر.",
+       y1:"مدّخراتٌ آمنة لكن الفرصة تتغيّر", y5:"تجربةٌ أقلّ شدّةً من تصوّرها الأصلي"},
+      {t:"أتجاهل الرحلة كلياً وأستمر بالادّخار دون أي تجربةٍ حياتية مماثلة", q:"bad", d:-9,
+       fb:"الادّخار بلا أي تحويلٍ للتجارب الحياتية يعني تفويت «عوائد الذكريات» بالكامل، وهي عند بيركنز جزءٌ أساسي من الثروة الحقيقية.",
+       y1:"لا عوائد ذكرياتٍ جديدة", y5:"حياةٌ غنيةٌ مادياً وفقيرةٌ تجريبياً"}
+    ]
+  },
+  {
+    cure:"المبدأ · الموازنة بين الادّخار والإنفاق التجريبي",
+    short:"الادّخار المفرط يسرق تجارب اليوم دون فائدةٍ مضمونة",
+    situation:"تدّخر أكثر من حاجتك الفعلية للمستقبل، بينما ترفض إنفاق أي شيءٍ على تجاربٍ تستحقّها الآن. كيف تعيد التوازن؟",
+    choices:[
+      {t:"أحدّد سقفاً معقولاً لمدّخراتي المستقبلية، وأخصّص الباقي لتجارب ذات قيمةٍ حقيقية الآن", q:"best", d:19,
+       fb:"بيركنز يحذّر من الادّخار المفرط الذي يتجاوز حاجتك الفعلية؛ المال غير المُستخدَم في وقته المناسب يفقد جزءاً من قيمته الحياتية.",
+       y1:"توازنٌ بين الأمان والعيش الحقيقي", y5:"ثروةٌ تُحوَّل تدريجياً إلى تجارب ذات معنى"},
+      {t:"أستمر بالادّخار المفرط «للاحتياط» دون أي حدٍّ واضح لكفايته", q:"ok", d:5,
+       fb:"الادّخار بلا سقفٍ واضح قد يحرمك تجارب اليوم لصالح ثروةٍ قد لا تُستخدَم أصلاً كاملةً لاحقاً.",
+       y1:"مدّخراتٌ متضخّمة دون استخدام", y5:"حياةٌ مؤجَّلةٌ باستمرار"},
+      {t:"أتخلّى عن الادّخار كلياً وأنفق كل شيءٍ فوراً دون أي تخطيطٍ للمستقبل", q:"bad", d:-8,
+       fb:"التطرّف في الإنفاق دون أي ادّخارٍ يهدّد استقرارك المستقبلي؛ بيركنز يدعو للتوازن لا للتفريط في أي طرف.",
+       y1:"لا أمانٌ مالي للمستقبل القريب", y5:"وضعٌ هشٌّ عند أي ظرفٍ طارئ"}
+    ]
+  },
+  {
+    cure:"المبدأ · توقيت التجارب حسب القدرة الجسدية والعقلية",
+    short:"بعض التجارب تحتاج عمراً معيّناً لتُعاش بكامل قيمتها",
+    situation:"تخطّط لتجربةٍ بدنيةٍ شاقّة (كرحلة تسلّقٍ أو رياضةٍ متطلّبة) وتفكّر في موعدها المناسب.",
+    choices:[
+      {t:"أحدّد «النافذة الزمنية» الأمثل لقدرتي الجسدية والعقلية، وأخطّط التجربة ضمنها لا قبلها أو بعدها", q:"best", d:18,
+       fb:"بيركنز يؤكّد أن كل تجربةٍ لها «نافذة زمنية» تُعاش فيها بأقصى قيمتها؛ التخطيط الذكي يستفيد من توقيت القدرة الجسدية لا فقط القدرة المالية.",
+       y1:"تجربةٌ عُيشت في أنسب وقتٍ ممكن", y5:"ذكرى كاملة القيمة دون قيودٍ جسدية لاحقة"},
+      {t:"أؤجّلها للتقاعد دون اعتبارٍ لتغيّر قدرتي الجسدية مع الوقت", q:"ok", d:5,
+       fb:"التركيز على الجانب المالي وحده يتجاهل أن بعض التجارب تتطلّب طاقةً قد تقل مع تقدّم العمر.",
+       y1:"خطّةٌ ماليةٌ جيدة لكنها تتجاهل الجسد", y5:"تجربةٌ أقلّ إثارةً من إمكانها الأصلي"},
+      {t:"أؤجّلها إلى أجلٍ غير محدّد دون أي تخطيطٍ زمني واضح", q:"bad", d:-7,
+       fb:"التأجيل بلا نهاية يعني احتمال فوات النافذة الزمنية المناسبة لهذه التجربة تماماً.",
+       y1:"لا تقدّم في التخطيط", y5:"فرصةٌ قد تضيع مع تقدّم العمر"}
+    ]
+  },
+  {
+    cure:"المبدأ · العطاء في وقتٍ يُحدث أثراً لا بعد الموت فقط",
+    short:"مساعدة من تحب وهم بحاجتها الآن أهمّ من ميراثٍ متأخّر",
+    situation:"تخطّط لترك ميراثٍ كاملٍ لأبنائك بعد وفاتك، رغم أنهم يحتاجون دعماً مالياً الآن في مرحلةٍ حاسمة من حياتهم.",
+    choices:[
+      {t:"أعطيهم جزءاً من الدعم الآن في الوقت الذي يحدث فيه أكبر الأثر في حياتهم", q:"best", d:19,
+       fb:"بيركنز يدعو لـ«العطاء في الوقت الأمثل»: مساعدةٌ في سن الثلاثين (شراء منزل، بدء مشروع) قد تُغيّر مساراً كاملاً، بعكس ميراثٍ يصل بعد عقود.",
+       y1:"دعمٌ غيّر مسار حياة من تحب", y5:"أثرٌ إيجابيٌّ تراكميٌّ شهدتَه بنفسك"},
+      {t:"أبقي كل الميراث محجوزاً للنهاية «حتى لا أُفلِس نفسي مبكّراً»", q:"ok", d:5,
+       fb:"الحرص المالي مفهوم، لكن تأجيل كل الدعم للنهاية يفوّت لحظاتٍ قد تكون أكثر تأثيراً في حياة المُستفيدين.",
+       y1:"أمانٌ ماليٌّ كامل للوالد", y5:"دعمٌ يصل في وقتٍ قد يكون أقلّ أثراً"},
+      {t:"لا أخطّط للعطاء أصلاً وأترك كل القرار لما بعد وفاتي دون أي تفكير", q:"bad", d:-8,
+       fb:"غياب التخطيط يعني فقدان فرصة رؤية أثر عطائك بنفسك، وهي قيمةٌ يصفها بيركنز بأنها لا تُقدَّر بمال.",
+       y1:"لا أثرٌ مُشاهَدٌ في حياتك", y5:"عطاءٌ يصل دون أن تشهد نتيجته"}
+    ]
+  },
+  {
+    cure:"المبدأ · تجنّب الموت وأنت تملك ثروةً غير مُستخدَمة",
+    short:"المال غير المُستخدَم في حياتك هو وقتٌ ضائعٌ من عملك",
+    situation:"تدرك أن مدّخراتك الحالية تتجاوز بكثير ما ستحتاجه طوال حياتك المتبقّية المتوقَّعة. كيف تتصرّف؟",
+    choices:[
+      {t:"أعيد تخطيط إنفاقي لأستخدم الفائض في تجارب ذات معنى الآن، بدل تركه يتراكم بلا فائدةٍ بعد وفاتي", q:"best", d:20,
+       fb:"عنوان الكتاب نفسه: «مُت وأنت تملك صفراً» يعني استخدام ثروتك بالكامل خلال حياتك لا تركها متراكمةً دون أي فائدةٍ لك شخصياً.",
+       y1:"إنفاقٌ مدروسٌ يستخرج قيمة المال", y5:"حياةٌ غنيةٌ بالتجارب لا فقط بالرقم البنكي"},
+      {t:"أستمر بالادّخار بنفس الوتيرة «فقط للاحتياط» دون مراجعة الفائض الفعلي", q:"ok", d:5,
+       fb:"الاحتياط مفهوم، لكن تجاهل مراجعة الفائض الحقيقي يعني عمل سنواتٍ إضافية لمالٍ لن يُستخدَم أصلاً.",
+       y1:"مدّخراتٌ متضخّمة دون مراجعة", y5:"وقتٌ من عملك تحوّل لمالٍ غير مُستفادٍ منه"},
+      {t:"أتجاهل الموضوع تماماً ولا أراجع وضعي المالي إطلاقاً", q:"bad", d:-8,
+       fb:"غياب المراجعة يعني استمرار العمل والادّخار لسنواتٍ إضافية كان يمكن استثمارها في تجارب حياتية حقيقية.",
+       y1:"وقتٌ ثمين استُهلك دون مراجعة", y5:"ثروةٌ متراكمة ستظلّ غير مُستخدَمة"}
+    ]
+  },
+  {
+    cure:"المبدأ · التخطيط الواعي لا الادّخار الأعمى",
+    short:"كل قرارٍ ماليٍّ يُقاس بقيمته الحياتية لا فقط برقمه",
+    situation:"تتّخذ قرارك المالي القادم. كيف تقيس نجاحه الحقيقي؟",
+    choices:[
+      {t:"أقيسه بمقدار القيمة الحياتية والتجارب ذات المعنى التي يضيفها، لا فقط بالرقم في حسابي المصرفي", q:"best", d:18,
+       fb:"جوهر فلسفة بيركنز: المال أداةٌ لشراء تجاربٍ وذكرياتٍ ومعنىً، والنجاح الحقيقي يُقاس بالقيمة المُستخرَجة من الحياة لا بالرقم المتراكم وحده.",
+       y1:"وضوحٌ في معايير النجاح الحقيقي", y5:"حياةٌ غنيةٌ بالمعنى لا فقط بالأرقام"},
+      {t:"أقيسه فقط برقم النموّ في حسابي البنكي دون اعتبار التجارب", q:"ok", d:5,
+       fb:"التركيز الحصري على الرقم يتجاهل أن الهدف النهائي من المال هو ما يُمكّنك من عيشه، لا الرقم بذاته.",
+       y1:"نموٌّ ماليٌّ ملموسٌ لكن بلا معنىً مرافق", y5:"ثروةٌ متراكمة قد تظلّ غير مُستثمَرة حياتياً"},
+      {t:"لا أقيس النجاح بأي معيارٍ واضح وأترك الأمر للمصادفة", q:"bad", d:-7,
+       fb:"غياب أي معيارٍ للنجاح يجعل اتخاذ القرارات المالية عشوائياً دون اتجاهٍ واضح نحو حياةٍ ذات معنى.",
+       y1:"قراراتٌ ماليةٌ بلا اتجاهٍ واضح", y5:"نتيجةٌ غير متّسقة مع أي هدفٍ حقيقي"}
+    ]
+  }
+];
+
+const VERDICTS = {
+  best:{title:"💎 عوائد ذكرياتٍ حقيقية — هكذا يفكّر بيركنز", cls:"best"},
+  ok:{title:"⚖️ ادّخارٌ آمن… لكن تجاربٌ مؤجَّلة", cls:"ok"},
+  bad:{title:"🌀 ثروةٌ تتراكم بلا فائدةٍ حياتية", cls:"bad"}
+};
+
+let idx = 0, wealth = 0, mastered = [];
+const $ = id => document.getElementById(id);
+
+function fmt(n){
+  const s = Math.abs(n).toLocaleString('en-US').replace(/,/g,'٬');
+  return (n<0?'−':'')+s;
+}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function renderDots(){
+  $('dots').innerHTML = SCENARIOS.map((_,i)=>`<div class="dot ${i<idx?'on':''} ${i===idx?'now':''}"></div>`).join('');
+}
+function renderWealth(animateFrom){
+  const el = $('wealth');
+  el.classList.toggle('neg', wealth<0);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(animateFrom===undefined || reduce){ el.innerHTML = fmt(wealth)+' <small>نقطة</small>'; return; }
+  const start = animateFrom, diff = wealth-start, dur = 900, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    el.innerHTML = fmt(Math.round(start+diff*e))+' <small>نقطة</small>';
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function startGame(){
+  idx = 0; wealth = 0; mastered = [];
+  $('ledger').style.display = 'block';
+  renderWealth(); renderDots(); renderScenario(); show('game');
+}
+function renderScenario(){
+  const s = SCENARIOS[idx];
+  $('g-eyebrow').textContent = `الموقف ${idx+1} من ${SCENARIOS.length} · ${s.cure}`;
+  $('g-situation').textContent = s.situation;
+  const letters = ['أ','ب','ج'];
+  $('g-choices').innerHTML = s.choices.map((c,i)=>
+    `<button class="choice" onclick="choose(${i})"><span class="badge">${letters[i]}</span><span>${c.t}</span></button>`).join('');
+  renderDots();
+}
+function choose(ci){
+  const s = SCENARIOS[idx], c = s.choices[ci];
+  const before = wealth;
+  wealth += c.d;
+  mastered.push(c.q === 'best');
+  const v = VERDICTS[c.q];
+  $('f-verdict').className = 'verdict '+v.cls;
+  $('f-title').textContent = v.title;
+  $('f-text').textContent = c.fb;
+  $('f-y1').textContent = c.y1;
+  $('f-y5').textContent = c.y5;
+  const dEl = $('f-delta');
+  dEl.className = 'delta '+(c.d>0?'up':c.d<0?'down':'flat');
+  dEl.textContent = (c.d>0?'📈 +':c.d<0?'📉 −':'⏳ ')+(c.d===0?'لا تغيير':Math.abs(c.d)+' نقطة');
+  $('f-next').textContent = (idx === SCENARIOS.length-1) ? 'اكشف نتيجتك النهائية 💎' : 'الموقف التالي ←';
+  show('feedback');
+  renderWealth(before);
+}
+function nextScenario(){
+  idx++;
+  if(idx < SCENARIOS.length){ renderScenario(); show('game'); }
+  else showResults();
+}
+function rankOf(w){
+  if(w>=95) return {r:"💎 توازنٌ مثاليٌّ بين الادّخار والعيش", n:"تطبّق فلسفة بيركنز بإتقان: توقيت التجارب، والعطاء في وقته، واستخراج القيمة الحقيقية من المال. طبّقها على حياتك الآن."};
+  if(w>=60) return {r:"🌿 توازنك في طور النضوج", n:"تمتلك معظم المبادئ. راجع ما أخطأت فيه أدناه ورسّخه."};
+  if(w>=25) return {r:"⏳ بدأتَ تعيد التفكير في توقيتك", n:"وضعتَ أولى لبنات التوازن. أعد قراءة الفصول ثم عُد."};
+  return {r:"🌀 ثروتك لا تزال بلا توقيتٍ واعٍ", n:"لا بأس — الوعي أول خطوة. ابدأ بسؤالٍ واحد: «ما التجربة التي أؤجّلها بلا سبب؟»"};
+}
+function showResults(){
+  $('ledger').style.display = 'none';
+  const rk = rankOf(wealth);
+  const amountEl = $('r-amount');
+  amountEl.classList.toggle('neg', wealth<0);
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n;
+  $('r-principles').innerHTML = SCENARIOS.map((s,i)=>
+    `<li><span class="p-mark ${mastered[i]?'yes':'no'}">${mastered[i]?'✓':'✗'}</span><span>${s.short}</span></li>`).join('');
+  show('results');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ amountEl.textContent = fmt(wealth); return; }
+  const dur = 1400, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    amountEl.textContent = fmt(Math.round(wealth*e));
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function restart(){ $('ledger').style.display = 'none'; show('intro'); }
+</script>
+</body>
+</html>

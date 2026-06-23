@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>طريق الرغبة المشتعلة — لعبة القرارات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#0A0E22; --lapis-deep:#070A18; --lapis-panel:#171D3A;
+    --gold:#D4AF50; --gold-bright:#EBCB76;
+    --sand:#F3E9D2; --sand-dim:#B7AE97;
+    --ember:#C96A52; --reed:#7BA86B;
+    --shadow:0 12px 32px rgba(2,5,16,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:'Tajawal',sans-serif;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #1B2452 0%, transparent 60%),
+      linear-gradient(180deg, var(--lapis-night) 0%, #05070F 100%);
+    color:var(--sand); min-height:100vh; line-height:1.7;
+  }
+  body::after{
+    content:""; position:fixed; inset:auto 0 0 0; height:3px; z-index:5;
+    background:linear-gradient(90deg, transparent 0, var(--gold) 34%, var(--gold-bright) 50%, var(--gold) 66%, transparent 100%);
+    box-shadow:0 -4px 16px rgba(212,175,80,.3); opacity:.85;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+
+  .ledger{
+    position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:14px 18px 12px;
+    background:linear-gradient(180deg, rgba(10,14,34,.97) 70%, rgba(10,14,34,.85));
+    border-bottom:1px solid rgba(212,175,80,.45);backdrop-filter:blur(6px);
+  }
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .ledger-label{font-size:.78rem;color:var(--sand-dim);font-weight:500}
+  .ledger-amount{font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.4rem;color:var(--gold-bright);letter-spacing:.3px;white-space:nowrap}
+  .ledger-amount small{font-size:.82rem;color:var(--sand-dim);font-family:'Tajawal',sans-serif;font-weight:500;margin-right:4px}
+  .ledger-amount.neg{color:var(--ember)}
+  .dots{display:flex;gap:6px;margin-top:8px;justify-content:center}
+  .dot{width:26px;height:4px;border-radius:99px;background:rgba(243,233,210,.16);transition:background .4s}
+  .dot.on{background:var(--gold)}
+  .dot.now{background:var(--gold-bright);box-shadow:0 0 8px rgba(235,203,118,.8)}
+
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  .eyebrow{
+    display:inline-block;font-size:.78rem;font-weight:700;color:var(--gold);
+    border:1px solid rgba(212,175,80,.55);border-radius:99px;padding:4px 14px;
+    margin-bottom:14px;letter-spacing:.3px;background:rgba(212,175,80,.08);
+  }
+  h1{font-family:'Amiri',serif;font-size:2.4rem;font-weight:700;line-height:1.4;color:var(--gold-bright);margin-bottom:6px}
+  h2.situation{font-family:'Tajawal',sans-serif;font-size:1.4rem;line-height:1.75;color:var(--sand);font-weight:700;margin-bottom:22px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+
+  .card{
+    background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));
+    border:1px solid rgba(212,175,80,.32);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow);
+  }
+
+  .choice{
+    display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;
+    background:rgba(7,10,24,.6);border:1px solid rgba(243,233,210,.16);
+    border-radius:14px;padding:15px 16px;margin-bottom:12px;color:var(--sand);
+    font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.65;cursor:pointer;
+    transition:border-color .2s, background .2s, transform .15s;
+  }
+  .choice:hover,.choice:focus-visible{border-color:var(--gold);background:rgba(212,175,80,.10);transform:translateY(-1px)}
+  .choice:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
+  .badge{
+    flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:rgba(212,175,80,.16);border:1px solid rgba(212,175,80,.5);color:var(--gold-bright);font-weight:800;font-size:.95rem;margin-top:2px;
+  }
+
+  .verdict{border-radius:14px;padding:18px;margin-bottom:16px;border:1px solid}
+  .verdict.best{background:rgba(123,168,107,.14);border-color:rgba(123,168,107,.6)}
+  .verdict.ok{background:rgba(212,175,80,.12);border-color:rgba(212,175,80,.55)}
+  .verdict.bad{background:rgba(201,106,82,.14);border-color:rgba(201,106,82,.6)}
+  .verdict-title{font-family:'Tajawal',sans-serif;font-size:1.22rem;font-weight:800;margin-bottom:8px}
+  .verdict.best .verdict-title{color:#9FD083}
+  .verdict.ok .verdict-title{color:var(--gold-bright)}
+  .verdict.bad .verdict-title{color:#E0967C}
+  .verdict p{font-size:.98rem}
+
+  .timeline{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+  .t-row{display:flex;gap:12px;align-items:flex-start;background:rgba(7,10,24,.55);border-radius:12px;padding:12px 14px;border:1px solid rgba(243,233,210,.12)}
+  .t-when{flex:0 0 auto;font-weight:800;color:var(--gold);font-size:.85rem;border-left:1px solid rgba(212,175,80,.4);padding-left:12px;min-width:74px}
+  .t-what{font-size:.95rem;color:var(--sand)}
+
+  .delta{display:inline-flex;align-items:center;gap:8px;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.3rem;border-radius:12px;padding:8px 16px;margin-bottom:18px}
+  .delta.up{background:rgba(123,168,107,.16);color:#9FD083;border:1px solid rgba(123,168,107,.5)}
+  .delta.down{background:rgba(201,106,82,.16);color:#E0967C;border:1px solid rgba(201,106,82,.5)}
+  .delta.flat{background:rgba(243,233,210,.08);color:var(--sand-dim);border:1px solid rgba(243,233,210,.22)}
+
+  .btn{
+    display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;
+    color:#0A0E22;background:linear-gradient(180deg,var(--gold-bright),var(--gold));border-radius:14px;padding:15px;
+    transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(212,175,80,.3);
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(212,175,80,.42)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(212,175,80,.55);box-shadow:none;margin-top:10px}
+
+  .final-amount{font-family:'Tajawal',sans-serif;font-size:3rem;font-weight:800;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
+  .final-amount.neg{color:var(--ember)}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{text-align:center;font-family:'Amiri',serif;font-size:1.7rem;font-weight:700;color:var(--sand);margin-bottom:6px}
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:22px}
+  .principles{list-style:none;margin-bottom:22px}
+  .principles li{display:flex;gap:10px;align-items:center;padding:10px 14px;margin-bottom:8px;background:rgba(7,10,24,.55);border-radius:12px;border:1px solid rgba(243,233,210,.12);font-size:.95rem}
+  .p-mark{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+  .p-mark.yes{background:rgba(123,168,107,.22);color:#9FD083;border:1px solid rgba(123,168,107,.6)}
+  .p-mark.no{background:rgba(201,106,82,.22);color:#E0967C;border:1px solid rgba(201,106,82,.6)}
+  .quote{font-family:'Amiri',serif;font-size:1.28rem;font-weight:700;line-height:1.9;text-align:center;color:var(--gold-bright);border-top:1px solid rgba(212,175,80,.35);border-bottom:1px solid rgba(212,175,80,.35);padding:18px 6px;margin-bottom:22px}
+  .quote span{display:block;font-family:'Tajawal',sans-serif;font-size:.85rem;font-weight:500;color:var(--sand-dim);margin-top:8px}
+
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:radial-gradient(circle at 35% 30%, rgba(212,175,80,.25), rgba(212,175,80,.04));box-shadow:0 0 30px rgba(212,175,80,.25)}
+  .intro-list{margin:0 0 26px;padding:0;list-style:none}
+  .intro-list li{display:flex;gap:10px;margin-bottom:10px;color:var(--sand);font-size:.98rem}
+  .intro-list li::before{content:"◆";color:var(--gold);font-size:.7rem;margin-top:7px}
+
+  @media (max-width:420px){h1{font-size:2rem}h2.situation{font-size:1.25rem}.final-amount{font-size:2.4rem}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+  /* إصلاح: نص قائمة المقدّمة يتدفّق ككتلةٍ طبيعية مع إبقاء الكلمات الغليظة في مواضعها بدل تقطيع السطر */
+  .intro-list li{display:block;position:relative;padding-right:22px;gap:0}
+  .intro-list li::before{position:absolute;right:0;top:.5em;margin-top:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div>
+        <div class="ledger-label">رصيد عقلك الثري</div>
+        <div class="ledger-amount" id="wealth">0 <small>نقطة</small></div>
+      </div>
+      <div style="font-size:1.6rem">💡</div>
+    </div>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <section class="screen active" id="intro">
+    <div class="intro-seal">💡</div>
+    <div style="text-align:center">
+      <div class="eyebrow">لعبة قرارات · كتاب «فكّر تصبح غنياً»</div>
+      <h1>طريق الرغبة المشتعلة</h1>
+      <p class="sub">هل تفكّر بعقلية الثروة… أم بعقلية الفقر؟</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>ستواجه <b>6 مواقف</b>، كلٌّ منها يضع عقلية الثروة في مواجهة عقلية الفقر.</li>
+        <li>كل قرارٍ يضيف أو يخصم من <b>رصيد «عقلك الثري»</b> وفق مبادئ هيل الثلاثة عشر.</li>
+        <li>ستلتقي في الطريق <b>إدوين بارنز</b> و<b>داربي</b> و<b>هنري فورد</b>.</li>
+        <li>اجمع أعلى رصيدٍ ممكن… حتى <b>تكتمل عقلية المليونير</b>.</li>
+      </ul>
+      <button class="btn" onclick="startGame()">ابدأ الطريق ▸</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="eyebrow" id="g-eyebrow"></div>
+    <h2 class="situation" id="g-situation"></h2>
+    <div id="g-choices"></div>
+  </section>
+
+  <section class="screen" id="feedback">
+    <div class="card">
+      <div class="verdict" id="f-verdict">
+        <div class="verdict-title" id="f-title"></div>
+        <p id="f-text"></p>
+      </div>
+      <div class="timeline">
+        <div class="t-row"><div class="t-when">بعد سنة</div><div class="t-what" id="f-y1"></div></div>
+        <div class="t-row"><div class="t-when">بعد 5 سنوات</div><div class="t-what" id="f-y5"></div></div>
+      </div>
+      <div style="text-align:center"><span class="delta" id="f-delta"></span></div>
+      <button class="btn" id="f-next" onclick="nextScenario()">متابعة ←</button>
+    </div>
+  </section>
+
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow">اكتمل الطريق</div></div>
+    <div class="card">
+      <div class="final-label">رصيد عقلك الثري</div>
+      <div class="final-amount" id="r-amount">0</div>
+      <div class="final-label">نقطة &nbsp;·&nbsp; من أصل 116</div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <ul class="principles" id="r-principles"></ul>
+      <div class="quote">«كل ما يستطيع العقل أن يتصوّره ويؤمن به، يستطيع أن يحقّقه»<span>— نابليون هيل</span></div>
+      <button class="btn" onclick="restart()">أعد المحاولة 🔄</button>
+      <button class="btn ghost" onclick="restart()">اقرأ الملخص مرة أخرى 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const SCENARIOS = [
+  {
+    cure:"المبدأ الأول · الرغبة المشتعلة",
+    short:"رغبةٌ محدّدة بهدفٍ واضح وخطّةٍ وجسورٍ محروقة",
+    situation:"تحلم بالثروة والنجاح، لكن الحلم ضبابي. تتذكّر إدوين بارنز الذي وصل إلى إديسون بلا مالٍ ولا معارف، عازماً على شراكةٍ معه لا على مجرّد وظيفة. كيف تحدّد رغبتك؟",
+    choices:[
+      {t:"أحدّد هدفاً واضحاً بمبلغٍ وموعدٍ وخطّة، وأحرق جسور التراجع كما فعل بارنز", q:"best", d:20,
+       fb:"هذا أول مبادئ هيل: «الرغبة المحدّدة المشتعلة» نقطة انطلاق كل ثروة. بارنز لم يطلب وظيفة، بل شراكةً بعينها — ونالها لأنه لم يُبقِ لنفسه بديلاً.",
+       y1:"خطّةٌ واضحة دفعتك للتحرّك كل يوم", y5:"هدفٌ محدّد تحوّل إلى إنجازٍ ملموس"},
+      {t:"أتمنّى النجاح بقوة وأنتظر الفرصة المناسبة لتأتي", q:"ok", d:6,
+       fb:"الأمنية ليست رغبة. التمنّي بلا هدفٍ محدّد ولا خطّة يُبقي حلمك معلّقاً في الهواء.",
+       y1:"حماسٌ بلا اتجاه", y5:"الحلم نفسه… لم يتحرّك"},
+      {t:"أُبقي خياراتي كلها مفتوحة فلا ألتزم بهدفٍ واحد تحسّباً للفشل", q:"bad", d:-8,
+       fb:"من يترك لنفسه بابَ تراجعٍ في كل اتجاه لا يصل إلى أيّ اتجاه. تشتّت الرغبة أول أسباب الفقر عند هيل.",
+       y1:"بدأتَ أشياء كثيرة ولم تُكمل شيئاً", y5:"طاقةٌ تبدّدت بلا حصاد"}
+    ]
+  },
+  {
+    cure:"المبدأ الثامن · المثابرة",
+    short:"المثابرة وطلب الخبرة عند أول هزيمةٍ مؤقتة",
+    situation:"بعد جهدٍ طويل يتوقّف مشروعك على بُعد خطوةٍ من النجاح — تماماً كعامل المنجم داربي الذي باع معدّاته وتوقّف وهو على بُعد ثلاثة أقدامٍ من عرقٍ ذهبيٍّ ضخم. ماذا تفعل؟",
+    choices:[
+      {t:"أُثابر وأستعين بخبيرٍ يعيد تقييم الموقف قبل أن أستسلم", q:"best", d:20,
+       fb:"درس داربي الذي لم ينسه: «معظم الناس يستسلمون عند أول هزيمةٍ مؤقتة». المثابرة مع استشارة الخبرة كشفتا أن الذهب كان على بُعد ثلاثة أقدامٍ فقط.",
+       y1:"تجاوزتَ العقبة التي أوقفت غيرك", y5:"نجاحٌ قطفه من ثابر بعد أن رحل المتردّدون"},
+      {t:"أتوقّف مؤقتاً وأفكّر، ثم أقرّر لاحقاً", q:"ok", d:6,
+       fb:"التريّث أفضل من الانسحاب، لكن التردّد الطويل يطفئ الزخم. الفرصة لا تنتظر المتردّد طويلاً.",
+       y1:"زخمٌ بدأ يبرد", y5:"تقدّمٌ بطيء ومتعثّر"},
+      {t:"أستسلم وأبيع كل شيء — لقد جرّبتُ وفشلت", q:"bad", d:-10,
+       fb:"هذا خطأ داربي بالضبط: باع وانسحب، فاشترى آخرُ المنجمَ وجمع ثروةً من العرق الذي كان تحت قدميه. الهزيمة المؤقتة ليست فشلاً نهائياً.",
+       y1:"تركتَ الميدان قبل الحصاد", y5:"رأيتَ غيرك يجني ما كان لك"}
+    ]
+  },
+  {
+    cure:"المبدأ السابع · سرعة القرار والحسم",
+    short:"الحسم والثبات على القرار رغم آراء المُحبِطين",
+    situation:"تريد إطلاق فكرةٍ جريئة، والجميع حولك يشكّك. تتذكّر هنري فورد حين أصرّ على صبّ محرّك V8 من قطعةٍ واحدة، وكرّر للمهندسين «استمرّوا» رغم قولهم إنه مستحيل — حتى نجحوا. ما قرارك؟",
+    choices:[
+      {t:"أتّخذ قراري بسرعةٍ وحسمٍ بعد دراسة، وأثبت عليه ولا أبدّله مع كل رأيٍ مُحبِط", q:"best", d:19,
+       fb:"وجد هيل أن الأثرياء يقرّرون بسرعةٍ ويغيّرون قراراتهم ببطء. إصرار فورد على «المستحيل» هو ما وُلد منه محرّك V8.",
+       y1:"قرارٌ حاسم حرّك المشروع فوراً", y5:"إنجازٌ قاله الجميع مستحيلاً"},
+      {t:"أستشير الجميع وآخذ بأغلب الآراء قبل أن أقرّر", q:"ok", d:5,
+       fb:"استشارة الخبرة حكمة، أمّا الاستسلام لكل رأيٍ فيُذيب قرارك. «من يتأثّر بآراء الآخرين بسهولة لا يملك رغبةً حقيقية».",
+       y1:"قرارٌ مائعٌ تأخّر كثيراً", y5:"فرصةٌ تآكلت في الانتظار"},
+      {t:"أؤجّل القرار حتى يتّفق الجميع على أنه صواب", q:"bad", d:-8,
+       fb:"التأجيل بانتظار إجماعٍ لن يأتي هو عادة الفاشلين عند هيل. القرار المؤجَّل أبداً قرارٌ بالفشل.",
+       y1:"جمودٌ والفكرة تنطفئ", y5:"سبقك إليها من حسم أمره"}
+    ]
+  },
+  {
+    cure:"المبدأ التاسع · قوة العقل المدبّر",
+    short:"بناء تحالف عقولٍ متكاملة لا العمل منفرداً",
+    situation:"مشروعك يكبر ويتجاوز قدرتك الفردية، وتشعر أنك تختنق وحدك. كيف تتعامل مع ذلك؟",
+    choices:[
+      {t:"أبني «عقلاً مدبّراً»: مجموعة عقولٍ متكاملة تعمل بانسجامٍ نحو هدفٍ واحد", q:"best", d:19,
+       fb:"«العقل المدبّر» عند هيل: حين تتناغم عدّة عقولٍ يتولّد عقلٌ ثالث أقوى من مجموعها. لا ثروةً كبرى بُنيت بعقلٍ واحدٍ منفرد.",
+       y1:"خبراتٌ متكاملة سرّعت نموّك", y5:"كيانٌ أكبر منك وحدك بكثير"},
+      {t:"أوظّف بعض المساعدين لتنفيذ أوامري فقط", q:"ok", d:6,
+       fb:"المنفّذون مفيدون، لكنهم ليسوا «عقلاً مدبّراً». التناغم الفكري نحو هدفٍ مشترك شيءٌ، وتنفيذ التعليمات شيءٌ آخر.",
+       y1:"أنجزتَ أكثر قليلاً", y5:"بقيتَ السقف الوحيد لمشروعك"},
+      {t:"أعتمد على نفسي وحدي — لا أحد يتقن العمل مثلي", q:"bad", d:-7,
+       fb:"الاعتماد المطلق على الذات يحبس مشروعك في حدود عقلٍ واحد. غياب العقل المدبّر سقفٌ منخفض فوق كل طموح.",
+       y1:"إرهاقٌ واختناقاتٌ متكرّرة", y5:"مشروعٌ توقّف عند طاقتك الفردية"}
+    ]
+  },
+  {
+    cure:"المبدآن الثاني والثالث · الإيمان والإيحاء الذاتي",
+    short:"تغذية العقل الباطن بالإيمان لا بالشك",
+    situation:"يداهمك الشكّ في قدرتك على بلوغ هدفك الكبير. بماذا تُغذّي عقلك كل صباح؟",
+    choices:[
+      {t:"أُكرّر هدفي بإيمانٍ يومياً (إيحاءٌ ذاتي) حتى يتشرّبه عقلي الباطن ويقودني إليه", q:"best", d:18,
+       fb:"الإيمان حالةٌ ذهنية تُصنع بالتكرار. الإيحاء الذاتي يزرع الهدف في العقل الباطن فيحوّله إلى أفعالٍ تلقائية نحو الثروة.",
+       y1:"ثقةٌ غيّرت قراراتك وأفعالك", y5:"صار الهدف جزءاً من هويّتك"},
+      {t:"أتجاهل الشكّ وأمضي دون أن أعمل على عقليتي", q:"ok", d:5,
+       fb:"تجاهل الشك أفضل من الاستسلام له، لكن العقل الذي لا تُغذّيه بالإيمان تملؤه المخاوف من تلقاء نفسها.",
+       y1:"تذبذبٌ بين الإقدام والتراجع", y5:"طاقةٌ تتسرّب مع كل شك"},
+      {t:"أُصدّق مخاوفي وأخفّض سقف أحلامي حتى لا أُصدَم", q:"bad", d:-9,
+       fb:"حين تُغذّي عقلك الباطن بالخوف يحقّقه لك. الفقر يبدأ في الذهن قبل الجيب — وكذلك الثروة.",
+       y1:"أحلامٌ تقلّصت طوعاً", y5:"سقفٌ منخفض رسمتَه بيدك"}
+    ]
+  },
+  {
+    cure:"المبادئ 4 و5 و6 · المعرفة والخيال والتخطيط",
+    short:"معرفةٌ متخصّصة وخطّةٌ منظّمة قابلة للتنفيذ",
+    situation:"فكرتك واعدة، لكن تنقصك المعرفة الدقيقة بمجالها. ما خطوتك التالية؟",
+    choices:[
+      {t:"أكتسب معرفةً متخصّصة، وأحوّل فكرتي بالخيال إلى خطّةٍ منظّمة بخطواتٍ وتواريخ", q:"best", d:20,
+       fb:"المعرفة قوّةٌ فقط حين تُنظَّم في خطّةٍ تنفيذية. الخيال يصوغ الفكرة، والمعرفة المتخصّصة والتخطيط المنظّم يحوّلانها إلى ثروة.",
+       y1:"خطّةٌ واضحة بدأت تؤتي ثمارها", y5:"مشروعٌ ناضج بُني على معرفةٍ ونظام"},
+      {t:"أعتمد على معرفتي العامة وأبدأ فوراً بلا خطّةٍ مكتوبة", q:"ok", d:6,
+       fb:"الحماس وحده لا يكفي. المعرفة العامة لا تصنع تميّزاً، والبدء بلا خطّةٍ يُبدّد الجهد في كل اتجاه.",
+       y1:"حركةٌ كثيرة بنتائج قليلة", y5:"تعثّرٌ كان يمكن تفاديه بخطّة"},
+      {t:"أنتظر حتى أعرف كل شيءٍ عن المجال قبل أن أتحرّك", q:"bad", d:-7,
+       fb:"انتظار المعرفة الكاملة شكلٌ آخر من التسويف. المعرفة تُكتسب أثناء التنفيذ المنظَّم، لا قبله بالكامل.",
+       y1:"شهورٌ مرّت بلا خطوةٍ واحدة", y5:"فكرةٌ ممتازة ماتت قبل أن تُولد"}
+    ]
+  }
+];
+
+const VERDICTS = {
+  best:{title:"💡 عقلية ثروة — هكذا علّم نابليون هيل", cls:"best"},
+  ok:{title:"⚖️ مقبول… لكن هناك ما هو أعمق", cls:"ok"},
+  bad:{title:"🌫️ عقلية تقاوم الثروة", cls:"bad"}
+};
+
+let idx = 0, wealth = 0, mastered = [];
+const $ = id => document.getElementById(id);
+
+function fmt(n){
+  const s = Math.abs(n).toLocaleString('en-US').replace(/,/g,'٬');
+  return (n<0?'−':'')+s;
+}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function renderDots(){
+  $('dots').innerHTML = SCENARIOS.map((_,i)=>`<div class="dot ${i<idx?'on':''} ${i===idx?'now':''}"></div>`).join('');
+}
+function renderWealth(animateFrom){
+  const el = $('wealth');
+  el.classList.toggle('neg', wealth<0);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(animateFrom===undefined || reduce){ el.innerHTML = fmt(wealth)+' <small>نقطة</small>'; return; }
+  const start = animateFrom, diff = wealth-start, dur = 900, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    el.innerHTML = fmt(Math.round(start+diff*e))+' <small>نقطة</small>';
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function startGame(){
+  idx = 0; wealth = 0; mastered = [];
+  $('ledger').style.display = 'block';
+  renderWealth(); renderDots(); renderScenario(); show('game');
+}
+function renderScenario(){
+  const s = SCENARIOS[idx];
+  $('g-eyebrow').textContent = `الموقف ${idx+1} من ${SCENARIOS.length} · ${s.cure}`;
+  $('g-situation').textContent = s.situation;
+  const letters = ['أ','ب','ج'];
+  $('g-choices').innerHTML = s.choices.map((c,i)=>
+    `<button class="choice" onclick="choose(${i})"><span class="badge">${letters[i]}</span><span>${c.t}</span></button>`).join('');
+  renderDots();
+}
+function choose(ci){
+  const s = SCENARIOS[idx], c = s.choices[ci];
+  const before = wealth;
+  wealth += c.d;
+  mastered.push(c.q === 'best');
+  const v = VERDICTS[c.q];
+  $('f-verdict').className = 'verdict '+v.cls;
+  $('f-title').textContent = v.title;
+  $('f-text').textContent = c.fb;
+  $('f-y1').textContent = c.y1;
+  $('f-y5').textContent = c.y5;
+  const dEl = $('f-delta');
+  dEl.className = 'delta '+(c.d>0?'up':c.d<0?'down':'flat');
+  dEl.textContent = (c.d>0?'📈 +':c.d<0?'📉 −':'⏳ ')+(c.d===0?'لا تغيير':Math.abs(c.d)+' نقطة');
+  $('f-next').textContent = (idx === SCENARIOS.length-1) ? 'اكشف نتيجتك النهائية 🏆' : 'الموقف التالي ←';
+  show('feedback');
+  renderWealth(before);
+}
+function nextScenario(){
+  idx++;
+  if(idx < SCENARIOS.length){ renderScenario(); show('game'); }
+  else showResults();
+}
+function rankOf(w){
+  if(w>=95) return {r:"🏆 اكتملت عقلية المليونير!", n:"عقلك يعمل وفق قوانين النجاح الثلاثة عشر. حوّل هذه العقلية الآن إلى هدفٍ محدّدٍ مشتعلٍ في حياتك الحقيقية."};
+  if(w>=60) return {r:"🚀 عقلٌ ثريٌّ في طور التكوين", n:"تمتلك معظم مفاتيح هيل. راجع المبادئ التي أخطأت فيها أدناه وأعد المحاولة لتُحكمها."};
+  if(w>=25) return {r:"🌱 بذرة الرغبة بدأت تنبت", n:"وضعتَ أولى لبنات عقلية الثروة. أعد قراءة الفصول ثم عُد لتقوّي عقلك أكثر."};
+  return {r:"🌫️ عقلك ما زال يقاوم الثروة", n:"لا بأس — الوعي أول خطوة. عُد إلى المبدأ الأول: ابدأ برغبةٍ محدّدةٍ مشتعلة، وغيّر كل ما عداها."};
+}
+function showResults(){
+  $('ledger').style.display = 'none';
+  const rk = rankOf(wealth);
+  const amountEl = $('r-amount');
+  amountEl.classList.toggle('neg', wealth<0);
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n;
+  $('r-principles').innerHTML = SCENARIOS.map((s,i)=>
+    `<li><span class="p-mark ${mastered[i]?'yes':'no'}">${mastered[i]?'✓':'✗'}</span><span>${s.short}</span></li>`).join('');
+  show('results');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ amountEl.textContent = fmt(wealth); return; }
+  const dur = 1400, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    amountEl.textContent = fmt(Math.round(wealth*e));
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function restart(){ $('ledger').style.display = 'none'; show('intro'); }
+</script>
+</body>
+</html>

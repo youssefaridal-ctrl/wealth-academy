@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اختبار العقل الثري — من سيربح المليون</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#0A0E22; --lapis-deep:#070A18; --lapis-panel:#171D3A;
+    --gold:#D4AF50; --gold-bright:#EBCB76; --sand:#F3E9D2; --sand-dim:#B7AE97;
+    --ember:#C96A52; --reed:#7BA86B; --shadow:0 12px 32px rgba(2,5,16,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:'Tajawal',sans-serif;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #1B2452 0%, transparent 60%),
+      linear-gradient(180deg, var(--lapis-night) 0%, #05070F 100%);
+    color:var(--sand); min-height:100vh; line-height:1.7;
+  }
+  body::after{
+    content:""; position:fixed; inset:auto 0 0 0; height:3px; z-index:5;
+    background:linear-gradient(90deg, transparent 0, var(--gold) 34%, var(--gold-bright) 50%, var(--gold) 66%, transparent 100%);
+    box-shadow:0 -4px 16px rgba(212,175,80,.3); opacity:.85;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+
+  /* ====== الشريط العلوي ====== */
+  .ledger{
+    position:sticky;top:0;z-index:10;margin:0 -18px 16px;padding:12px 18px;
+    background:linear-gradient(180deg, rgba(10,14,34,.97) 70%, rgba(10,14,34,.85));
+    border-bottom:1px solid rgba(212,175,80,.45);backdrop-filter:blur(6px);
+  }
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .stat-label{font-size:.7rem;color:var(--sand-dim);font-weight:500}
+  .stat-val{font-family:'Amiri',serif;font-weight:700;font-size:1.25rem;color:var(--gold-bright);white-space:nowrap}
+  .ladder-btn{
+    border:1px solid rgba(212,175,80,.55);background:rgba(212,175,80,.1);color:var(--gold-bright);
+    border-radius:99px;padding:7px 14px;font-family:'Tajawal',sans-serif;font-weight:800;
+    font-size:.82rem;cursor:pointer;
+  }
+  .lifelines{display:flex;gap:8px;margin-top:10px;justify-content:center}
+  .life{
+    flex:1;max-width:160px;border-radius:12px;padding:8px 6px;cursor:pointer;text-align:center;
+    font-family:'Tajawal',sans-serif;font-weight:800;font-size:.8rem;color:var(--gold-bright);
+    background:rgba(212,175,80,.1);border:1px solid rgba(212,175,80,.55);transition:opacity .2s, transform .15s;
+  }
+  .life:hover:not(:disabled){transform:translateY(-1px)}
+  .life:disabled{opacity:.32;cursor:default;text-decoration:line-through}
+  .life:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
+
+  /* ====== سلم الثروة ====== */
+  .ladder-panel{
+    position:fixed;inset:0;z-index:50;background:rgba(4,6,16,.85);backdrop-filter:blur(4px);
+    display:none;align-items:center;justify-content:center;padding:20px;
+  }
+  .ladder-panel.open{display:flex}
+  .ladder-card{
+    width:100%;max-width:360px;background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));
+    border:1px solid rgba(212,175,80,.5);border-radius:18px;padding:20px;box-shadow:var(--shadow);
+    max-height:86vh;overflow:auto;
+  }
+  .ladder-title{font-family:'Amiri',serif;font-size:1.3rem;color:var(--gold-bright);text-align:center;margin-bottom:12px}
+  .rung{
+    display:flex;justify-content:space-between;align-items:center;padding:7px 12px;border-radius:10px;
+    font-size:.92rem;margin-bottom:4px;border:1px solid transparent;
+  }
+  .rung .num{color:var(--sand-dim);font-size:.78rem;font-weight:700;min-width:34px}
+  .rung .amt{font-family:'Amiri',serif;font-weight:700;color:var(--sand)}
+  .rung.safe .amt{color:var(--gold-bright)}
+  .rung.safe{border-color:rgba(212,175,80,.35);background:rgba(212,175,80,.06)}
+  .rung.current{background:rgba(235,203,118,.18);border-color:var(--gold);box-shadow:0 0 12px rgba(235,203,118,.25)}
+  .rung.won .amt,.rung.won .num{color:#9FD083}
+
+  /* ====== الشاشات ====== */
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  .eyebrow{
+    display:inline-block;font-size:.78rem;font-weight:700;color:var(--gold);
+    border:1px solid rgba(212,175,80,.55);border-radius:99px;padding:4px 14px;
+    margin-bottom:14px;background:rgba(212,175,80,.08);
+  }
+  h1{font-family:'Amiri',serif;font-size:2.3rem;line-height:1.4;color:var(--gold-bright);margin-bottom:6px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+  .card{
+    background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));
+    border:1px solid rgba(212,175,80,.35);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow);
+  }
+  .intro-seal{
+    width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--gold);
+    display:flex;align-items:center;justify-content:center;font-size:2.1rem;
+    background:radial-gradient(circle at 35% 30%, rgba(235,203,118,.25), rgba(212,175,80,.05));
+    box-shadow:0 0 30px rgba(212,175,80,.25);
+  }
+  .intro-list{margin:0 0 26px;list-style:none}
+  .intro-list li{display:flex;gap:10px;margin-bottom:10px;color:var(--sand);font-size:.98rem}
+  .intro-list li::before{content:"◆";color:var(--gold);font-size:.7rem;margin-top:7px}
+
+  /* ====== السؤال ====== */
+  .q-card{
+    background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));
+    border:1px solid rgba(212,175,80,.4);border-radius:18px;padding:22px;
+    box-shadow:var(--shadow);margin-bottom:16px;text-align:center;
+  }
+  .q-text{font-family:'Amiri',serif;font-size:1.35rem;line-height:1.85;font-weight:700;color:var(--sand)}
+
+  .hintbox{
+    display:none;background:rgba(212,175,80,.1);border:1px solid rgba(212,175,80,.5);
+    border-radius:14px;padding:14px 16px;margin-bottom:14px;font-size:.95rem;
+  }
+  .hintbox.show{display:block;animation:fadeUp .3s ease both}
+  .hintbox .who{font-weight:800;color:var(--gold-bright);font-size:.82rem;margin-bottom:4px}
+  .hintbox .txt{font-family:'Amiri',serif;font-size:1.05rem;line-height:1.85}
+
+  .poll{display:none;margin-bottom:14px}
+  .poll.show{display:block;animation:fadeUp .3s ease both}
+  .poll-row{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+  .poll-letter{flex:0 0 auto;width:24px;font-weight:800;color:var(--gold-bright);font-size:.9rem}
+  .poll-track{flex:1;height:16px;border-radius:99px;background:rgba(243,233,210,.12);overflow:hidden}
+  .poll-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--gold-bright),var(--gold));width:0;transition:width .8s ease}
+  .poll-pct{flex:0 0 auto;min-width:42px;text-align:left;font-size:.82rem;font-weight:800;color:var(--sand-dim)}
+
+  .opt{
+    display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;
+    background:rgba(7,10,24,.55);border:1px solid rgba(243,233,210,.22);
+    border-radius:14px;padding:14px 16px;margin-bottom:11px;color:var(--sand);
+    font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.6;cursor:pointer;
+    transition:border-color .2s, background .2s, transform .15s, opacity .3s;
+  }
+  .opt:hover:not(:disabled),.opt:focus-visible{border-color:var(--gold);background:rgba(212,175,80,.10)}
+  .opt:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
+  .opt .badge{
+    flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:rgba(212,175,80,.16);border:1px solid rgba(212,175,80,.5);
+    color:var(--gold-bright);font-weight:800;font-size:.95rem;margin-top:1px;
+  }
+  .opt.removed{opacity:.22;pointer-events:none;text-decoration:line-through}
+  .opt.selected{border-color:var(--gold-bright);background:rgba(235,203,118,.16);box-shadow:0 0 0 2px rgba(235,203,118,.3)}
+  .opt.suspense{animation:pulse 0.55s ease-in-out infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 2px rgba(235,203,118,.25)}50%{box-shadow:0 0 0 6px rgba(235,203,118,.5)}}
+  .opt.correct{border-color:var(--reed);background:rgba(123,168,107,.2);box-shadow:0 0 0 3px rgba(123,168,107,.4)}
+  .opt.correct .badge{background:rgba(123,168,107,.25);border-color:var(--reed);color:#BBDCA9}
+  .opt.wrong{border-color:var(--ember);background:rgba(201,106,82,.2);box-shadow:0 0 0 3px rgba(201,106,82,.4)}
+  .opt.wrong .badge{background:rgba(201,106,82,.25);border-color:var(--ember);color:#EFAE92}
+  .opt:disabled{cursor:default}
+
+  .confirm-bar{display:none;gap:10px;margin-bottom:12px}
+  .confirm-bar.show{display:flex;animation:fadeUp .25s ease both}
+  .cbtn{
+    flex:1;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;
+    font-size:1rem;border-radius:12px;padding:13px;
+  }
+  .cbtn.go{color:#0A0E22;background:linear-gradient(180deg,var(--gold-bright),var(--gold))}
+  .cbtn.back{background:transparent;color:var(--sand-dim);border:1px solid rgba(243,233,210,.3)}
+
+  .result-banner{display:none;border-radius:14px;padding:14px 16px;margin-bottom:12px;border:1px solid;text-align:center;font-weight:800}
+  .result-banner.show{display:block;animation:fadeUp .3s ease both}
+  .result-banner.win{background:rgba(123,168,107,.15);border-color:rgba(123,168,107,.6);color:#BBDCA9}
+  .result-banner.lose{background:rgba(201,106,82,.15);border-color:rgba(201,106,82,.6);color:#EFAE92}
+
+  .walk{
+    display:block;width:100%;background:transparent;border:1px dashed rgba(201,106,82,.55);
+    color:#E8997A;border-radius:12px;padding:10px;font-family:'Tajawal',sans-serif;
+    font-weight:700;font-size:.88rem;cursor:pointer;margin-top:4px;
+  }
+  .walk:hover{background:rgba(201,106,82,.08)}
+
+  .btn{
+    display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;
+    font-weight:800;font-size:1.1rem;color:#0A0E22;
+    background:linear-gradient(180deg,var(--gold-bright),var(--gold));
+    border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;
+    box-shadow:0 6px 18px rgba(212,175,80,.3);
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(212,175,80,.42)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(212,175,80,.55);box-shadow:none;margin-top:10px}
+
+  /* ====== النتائج ====== */
+  .final-amount{font-family:'Amiri',serif;font-size:3rem;font-weight:700;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{text-align:center;font-family:'Amiri',serif;font-size:1.65rem;font-weight:700;color:var(--sand);margin-bottom:6px}
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:20px}
+  .kpis{display:flex;gap:10px;margin-bottom:22px}
+  .kpi{flex:1;text-align:center;background:rgba(7,10,24,.5);border:1px solid rgba(243,233,210,.16);border-radius:12px;padding:12px 8px}
+  .kpi b{display:block;font-family:'Amiri',serif;font-size:1.35rem;color:var(--gold-bright)}
+  .kpi span{font-size:.74rem;color:var(--sand-dim)}
+  .quote{
+    font-family:'Amiri',serif;font-size:1.22rem;line-height:1.9;text-align:center;color:var(--gold-bright);
+    border-top:1px solid rgba(212,175,80,.35);border-bottom:1px solid rgba(212,175,80,.35);
+    padding:18px 6px;margin-bottom:22px;
+  }
+  .quote span{display:block;font-family:'Tajawal',sans-serif;font-size:.85rem;color:var(--sand-dim);margin-top:8px}
+
+  @media (max-width:420px){
+    h1{font-size:1.95rem} .q-text{font-size:1.18rem}
+    .final-amount{font-size:2.4rem} .life{font-size:.72rem}
+  }
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+  /* إصلاح: نص قائمة المقدّمة يتدفّق ككتلةٍ طبيعية مع إبقاء الكلمات الغليظة في مواضعها بدل تقطيع السطر */
+  .intro-list li{display:block;position:relative;padding-right:22px;gap:0}
+  .intro-list li::before{position:absolute;right:0;top:.5em;margin-top:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- الشريط العلوي -->
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div>
+        <div class="stat-label">السؤال <span id="s-q">1</span> من 12 · تلعب على</div>
+        <div class="stat-val" id="s-prize">500 درهم</div>
+      </div>
+      <button class="ladder-btn" onclick="toggleLadder(true)">🪜 سلم الثروة</button>
+    </div>
+    <div class="lifelines">
+      <button class="life" id="L-fifty" onclick="useFifty()">٥٠:٥٠<br>احذف إجابتين</button>
+      <button class="life" id="L-arkad" onclick="useArkad()">📖 استشر<br>هيل</button>
+      <button class="life" id="L-poll" onclick="usePoll()">🧠 تصويت<br>الحلقة</button>
+    </div>
+  </div>
+
+  <!-- سلم الثروة -->
+  <div class="ladder-panel" id="ladder-panel" onclick="toggleLadder(false)">
+    <div class="ladder-card" onclick="event.stopPropagation()">
+      <div class="ladder-title">🪜 سلّم العقل الثري</div>
+      <div id="ladder-rungs"></div>
+      <button class="btn ghost" onclick="toggleLadder(false)" style="margin-top:14px">إغلاق</button>
+    </div>
+  </div>
+
+  <!-- البداية -->
+  <section class="screen active" id="intro">
+    <div class="intro-seal">💡</div>
+    <div style="text-align:center">
+      <div class="eyebrow">اختبار الكنز · كتاب «فكّر تصبح غنياً»</div>
+      <h1>اختبار العقل الثري</h1>
+      <p class="sub">12 سؤالاً تصعد بها من 500 درهم إلى المليون… إن صمدت مبادئك.</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li><b>12 سؤالاً</b> متدرّج الصعوبة، كلّها من قلب الكتاب ومبادئه وقصصه.</li>
+        <li>منطقتا أمان: <b>8,000</b> و<b>250,000</b> — الخطأ يعيدك إلى آخر أمانٍ بلغته.</li>
+        <li>3 وسائل مساعدة، مرّةً واحدة لكلٍّ: <b>٥٠:٥٠</b>، <b>📖 استشر هيل</b>، <b>🧠 تصويت الحلقة</b>.</li>
+        <li>يمكنك <b>الانسحاب</b> في أي لحظةٍ بما ربحته… فهل تثق بعقلك أم تؤمّن؟</li>
+      </ul>
+      <button class="btn" onclick="startGame()">اجلس على كرسي العقل الثري 💡</button>
+    </div>
+  </section>
+
+  <!-- اللعب -->
+  <section class="screen" id="game">
+    <div class="q-card"><div class="q-text" id="q-text"></div></div>
+    <div class="hintbox" id="hintbox">
+      <div class="who">📖 هيل يهمس لك:</div>
+      <div class="txt" id="hint-text"></div>
+    </div>
+    <div class="poll" id="poll"></div>
+    <div id="options"></div>
+    <div class="confirm-bar" id="confirm-bar">
+      <button class="cbtn back" onclick="cancelSelect()">تغيير</button>
+      <button class="cbtn go" onclick="lockAnswer()">🔒 إجابة نهائية</button>
+    </div>
+    <div class="result-banner" id="banner"></div>
+    <button class="btn" id="next-btn" style="display:none" onclick="afterReveal()"></button>
+    <button class="walk" id="walk-btn" onclick="walkAway()"></button>
+  </section>
+
+  <!-- النتائج -->
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow" id="r-eyebrow">انتهت الجلسة</div></div>
+    <div class="card">
+      <div class="final-label">غادرتَ كرسي العقل الثري ومعك</div>
+      <div class="final-amount" id="r-amount">0</div>
+      <div class="final-label">درهم</div>
+      <div class="kpis">
+        <div class="kpi"><b id="r-reached">0</b><span>أسئلة أجبتها صح</span></div>
+        <div class="kpi"><b id="r-lifes">0/3</b><span>وسائل مساعدة استعملتها</span></div>
+      </div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <div class="quote">«نقطة انطلاق كل إنجازٍ هي الرغبة؛ والمثابرة هي ما يحوّلها إلى ثروة»<span>— من فلسفة نابليون هيل</span></div>
+      <button class="btn" onclick="startGame()">حاول بلوغ المليون مجدداً 💡</button>
+      <button class="btn ghost" onclick="backToIntro()">عُد إلى الملخص 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const LADDER = [500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1000000];
+const SAFE = [4,9]; /* فهارس مناطق الأمان: 8,000 و 250,000 */
+
+const QUESTIONS = [
+ {t:1, q:"من مؤلف كتاب «فكّر تصبح غنياً»؟",
+  opts:[["نابليون هيل",true],["ديل كارنيجي",false],["روبرت كيوساكي",false],["ستيفن كوفي",false]],
+  hint:"مؤلفٌ أمريكي قضى نحو عشرين عاماً يدرس أثرى رجال عصره بتكليفٍ من قطب الصلب أندرو كارنيجي."},
+ {t:1, q:"ما نقطة الانطلاق لكل ثروةٍ وإنجازٍ بحسب هيل؟",
+  opts:[["الرغبة المشتعلة المحدّدة",true],["الحظ والصدفة",false],["الميراث العائلي",false],["الشهادة الجامعية",false]],
+  hint:"قبل أي خطوة، يجب أن تشتعل في داخلك رغبةٌ محدّدةٌ بعينها… لا مجرّد أمنيةٍ عابرة."},
+ {t:1, q:"بتكليفٍ من أي رجل أعمالٍ شهير بدأ هيل دراسته لمبادئ النجاح؟",
+  opts:[["أندرو كارنيجي",true],["هنري فورد",false],["توماس إديسون",false],["جون روكفلر",false]],
+  hint:"قطب الصلب الذي تحدّى هيل أن يقضي عشرين عاماً في صياغة فلسفةٍ للنجاح دون أن يدفع له أجراً."},
+ {t:1, q:"كم عدد المبادئ الرئيسية للنجاح التي يقدّمها الكتاب؟",
+  opts:[["13 مبدأً",true],["7 مبادئ",false],["21 مبدأً",false],["5 مبادئ",false]],
+  hint:"عددٌ يفوق الاثني عشر بواحد… مبادئ تبدأ بالرغبة وتُختم بالحاسة السادسة."},
+ {t:2, q:"في قصة إدوين بارنز، ماذا أراد تحديداً حين قصد توماس إديسون؟",
+  opts:[["أن يصبح شريكاً لإديسون في العمل، لا مجرّد موظف",true],["قرضاً مالياً يبدأ به مشروعه",false],["وظيفةً عاديةً بأجرٍ مرتفع",false],["توصيةً للالتحاق بالجامعة",false]],
+  hint:"لم يطلب وظيفة؛ أراد شراكةً بعينها، وأحرق كل جسور التراجع حتى نالها بعد سنوات."},
+ {t:2, q:"ماذا تعني عبارة «ثلاثة أقدامٍ من الذهب» في قصة داربي؟",
+  opts:[["الاستسلام قبل النجاح بخطوةٍ صغيرة",true],["ثروةٌ مدفونةٌ عميقاً يصعب بلوغها",false],["مسافة أمانٍ بين المتنافسين",false],["وزن أكبر سبيكة ذهبٍ في المنجم",false]],
+  hint:"عامل المنجم توقّف وباع معدّاته… وكان العرق الذهبي على بُعد ثلاثة أقدامٍ ممن واصل الحفر بعده."},
+ {t:2, q:"ما «العقل المدبّر» (Master Mind) عند هيل؟",
+  opts:[["تناغم عقلين أو أكثر نحو هدفٍ محدّد فيتولّد منها عقلٌ أقوى",true],["قدرةٌ فرديةٌ خارقة يولد بها البعض",false],["خطة عملٍ مكتوبةٌ ومفصّلة",false],["حدسٌ فطريٌّ لا يُكتسب",false]],
+  hint:"حين تتناغم عدّة عقولٍ بانسجامٍ نحو غايةٍ واحدة، يولد بينها عقلٌ ثالثٌ أقوى من مجموعها."},
+ {t:2, q:"كيف يصف هيل سرعة اتخاذ القرار عند الأثرياء مقابل الفاشلين؟",
+  opts:[["الأثرياء يقرّرون بسرعةٍ ويغيّرون قراراتهم ببطء",true],["الجميع يقرّرون ببطءٍ وحذرٍ شديد",false],["الأثرياء لا يقرّرون أبداً إلا بإجماع",false],["القرار السريع دائماً قرارٌ خاطئ",false]],
+  hint:"لاحظ هيل أن من جمعوا الثروات كانوا حاسمين في القرار، شديدي البطء في التراجع عنه."},
+ {t:3, q:"في قصة محرّك V8، بمَ أمر هنري فورد مهندسيه حين قالوا إن صبّه من قطعةٍ واحدة مستحيل؟",
+  opts:[["أن يستمرّوا حتى ينجحوا مهما طال الوقت",true],["أن يتوقّفوا ويبحثوا عن تصميمٍ بديل",false],["أن يستعينوا بخبراء من خارج الشركة",false],["أن يصمّموا محرّكاً أصغر وأبسط",false]],
+  hint:"رفض كلمة «مستحيل»، وكرّر أمراً واحداً: «استمرّوا»… حتى وُلد المحرّك بعد أشهرٍ من الإصرار."},
+ {t:3, q:"ما دور «الإيحاء الذاتي» (Autosuggestion) في منظومة هيل؟",
+  opts:[["وسيلةٌ لغرس الرغبة والإيمان في العقل الباطن بالتكرار",true],["تنويمٌ مغناطيسيٌّ للتأثير في الآخرين",false],["أسلوب إقناعٍ يُستخدم في البيع",false],["تمرينٌ بدنيٌّ لزيادة التركيز",false]],
+  hint:"بتكرار هدفك بإيمانٍ كل يوم، تزرعه في عقلك الباطن حتى يقودك نحوه تلقائياً."},
+ {t:3, q:"لماذا تُعدّ «المعرفة المتخصّصة» أهمّ من «المعرفة العامة» عند هيل؟",
+  opts:[["لأن المعرفة لا تصير قوّةً إلا حين تُنظَّم وتُوجَّه نحو هدفٍ محدّد",true],["لأنها أسهل اكتساباً من غيرها",false],["لأنها لا تتطلّب أي تعليمٍ نظامي",false],["لأن المعرفة العامة عديمة الفائدة تماماً",false]],
+  hint:"العلم قوّةٌ كامنةٌ فقط؛ لا يصير قوّةً فعليةً إلا حين يُنظَّم في خطّةٍ تُوجَّه نحو غاية."},
+ {t:3, q:"سؤال المليون: ما المبدأ الأخير الأرقى الذي يتوّج مبادئ هيل الثلاثة عشر؟",
+  opts:[["الحاسة السادسة: بابٌ لا يُفتح إلا بعد إتقان المبادئ الأخرى",true],["الرغبة المشتعلة من جديد",false],["ادّخار المال بانتظام",false],["العمل الجادّ لساعاتٍ طويلة",false]],
+  hint:"المبدأ الذي يصفه هيل بقمّة الفلسفة، لا تبلغه إلا بعد أن تُتقن الاثني عشر مبدأً التي تسبقه."}
+];
+
+let qi=0, lifes={fifty:false,arkad:false,poll:false}, view=[], removedIdx=new Set(), selected=-1, phase='choose', finalAmount=0, lastOutcome='';
+
+const $ = id => document.getElementById(id);
+const fmt = n => n.toLocaleString('en-US').replace(/,/g,'٬');
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el=$(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function shuffle(a){const r=[...a];for(let k=r.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[r[k],r[j]]=[r[j],r[k]];}return r;}
+
+/* ====== سلم الثروة ====== */
+function renderLadder(){
+  $('ladder-rungs').innerHTML = LADDER.map((v,i)=>({v,i})).reverse().map(({v,i})=>{
+    const cls = ['rung'];
+    if(SAFE.includes(i)) cls.push('safe');
+    if(i===qi) cls.push('current');
+    if(i<qi) cls.push('won');
+    return `<div class="${cls.join(' ')}"><span class="num">${i+1}</span><span class="amt">${fmt(v)} ${SAFE.includes(i)?'🛡️':''}</span></div>`;
+  }).join('');
+}
+function toggleLadder(open){ renderLadder(); $('ladder-panel').classList.toggle('open', open); }
+
+/* ====== بدء اللعبة ====== */
+function startGame(){
+  qi=0; lifes={fifty:false,arkad:false,poll:false};
+  ['L-fifty','L-arkad','L-poll'].forEach(id=>$(id).disabled=false);
+  $('ledger').style.display='block';
+  renderQuestion(); show('game');
+}
+
+function safeAmount(){
+  let s=0; SAFE.forEach(i=>{ if(qi>i) s=LADDER[i]; }); return s;
+}
+function bankedAmount(){ return qi>0 ? LADDER[qi-1] : 0; }
+
+function renderQuestion(){
+  const Q = QUESTIONS[qi];
+  view = shuffle(Q.opts.map(([text,ok])=>({text,ok})));
+  removedIdx = new Set(); selected=-1; phase='choose';
+  $('s-q').textContent = qi+1;
+  $('s-prize').textContent = fmt(LADDER[qi])+' درهم';
+  $('q-text').textContent = Q.q;
+  $('hintbox').classList.remove('show');
+  $('poll').classList.remove('show'); $('poll').innerHTML='';
+  $('banner').className='result-banner'; $('banner').textContent='';
+  $('next-btn').style.display='none';
+  $('confirm-bar').classList.remove('show');
+  const wb = $('walk-btn');
+  if(qi>0){ wb.style.display='block'; wb.textContent=`🚪 أنسحب الآن وآخذ ${fmt(bankedAmount())} درهم`; wb.dataset.step='0'; }
+  else wb.style.display='none';
+  drawOptions();
+}
+
+const LETTERS=['أ','ب','ج','د'];
+function drawOptions(){
+  $('options').innerHTML = view.map((o,i)=>{
+    const cls=['opt'];
+    if(removedIdx.has(i)) cls.push('removed');
+    if(i===selected) cls.push('selected');
+    return `<button class="${cls.join(' ')}" id="opt-${i}" onclick="pick(${i})"><span class="badge">${LETTERS[i]}</span><span>${o.text}</span></button>`;
+  }).join('');
+}
+
+function pick(i){
+  if(phase!=='choose' && phase!=='picked') return;
+  if(removedIdx.has(i)) return;
+  selected=i; phase='picked';
+  drawOptions();
+  $('confirm-bar').classList.add('show');
+}
+function cancelSelect(){
+  if(phase!=='picked') return;
+  selected=-1; phase='choose';
+  $('confirm-bar').classList.remove('show');
+  drawOptions();
+}
+
+function lockAnswer(){
+  if(phase!=='picked') return;
+  phase='suspense';
+  $('confirm-bar').classList.remove('show');
+  $('walk-btn').style.display='none';
+  document.querySelectorAll('.opt').forEach(b=>b.disabled=true);
+  const sel = $('opt-'+selected);
+  sel.classList.add('suspense');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  setTimeout(reveal, reduce?100:1300);
+}
+
+function reveal(){
+  const sel=$('opt-'+selected);
+  sel.classList.remove('suspense');
+  const ok = view[selected].ok;
+  const correctIdx = view.findIndex(o=>o.ok);
+  $('opt-'+correctIdx).classList.add('correct');
+  const banner=$('banner'), nb=$('next-btn');
+  if(ok){
+    phase='revealed-win';
+    banner.className='result-banner win show';
+    banner.textContent = qi===11 ? '👑👑👑 المليـــون! عقلك بلغ ذروة فلسفة النجاح!' : `✅ صحيح! ضمنتَ ${fmt(LADDER[qi])} درهم`;
+    nb.textContent = qi===11 ? 'استلم كنزك 👑' : 'السؤال التالي ←';
+    lastOutcome = qi===11 ? 'million' : 'next';
+  }else{
+    phase='revealed-lose';
+    sel.classList.add('wrong');
+    banner.className='result-banner lose show';
+    banner.textContent = `✗ للأسف… تنزل إلى منطقة أمانك: ${fmt(safeAmount())} درهم`;
+    nb.textContent='شاهد النتيجة';
+    lastOutcome='lose';
+  }
+  nb.style.display='block';
+}
+
+function afterReveal(){
+  if(lastOutcome==='next'){ qi++; renderQuestion(); }
+  else if(lastOutcome==='million'){ finalAmount=1000000; showResults('بلغتَ المليون!'); }
+  else { finalAmount=safeAmount(); showResults('سؤالٌ أطاح بك'); }
+}
+
+function walkAway(){
+  const wb=$('walk-btn');
+  if(wb.dataset.step==='0'){ wb.dataset.step='1'; wb.textContent=`متأكد؟ اضغط مجدداً لتأكيد الانسحاب بـ ${fmt(bankedAmount())} درهم`; return; }
+  finalAmount = bankedAmount();
+  showResults('انسحابٌ حكيم');
+}
+
+/* ====== وسائل المساعدة ====== */
+function useFifty(){
+  if(lifes.fifty || phase!=='choose' && phase!=='picked') return;
+  lifes.fifty=true; $('L-fifty').disabled=true;
+  const wrongs = view.map((o,i)=>!o.ok&&!removedIdx.has(i)?i:-1).filter(i=>i>=0);
+  shuffle(wrongs).slice(0,2).forEach(i=>removedIdx.add(i));
+  if(removedIdx.has(selected)){ selected=-1; phase='choose'; $('confirm-bar').classList.remove('show'); }
+  drawOptions();
+}
+function useArkad(){
+  if(lifes.arkad || (phase!=='choose' && phase!=='picked')) return;
+  lifes.arkad=true; $('L-arkad').disabled=true;
+  $('hint-text').textContent = QUESTIONS[qi].hint;
+  $('hintbox').classList.add('show');
+}
+function usePoll(){
+  if(lifes.poll || (phase!=='choose' && phase!=='picked')) return;
+  lifes.poll=true; $('L-poll').disabled=true;
+  const alive = view.map((o,i)=>removedIdx.has(i)?null:{o,i}).filter(Boolean);
+  const tier = QUESTIONS[qi].t;
+  const base = tier===1 ? 68+Math.random()*16 : tier===2 ? 52+Math.random()*16 : 34+Math.random()*20;
+  let rest = 100 - base;
+  const pct = {};
+  const others = alive.filter(x=>!x.o.ok);
+  others.forEach((x,k)=>{
+    if(k===others.length-1){ pct[x.i]=Math.round(rest); }
+    else { const v = Math.round(Math.random()*rest*0.7); pct[x.i]=v; rest-=v; }
+  });
+  alive.forEach(x=>{ if(x.o.ok) pct[x.i]=100-Object.values(pct).reduce((a,b)=>a+b,0); });
+  const box=$('poll');
+  box.innerHTML = alive.map(x=>`
+    <div class="poll-row">
+      <span class="poll-letter">${LETTERS[x.i]}</span>
+      <div class="poll-track"><div class="poll-fill" data-w="${pct[x.i]}"></div></div>
+      <span class="poll-pct">${pct[x.i]}%</span>
+    </div>`).join('');
+  box.classList.add('show');
+  requestAnimationFrame(()=>box.querySelectorAll('.poll-fill').forEach(f=>f.style.width=f.dataset.w+'%'));
+}
+
+/* ====== النتائج ====== */
+function rankOf(a){
+  if(a>=1000000) return {r:"👑 عقلٌ مليونير!", n:"بلغتَ قمّة فلسفة النجاح — كارنيجي نفسه كان سيضمّك إلى حلقته. حوّل هذه المبادئ الآن إلى هدفٍ محدّدٍ في حياتك الحقيقية."};
+  if(a>=250000) return {r:"🧠 من أصحاب العقل المدبّر", n:"تجاوزتَ أصعب المبادئ. سؤالٌ أو سؤالان يفصلانك عن القمّة — راجع قصص الكتاب وعُد."};
+  if(a>=8000)  return {r:"🌱 رغبتك بدأت تشتعل", n:"أساسك جيّد لكن المبادئ العميقة أوقعتك. أعد قراءة الفصول الوسطى من الملخص ثم عُد للكرسي."};
+  return {r:"🌫️ غادرتَ بلا ثروةٍ بعد", n:"لا ذهب اليوم… لكنك خرجتَ بأثمن من المال: معرفة ما ينقص عقلك. الملخص بانتظارك!"};
+}
+function showResults(eyebrow){
+  $('ledger').style.display='none';
+  $('r-eyebrow').textContent = eyebrow;
+  const used = Object.values(lifes).filter(Boolean).length;
+  $('r-reached').textContent = (lastOutcome==='million'? 12 : qi) + '/12';
+  $('r-lifes').textContent = used+'/3';
+  const rk = rankOf(finalAmount);
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n;
+  const el=$('r-amount');
+  show('results');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ el.textContent = fmt(finalAmount); return; }
+  const dur=1500, t0=performance.now();
+  (function tick(t){
+    const p=Math.min((t-t0)/dur,1), e=1-Math.pow(1-p,3);
+    el.textContent = fmt(Math.round(finalAmount*e));
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function backToIntro(){ $('ledger').style.display='none'; show('intro'); }
+</script>
+</body>
+</html>

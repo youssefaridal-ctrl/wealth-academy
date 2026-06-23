@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>البوّاب والمصرفيّ — اختر مصيرك</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#1B1714; --lapis-deep:#120F0C; --lapis-panel:#27201A;
+    --gold:#C8884B; --gold-bright:#E3A864; --sand:#F1E8DB; --sand-dim:#B8AA98;
+    --ember:#CC6B4A; --reed:#86B083; --amethyst-deep:#9C6A33;
+    --shadow:0 12px 32px rgba(10,7,4,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:'Tajawal',sans-serif;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #3A2A1E 0%, transparent 60%),
+      linear-gradient(180deg, var(--lapis-night) 0%, #0C0805 100%);
+    color:var(--sand); min-height:100vh; line-height:1.7;
+  }
+  body::after{
+    content:""; position:fixed; inset:auto 0 0 0; height:3px; z-index:5;
+    background:linear-gradient(90deg, transparent 0, var(--gold) 30%, var(--gold-bright) 50%, var(--gold) 70%, transparent 100%);
+    box-shadow:0 -4px 16px rgba(200,136,75,.35); opacity:.9;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+
+  .ledger{
+    position:sticky;top:0;z-index:10;margin:0 -18px 16px;padding:11px 18px;
+    background:linear-gradient(180deg, rgba(27,23,20,.97) 70%, rgba(27,23,20,.85));
+    border-bottom:1px solid rgba(200,136,75,.45);backdrop-filter:blur(6px);
+  }
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .stat{text-align:center;flex:1}
+  .stat-label{font-size:.68rem;color:var(--sand-dim);font-weight:500}
+  .stat-val{font-family:'Cairo',sans-serif;font-weight:800;font-size:1.15rem;color:var(--gold-bright);white-space:nowrap}
+  .stat-val.neg{color:var(--ember)}
+
+  .screen{display:none;animation:fadeUp .5s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  .eyebrow{
+    display:inline-block;font-size:.78rem;font-weight:700;color:var(--gold);
+    border:1px solid rgba(200,136,75,.55);border-radius:99px;padding:4px 14px;
+    margin-bottom:14px;background:rgba(200,136,75,.08);
+  }
+  h1{font-family:'Cairo',sans-serif;font-size:2.15rem;font-weight:900;line-height:1.3;color:var(--gold-bright);margin-bottom:6px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+  .card{
+    background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));
+    border:1px solid rgba(200,136,75,.35);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow);
+  }
+  .intro-seal{
+    width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--gold);
+    display:flex;align-items:center;justify-content:center;font-size:2.1rem;
+    background:radial-gradient(circle at 35% 30%, rgba(227,168,100,.25), rgba(134,176,131,.06));
+    box-shadow:0 0 30px rgba(200,136,75,.25);
+  }
+  .intro-list{margin:0 0 26px;list-style:none}
+  .intro-list li{display:flex;gap:10px;margin-bottom:10px;color:var(--sand);font-size:.98rem}
+  .intro-list li::before{content:"◆";color:var(--gold);font-size:.7rem;margin-top:7px}
+
+  .story{
+    background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));
+    border:1px solid rgba(200,136,75,.4);border-radius:18px;padding:24px 22px;
+    box-shadow:var(--shadow);margin-bottom:18px;
+  }
+  .story p{
+    font-family:'Tajawal',sans-serif;font-size:1.12rem;font-weight:500;line-height:2.0;color:var(--sand);
+    margin-bottom:1.4em;text-align:right;opacity:0;animation:inkIn .5s ease forwards;
+  }
+  .story p:last-child{margin-bottom:0}
+  @keyframes inkIn{from{opacity:0}to{opacity:1}}
+  .story .speech{color:var(--gold-bright);font-weight:800;font-family:'Cairo',sans-serif}
+
+  .prompt{font-size:.85rem;font-weight:800;color:var(--gold);text-align:center;margin-bottom:12px;letter-spacing:.3px}
+  .choice{
+    display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;
+    background:rgba(18,15,12,.6);border:1px solid rgba(241,232,219,.18);
+    border-radius:14px;padding:15px 16px;margin-bottom:12px;color:var(--sand);
+    font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.65;cursor:pointer;
+    transition:border-color .2s, background .2s, transform .15s;
+  }
+  .choice:hover,.choice:focus-visible{border-color:var(--gold);background:rgba(200,136,75,.10);transform:translateY(-1px)}
+  .choice:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
+  .choice .glyph{
+    flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:rgba(200,136,75,.16);border:1px solid rgba(200,136,75,.5);
+    color:var(--gold-bright);font-size:.95rem;margin-top:2px;
+  }
+
+  .end-icon{font-size:3.2rem;text-align:center;margin-bottom:6px}
+  .end-title{font-family:'Cairo',sans-serif;font-size:1.85rem;font-weight:900;text-align:center;color:var(--gold-bright);margin-bottom:4px}
+  .end-kind{text-align:center;font-size:.82rem;font-weight:800;margin-bottom:18px}
+  .end-kind.good{color:#9ED39A}.end-kind.mid{color:var(--gold-bright)}.end-kind.badc{color:#E89172}
+  .end-text{font-family:'Tajawal',sans-serif;font-size:1.08rem;font-weight:500;line-height:2.0;color:var(--sand);margin-bottom:20px}
+  .lessons{list-style:none;margin-bottom:20px}
+  .lessons li{
+    display:flex;gap:10px;background:rgba(200,136,75,.08);border:1px solid rgba(200,136,75,.4);
+    border-radius:12px;padding:11px 14px;margin-bottom:9px;font-size:.93rem;
+  }
+  .lessons li::before{content:"📜";flex:0 0 auto}
+  .kpis{display:flex;gap:10px;margin-bottom:20px}
+  .kpi{flex:1;text-align:center;background:rgba(18,15,12,.5);border:1px solid rgba(241,232,219,.16);border-radius:12px;padding:12px 8px}
+  .kpi b{display:block;font-family:'Cairo',sans-serif;font-weight:800;font-size:1.35rem;color:var(--gold-bright)}
+  .kpi b.neg{color:var(--ember)}
+  .kpi span{font-size:.74rem;color:var(--sand-dim)}
+
+  .endings-title{font-family:'Cairo',sans-serif;font-size:1.12rem;font-weight:800;color:var(--gold-bright);text-align:center;margin-bottom:10px}
+  .endings-grid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:22px}
+  .end-badge{
+    width:64px;text-align:center;background:rgba(18,15,12,.5);border:1px solid rgba(241,232,219,.16);
+    border-radius:12px;padding:8px 4px;font-size:.62rem;color:var(--sand-dim);line-height:1.5;
+  }
+  .end-badge .ic{display:block;font-size:1.3rem;margin-bottom:2px}
+  .end-badge.found{border-color:rgba(200,136,75,.6);background:rgba(200,136,75,.1);color:var(--sand)}
+  .end-badge.now{box-shadow:0 0 0 2px var(--gold-bright);border-color:var(--gold-bright)}
+
+  .btn{
+    display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;
+    font-weight:800;font-size:1.1rem;color:#1B1714;
+    background:linear-gradient(180deg,var(--gold-bright),var(--amethyst-deep));
+    border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;
+    box-shadow:0 6px 18px rgba(156,106,51,.4);
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(156,106,51,.5)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(200,136,75,.55);box-shadow:none;margin-top:10px}
+
+  @media (max-width:420px){h1{font-size:1.8rem}.story p{font-size:1.04rem}.end-title{font-size:1.55rem}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}.story p{opacity:1!important}}
+  /* إصلاح: نص قائمة المقدّمة يتدفّق ككتلةٍ طبيعية مع إبقاء الكلمات الغليظة في مواضعها بدل تقطيع السطر */
+  .intro-list li{display:block;position:relative;padding-right:22px;gap:0}
+  .intro-list li::before{position:absolute;right:0;top:.5em;margin-top:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div class="stat"><div class="stat-label">🪙 ثروتك</div><div class="stat-val" id="s-gold">3</div></div>
+      <div class="stat"><div class="stat-label">الفصل</div><div class="stat-val" id="s-act" style="font-size:.95rem;color:var(--sand)">الأول · الطريق</div></div>
+      <div class="stat"><div class="stat-label">🧭 صبرك</div><div class="stat-val" id="s-wis">0</div></div>
+    </div>
+  </div>
+
+  <section class="screen active" id="intro">
+    <div class="intro-seal">⏳</div>
+    <div style="text-align:center">
+      <div class="eyebrow">قصة تفاعلية · كتاب «سيكولوجية المال»</div>
+      <h1>البوّاب والمصرفيّ</h1>
+      <p class="sub">بوّابٌ بسيطٌ خلّف الملايين، ومصرفيٌّ لامعٌ أفلس… أيّ طريقٍ ستسلك؟</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>قصةٌ حقيقيةٌ من قلب الكتاب: <b>«رونالد»</b> البوّاب الذي ترك ملايين، و<b>«ريتشارد»</b> المصرفيّ الذي أفلس.</li>
+        <li>قراراتك في الادّخار والإنفاق والصبر ترسم مصيرك بين الطريقين.</li>
+        <li>راقب <b>ثروتك 🪙</b> و<b>صبرك 🧭</b> — فالسلوك لا الدخل هو من يبني الثروة.</li>
+        <li>للحكاية <b>7 نهايات</b> مختلفة. كم نهايةً ستكتشف؟</li>
+      </ul>
+      <button class="btn" onclick="startStory()">اسلُك طريقك وابدأ ⏳</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="eyebrow" id="g-eyebrow"></div>
+    <div class="story" id="g-story"></div>
+    <div class="prompt" id="g-prompt">— ماذا تفعل؟ —</div>
+    <div id="g-choices"></div>
+  </section>
+
+  <section class="screen" id="ending">
+    <div style="text-align:center"><div class="eyebrow">نهاية الحكاية</div></div>
+    <div class="card">
+      <div class="end-icon" id="e-icon"></div>
+      <div class="end-title" id="e-title"></div>
+      <div class="end-kind" id="e-kind"></div>
+      <div class="end-text" id="e-text"></div>
+      <ul class="lessons" id="e-lessons"></ul>
+      <div class="kpis">
+        <div class="kpi"><b id="e-gold">0</b><span>🪙 ثروتك عند الختام</span></div>
+        <div class="kpi"><b id="e-wis">0</b><span>🧭 صبرٌ جمعته</span></div>
+      </div>
+      <div class="endings-title">سجل النهايات — اكتشفت <span id="e-count">1</span> من 7</div>
+      <div class="endings-grid" id="e-grid"></div>
+      <button class="btn" onclick="startStory()">عِش الحكاية بمسارٍ آخر ⏳</button>
+      <button class="btn ghost" onclick="backToIntro()">عُد إلى الملخص 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const NODES = {
+
+start:{act:1, p:[
+ "في حيّك رجلان: «رونالد» بوّابٌ بسيطٌ يقود سيارةً قديمةً ويرتدي معطفاً مرقّعاً، و«ريتشارد» مصرفيٌّ لامعٌ يسكن قصراً وتلمع ساعتُه من بعيد.",
+ "أنت في الخامسة والعشرين، تتقاضى راتبك الأول الحقيقي. أيّ طريقٍ تسلك؟",
+ "يقول لك زميلٌ: <span class='speech'>«عليك أن تبدو ناجحاً كي تُحترَم»</span>."],
+ ch:[
+  {t:"أعيش بتواضعٍ كرونالد، وأدّخر بقوّةٍ وأستثمر باستمرارٍ في صناديق بسيطةٍ وأنسى", wis:2, to:'saver'},
+  {t:"أُنفق لأبدو ناجحاً كريتشارد: سيارةٌ فاخرةٌ وساعةٌ ثمينةٌ ومظهرٌ لامع", to:'spender'},
+  {t:"أدّخر قليلاً وأستمتع بأغلب دخلي الآن، شيءٌ من هذا وشيءٌ من ذاك", to:'middle'}
+ ]},
+
+saver:{act:1, p:[
+ "أبقيتَ حياتك صغيرةً وادّخرتَ ثلث دخلك أو أكثر، واستثمرتَ بثباتٍ دون ضجيج. تمرّ السنون بهدوء.",
+ "ثم يهبّ سوقٌ صاعدٌ هادر: الجميع يثري بسرعة، وأصدقاؤك يسخرون من صناديقك «المملّة»."],
+ ch:[
+  {t:"أثبت على نهجي وأستمرّ في الاستثمار وأتجاهل الضجيج", wis:2, to:'boom_hold'},
+  {t:"أنجرف وأضخّ مدّخراتي في أسهم المضاربة الأكثر سخونةً عند القمّة", to:'boom_chase'}
+ ]},
+
+spender:{act:1, p:[
+ "عشتَ بضخامةٍ لتجاري المصرفيّين حولك: سيارةٌ مؤجّرةٌ فاخرة، وقرضٌ كبيرٌ لبيتٍ أكبر. تبدو ناجحاً، لكنك لا تدّخر شيئاً تقريباً.",
+ "يأتي سوقٌ صاعد، فتفكّر في مضاعفة المظهر والمكسب."],
+ ch:[
+  {t:"أقترض أكثر لأستثمر بضخامةٍ وأضاعف المكاسب — الجرأة تصنع الثروة", to:'leverage'},
+  {t:"أواصل الإنفاق لأبدو ثريّاً سنواتٍ دون أن أستثمر شيئاً يُذكَر", to:'spend_forever'},
+  {t:"أنتبه أنني متهوّر، فأكبح وأبدأ بالادّخار والتوازن", wis:1, late:true, to:'middle'}
+ ]},
+
+middle:{act:2, p:[
+ "وازنتَ بين الادّخار والاستمتاع. ثم يضرب انهيارٌ عنيفٌ السوق، وتعمّ موجةُ ذعر، وتصرخ العناوين بالخراب."],
+ ch:[
+  {t:"أتمسّك وأواصل الاستثمار وأثق باللعبة الطويلة", wis:1, to:'crash_hold'},
+  {t:"أذعر وأبيع كل شيءٍ لأوقف نزيف الخسارة", to:'crash_panic'}
+ ]},
+
+boom_hold:{act:2, p:[
+ "تجاهلتَ الهوس؛ ثم انفجرت الفقاعة. محفظتك الثابتة تهبط قليلاً لكنك لم تدفع أسعاراً مجنونة، فتواصل الشراء بثمنٍ رخيص.",
+ "أمامك طريقان."],
+ ch:[
+  {t:"أبقى في اللعبة وأترك التركيب يعمل لعقودٍ قادمة", to:'E1'},
+  {t:"بعد التعافي أسحب أموالي وألاحق «فرصةً مضمونة» يتحدّث عنها الجميع", to:'speculate_late'}
+ ]},
+
+boom_chase:{act:2, p:[
+ "لاحقتَ القمّة في ذروة الهوس؛ ثم محا الانهيارُ معظمَ رهاناتك المضاربة. خسارةٌ موجعة."],
+ ch:[
+  {t:"أتعلّم الدرس وأعود إلى الادّخار والصبر", wis:1, to:'comeback'},
+  {t:"أضاعف الرهان بالاقتراض لأستردّ خسائري بسرعة", to:'leverage'}
+ ]},
+
+crash_hold:{act:3, p:[
+ "تمسّكتَ خلال الانهيار. تعافى السوقُ بعد حينٍ ثم حلّق، فكافأ صبرُك والزمنُ معاً.",
+ "محطّتك الأخيرة."],
+ ch:[
+  {t:"أبقى مستثمراً لعقودٍ، وأُبقي الأمر بسيطاً وأحدّد «ما يكفيني»", to:'E1'},
+  {t:"بعد التعافي أسحب أموالي وألاحق رهاناً ساخناً", to:'speculate_late'}
+ ]},
+
+crash_panic:{act:3, p:[
+ "بعتَ في القاع، فثبّتَّ خسائرك، وفاتك التعافي الذي جاء بعد أشهرٍ قليلة."],
+ ch:[
+  {t:"أعود للاستثمار بثباتٍ وأقسم ألّا أذعر ثانيةً", wis:1, to:'comeback'},
+  {t:"أيأس من الاستثمار وأُبقي مالي نقداً «آمناً» بعيداً عن السوق", to:'E5'}
+ ]},
+
+leverage:{act:3, p:[
+ "ضخّمتَ بالدَّين. ما دام السوق صاعداً تبدو عبقريّاً؛ لكن حين ينقلب، يضاعف الدَّينُ خسارتك ويسلبك القدرة على الصمود.",
+ "ثم يأتي الهبوط…"],
+ ch:[
+  {t:"(يجبرك الدَّين على البيع في القاع، فينهار كل شيءٍ كقصر ريتشارد…)", to:'E4'}
+ ]},
+
+spend_forever:{act:3, p:[
+ "مرّت السنون وأنت تبدو ثريّاً: سياراتٌ وساعاتٌ ومظاهر. لكنك لم تبنِ شيئاً تحت السطح."],
+ ch:[
+  {t:"(تكتشف أن المظهر ابتلع كل دخلك، وأن خزانتك فارغة…)", to:'E6'}
+ ]},
+
+comeback:{act:3, p:[
+ "بعد الكبوة، احتضنتَ الصبر والادّخار الثابت. ببطءٍ يعمل التركيب، وبعد سنواتٍ تملك ثروةً هادئةً حقيقية.",
+ "وأمامك قرارٌ أخير."],
+ ch:[
+  {t:"أحدّد «ما يكفيني» وأُقدّر وقتي وحرّيتي على المظهر", to:'E2'},
+  {t:"أظلّ ألاحق المزيد ولا أشبع أبداً، وأخاطر من جديد", to:'E3'}
+ ]},
+
+speculate_late:{act:3, p:[
+ "بعد أن تعافيتَ، سحبتَ أموالك وراهنتَ على شيءٍ ساخنٍ يتحدّث عنه الجميع… ثم انهار وابتلع مكاسبك."],
+ ch:[
+  {t:"(تتعلّم أن جمع الثروة شيءٌ والحفاظ عليها شيءٌ آخر…)", to:'E7'}
+ ]}
+};
+
+const ENDINGS = {
+E1:{icon:"⏳", kind:"good", title:"البوّاب المليونير",
+ text:"عشتَ بهدوءٍ كرونالد البوّاب: حياةٌ متواضعة، وادّخارٌ صبور، وعقودٌ من التركيب دون انقطاع. لم يرَ أحدٌ ثروتك، لكنها تراكمت في صمتٍ حتى صارت ملايين. هذا جوهر الكتاب: «الثروة هي ما لا تراه» — إنها السيارات التي لم تُشترَ والترقيات التي رُفضت. السرّ لم يكن دخلاً ضخماً ولا ذكاءً نادراً، بل سلوكاً ثابتاً منحتَه الزمن.",
+ lessons:["الثروة تُبنى بمعدّل الادّخار + زمنٍ طويلٍ من التركيب، لا بالدخل الكبير","السلوك الهادئ يغلب الذكاء اللامع — الثروة هي ما لا تراه عينُ أحد"]},
+E2:{icon:"🌟", kind:"good", title:"العائد إلى رشده",
+ text:"تعثّرتَ — ذعرتَ أو لاحقتَ القمّة — لكنك عدتَ إلى الصبر والادّخار الثابت، وحدّدتَ «ما يكفيك»، وقدّرتَ وقتك وحرّيتك على المظهر. فبنيتَ ثروةً متينةً تنام قريرَ العين معها. تعلّمتَ أن البقاء في اللعبة وإيقاف حركة الهدف أهمّ من أيّ صفقةٍ خارقة.",
+ lessons:["النجاح المالي قبل كل شيءٍ هو البقاء؛ والتصحيح ممكنٌ دائماً","تحديد «ما يكفي» يحرّرك من سباقٍ لا نهاية له"]},
+E3:{icon:"🔁", kind:"mid", title:"المطحنة التي لا تتوقّف",
+ text:"بنيتَ ثروةً لا بأس بها، لكنّ هدفك ظلّ يتحرّك كلما اقتربتَ منه: المزيد ثم المزيد. خاطرتَ بما تملكه وتحتاجه طمعاً فيما لا تحتاجه، وبقيتَ أسيرَ المقارنة بلا سكينة. أصعب مهارةٍ ماليةٍ — أن تجعل الهدف يتوقّف — لم تتقنها بعد، فبقيتَ تركض في مكانك.",
+ lessons:["أصعب مهارةٍ مالية: جعل الهدف يتوقّف عن التحرّك","الطمع يدفعك لتخاطر بما تحتاجه طمعاً فيما لا تحتاجه — وهذا يمحو الكفاية"]},
+E4:{icon:"🏚️", kind:"badc", title:"انهيار القصر",
+ text:"سلكتَ طريق ريتشارد المصرفيّ: مظهرٌ باهرٌ ودَينٌ يضخّم كل شيء. ما دام السوق صاعداً بدوتَ عبقريّاً، لكن حين انقلب، ضاعف الدَّينُ خسائرك وسلبك القدرة على الصمود، فبِعتَ في القاع وانهار قصرُك. أنتَ من امتلك كل شيءٍ ظاهريّاً ثم خسره — لأن الدَّين أزال هامش بقائك.",
+ lessons:["الدَّين يضخّم المكسب والخسارة معاً، ويسلبك القدرة على الصمود","تجنّب الخراب قبل كل شيء: من يُمحى مرّةً يخرج من اللعبة كلها"]},
+E5:{icon:"💸", kind:"badc", title:"الخائف خارج اللعبة",
+ text:"بعتَ في القاع لتوقف الخسارة، ثم تركتَ السوقَ نهائياً نحو نقدٍ «آمن»، ففاتك التعافي وعقودٌ من التركيب. حوّل الذعرُ هبوطاً مؤقتاً إلى خسارةٍ دائمة. أكبر خطرٍ لم يكن تقلّب السوق، بل خروجُك منه في أسوأ لحظةٍ ثم بقاؤك خارجه بينما يعمل الزمن لغيرك.",
+ lessons:["البقاء في اللعبة شرطُ التركيب؛ والخروج في القاع يثبّت الخسارة","التقلّب ثمنُ الدخول لا غرامة — الصبر يحوّله إلى نموّ"]},
+E6:{icon:"🎭", kind:"badc", title:"اللهاث وراء المظهر",
+ text:"أنفقتَ سنواتٍ لتبدو ثريّاً، فابتلع المظهرُ كلَّ دخلك ولم تبنِ شيئاً تحته. لم يكن هناك انهيارٌ مدوٍّ، بل خواءٌ هادئ: خزانةٌ فارغةٌ خلف واجهةٍ لامعة. أنفقتَ المال لتشتري إعجاب الناس، فخسرتَ الثروة الحقيقية التي لا تُرى. تذكّر: من يصرف ليبدو غنيّاً يبقى فقيراً تحت السطح.",
+ lessons:["الإنفاق على المظهر يلتهم الثروة بدل أن يبنيها","الثروة هي ما لا تراه؛ أما ما تراه فهو مجرّد إنفاقٍ ظاهر"]},
+E7:{icon:"🎲", kind:"mid", title:"عرَفَ ثم قامَر",
+ text:"عرفتَ الطريق وبدأتَ تبني، ثم سحبتَ مكاسبك فجأةً لتراهن على شيءٍ ساخنٍ يتحدّث عنه الجميع — فابتلع أرباحك. الدرس الأقسى: أن تجمع الثروة شيءٌ، وأن تحافظ عليها شيءٌ آخر تماماً. جمعُها يحتاج جرأة؛ أما حفظها فيحتاج تواضعاً وخوفاً من أن يُؤخَذ منك ما بنيت.",
+ lessons:["جمعُ الثروة والحفاظ عليها مهارتان مختلفتان — الثانية تتطلّب تواضعاً","البقاء على الطريق الثابت يحمي مكاسبك من إغراء المضاربة"]}
+};
+
+const ACTS = {1:"الأول · الطريق", 2:"الثاني · العاصفة", 3:"الثالث · الحصاد"};
+
+let st = null;
+let discovered = new Set();
+const $ = id => document.getElementById(id);
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el=$(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function startStory(){
+  st = {gold:3, wis:0, redeemed:false, late:false};
+  $('ledger').style.display='block';
+  goto('start'); show('game');
+}
+function renderLedger(){
+  const g=$('s-gold'); g.textContent=st.gold; g.classList.toggle('neg', st.gold<0);
+  $('s-wis').textContent = st.wis;
+}
+function goto(id){
+  if(ENDINGS[id]){ return showEnding(id); }
+  const n = NODES[id];
+  $('s-act').textContent = ACTS[n.act];
+  $('g-eyebrow').textContent = 'الفصل '+ACTS[n.act];
+  $('g-story').innerHTML = n.p.map(t=>`<p>${t}</p>`).join('');
+  $('g-prompt').textContent = n.ch.length===1 ? '— تابع —' : '— ماذا تفعل؟ —';
+  $('g-choices').innerHTML = n.ch.map((c,i)=>
+    `<button class="choice" onclick="pick('${id}',${i})"><span class="glyph">${n.ch.length===1?'←':'◆'}</span><span>${c.t}</span></button>`
+  ).join('');
+  renderLedger();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function pick(nodeId, ci){
+  const c = NODES[nodeId].ch[ci];
+  if(c.gold) st.gold += c.gold;
+  if(c.wis) st.wis += c.wis;
+  if(c.redeemed) st.redeemed = true;
+  if(c.late) st.late = true;
+  goto(c.to);
+}
+function showEnding(id){
+  discovered.add(id);
+  const e = ENDINGS[id];
+  const endGold = {E1: st.gold+44, E2: st.gold+28, E3: Math.max(st.gold,14), E4: 0, E5: 0, E6: 1, E7: Math.max(st.gold,6)}[id];
+  $('ledger').style.display='none';
+  $('e-icon').textContent = e.icon;
+  $('e-title').textContent = e.title;
+  const kindMap = {good:["نهاية ذهبية ✦","good"], mid:["نهاية فضية ◆","mid"], badc:["نهاية معتمة ▪","badc"]};
+  $('e-kind').textContent = kindMap[e.kind][0];
+  $('e-kind').className = 'end-kind '+kindMap[e.kind][1];
+  $('e-text').textContent = e.text;
+  $('e-lessons').innerHTML = e.lessons.map(l=>`<li>${l}</li>`).join('');
+  const gEl = $('e-gold'); gEl.textContent = endGold; gEl.classList.toggle('neg', endGold<=0);
+  $('e-wis').textContent = st.wis;
+  $('e-count').textContent = discovered.size;
+  $('e-grid').innerHTML = Object.keys(ENDINGS).map(k=>{
+    const found = discovered.has(k);
+    const cls = 'end-badge'+(found?' found':'')+(k===id?' now':'');
+    return `<div class="${cls}"><span class="ic">${found?ENDINGS[k].icon:'❔'}</span>${found?ENDINGS[k].title:'؟؟؟'}</div>`;
+  }).join('');
+  show('ending');
+}
+function backToIntro(){ $('ledger').style.display='none'; show('intro'); }
+</script>
+</body>
+</html>

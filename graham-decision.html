@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>استثمر كالعاقل — لعبة القرارات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#0A1A1C; --lapis-deep:#06110F; --lapis-panel:#102A2A;
+    --gold:#C9A24B; --gold-bright:#E3C173; --sand:#EAF1EC; --sand-dim:#9DB3AC;
+    --ember:#CB6A4E; --reed:#5FB389; --mint-bright:#8FD3B0; --ember-bright:#E89478;
+    --shadow:0 12px 32px rgba(2,8,7,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:'Tajawal',sans-serif;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #12423E 0%, transparent 60%),
+      linear-gradient(180deg, var(--lapis-night) 0%, #04100E 100%);
+    color:var(--sand); min-height:100vh; line-height:1.7;
+  }
+  body::after{
+    content:""; position:fixed; inset:auto 0 0 0; height:3px; z-index:5;
+    background:linear-gradient(90deg, transparent 0, var(--reed) 28%, var(--gold) 50%, var(--reed) 72%, transparent 100%);
+    box-shadow:0 -4px 16px rgba(95,179,137,.3); opacity:.9;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+
+  .ledger{
+    position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:14px 18px 12px;
+    background:linear-gradient(180deg, rgba(10,26,28,.97) 70%, rgba(10,26,28,.85));
+    border-bottom:1px solid rgba(201,162,75,.45);backdrop-filter:blur(6px);
+  }
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .ledger-label{font-size:.78rem;color:var(--sand-dim);font-weight:500}
+  .ledger-amount{font-family:'Amiri',serif;font-weight:700;font-size:1.4rem;color:var(--gold-bright);letter-spacing:.3px;white-space:nowrap}
+  .ledger-amount small{font-size:.82rem;color:var(--sand-dim);font-family:'Tajawal',sans-serif;font-weight:500;margin-right:4px}
+  .ledger-amount.neg{color:var(--ember)}
+  .dots{display:flex;gap:6px;margin-top:8px;justify-content:center}
+  .dot{width:26px;height:4px;border-radius:99px;background:rgba(234,241,236,.16);transition:background .4s}
+  .dot.on{background:var(--gold)}
+  .dot.now{background:var(--gold-bright);box-shadow:0 0 8px rgba(227,193,115,.8)}
+
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  .eyebrow{
+    display:inline-block;font-size:.78rem;font-weight:700;color:var(--gold);
+    border:1px solid rgba(201,162,75,.55);border-radius:99px;padding:4px 14px;
+    margin-bottom:14px;letter-spacing:.3px;background:rgba(201,162,75,.1);
+  }
+  h1{font-family:'Amiri',serif;font-size:2.2rem;font-weight:700;line-height:1.35;color:var(--gold-bright);margin-bottom:6px}
+  h2.situation{font-family:'Tajawal',sans-serif;font-size:1.4rem;line-height:1.75;color:var(--sand);font-weight:700;margin-bottom:22px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+
+  .card{
+    background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));
+    border:1px solid rgba(201,162,75,.32);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow);
+  }
+
+  .choice{
+    display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;
+    background:rgba(6,17,15,.6);border:1px solid rgba(234,241,236,.16);
+    border-radius:14px;padding:15px 16px;margin-bottom:12px;color:var(--sand);
+    font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.65;cursor:pointer;
+    transition:border-color .2s, background .2s, transform .15s;
+  }
+  .choice:hover,.choice:focus-visible{border-color:var(--gold);background:rgba(201,162,75,.12);transform:translateY(-1px)}
+  .choice:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
+  .badge{
+    flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:rgba(201,162,75,.18);border:1px solid rgba(201,162,75,.55);color:var(--gold-bright);font-weight:800;font-size:.95rem;margin-top:2px;
+  }
+
+  .verdict{border-radius:14px;padding:18px;margin-bottom:16px;border:1px solid}
+  .verdict.best{background:rgba(95,179,137,.14);border-color:rgba(95,179,137,.6)}
+  .verdict.ok{background:rgba(201,162,75,.12);border-color:rgba(201,162,75,.55)}
+  .verdict.bad{background:rgba(203,106,78,.14);border-color:rgba(203,106,78,.6)}
+  .verdict-title{font-family:'Amiri',serif;font-size:1.3rem;font-weight:700;margin-bottom:8px}
+  .verdict.best .verdict-title{color:var(--mint-bright)}
+  .verdict.ok .verdict-title{color:var(--gold-bright)}
+  .verdict.bad .verdict-title{color:var(--ember-bright)}
+  .verdict p{font-size:.98rem}
+
+  .timeline{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+  .t-row{display:flex;gap:12px;align-items:flex-start;background:rgba(6,17,15,.55);border-radius:12px;padding:12px 14px;border:1px solid rgba(234,241,236,.12)}
+  .t-when{flex:0 0 auto;font-weight:800;color:var(--gold-bright);font-size:.85rem;border-left:1px solid rgba(201,162,75,.4);padding-left:12px;min-width:74px}
+  .t-what{font-size:.95rem;color:var(--sand)}
+
+  .delta{display:inline-flex;align-items:center;gap:8px;font-family:'Amiri',serif;font-weight:700;font-size:1.35rem;border-radius:12px;padding:8px 16px;margin-bottom:18px}
+  .delta.up{background:rgba(95,179,137,.16);color:var(--mint-bright);border:1px solid rgba(95,179,137,.5)}
+  .delta.down{background:rgba(203,106,78,.16);color:var(--ember-bright);border:1px solid rgba(203,106,78,.5)}
+  .delta.flat{background:rgba(234,241,236,.08);color:var(--sand-dim);border:1px solid rgba(234,241,236,.22)}
+
+  .btn{
+    display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;
+    color:#06110F;background:linear-gradient(180deg,var(--gold-bright),#A9842F);border-radius:14px;padding:15px;
+    transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(201,162,75,.3);
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(201,162,75,.42)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(201,162,75,.55);box-shadow:none;margin-top:10px}
+
+  .final-amount{font-family:'Amiri',serif;font-size:3rem;font-weight:700;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
+  .final-amount.neg{color:var(--ember)}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{text-align:center;font-family:'Amiri',serif;font-size:1.7rem;font-weight:700;color:var(--sand);margin-bottom:6px}
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:22px}
+  .principles{list-style:none;margin-bottom:22px}
+  .principles li{display:flex;gap:10px;align-items:center;padding:10px 14px;margin-bottom:8px;background:rgba(6,17,15,.55);border-radius:12px;border:1px solid rgba(234,241,236,.12);font-size:.95rem}
+  .p-mark{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+  .p-mark.yes{background:rgba(95,179,137,.2);color:var(--mint-bright);border:1px solid rgba(95,179,137,.6)}
+  .p-mark.no{background:rgba(203,106,78,.2);color:var(--ember-bright);border:1px solid rgba(203,106,78,.6)}
+  .quote{font-family:'Amiri',serif;font-size:1.22rem;font-weight:700;line-height:1.9;text-align:center;color:var(--gold-bright);border-top:1px solid rgba(201,162,75,.35);border-bottom:1px solid rgba(201,162,75,.35);padding:18px 6px;margin-bottom:22px}
+  .quote span{display:block;font-family:'Tajawal',sans-serif;font-size:.85rem;font-weight:500;color:var(--sand-dim);margin-top:8px}
+
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:radial-gradient(circle at 35% 30%, rgba(201,162,75,.22), rgba(95,179,137,.05));box-shadow:0 0 30px rgba(201,162,75,.22)}
+  .intro-list{margin:0 0 26px;padding:0;list-style:none}
+  .intro-list li{display:flex;gap:10px;margin-bottom:10px;color:var(--sand);font-size:.98rem}
+  .intro-list li::before{content:"◆";color:var(--gold);font-size:.7rem;margin-top:7px}
+
+  @media (max-width:420px){h1{font-size:1.85rem}h2.situation{font-size:1.25rem}.final-amount{font-size:2.4rem}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+  /* إصلاح: نص قائمة المقدّمة يتدفّق ككتلةٍ طبيعية مع إبقاء الكلمات الغليظة في مواضعها بدل تقطيع السطر */
+  .intro-list li{display:block;position:relative;padding-right:22px;gap:0}
+  .intro-list li::before{position:absolute;right:0;top:.5em;margin-top:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div>
+        <div class="ledger-label">رصيد العقل الاستثماري</div>
+        <div class="ledger-amount" id="wealth">0 <small>نقطة</small></div>
+      </div>
+      <div style="font-size:1.6rem">📈</div>
+    </div>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <section class="screen active" id="intro">
+    <div class="intro-seal">📈</div>
+    <div style="text-align:center">
+      <div class="eyebrow">لعبة قرارات · كتاب «المستثمر الذكي»</div>
+      <h1>استثمر كالعاقل</h1>
+      <p class="sub">هل تحكمك خطّتُك… أم مزاجُ السوق؟</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>ستواجه <b>6 مواقف</b> استثمارية، كلٌّ يختبر مبدأً من مبادئ جراهام.</li>
+        <li>كل قرارٍ يرفع أو يخفض <b>رصيد عقلك الاستثماري</b>.</li>
+        <li>القاعدة الذهبية: اشترِ بـ<b>هامش أمان</b>، وعامِل «السيد سوق» كخادمٍ لا مرشد.</li>
+        <li>اجمع أعلى رصيدٍ ممكن… حتى تصبح <b>مستثمراً عاقلاً</b>.</li>
+      </ul>
+      <button class="btn" onclick="startGame()">ابدأ الاستثمار بعقل ▸</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="eyebrow" id="g-eyebrow"></div>
+    <h2 class="situation" id="g-situation"></h2>
+    <div id="g-choices"></div>
+  </section>
+
+  <section class="screen" id="feedback">
+    <div class="card">
+      <div class="verdict" id="f-verdict">
+        <div class="verdict-title" id="f-title"></div>
+        <p id="f-text"></p>
+      </div>
+      <div class="timeline">
+        <div class="t-row"><div class="t-when">بعد سنة</div><div class="t-what" id="f-y1"></div></div>
+        <div class="t-row"><div class="t-when">بعد 5 سنوات</div><div class="t-what" id="f-y5"></div></div>
+      </div>
+      <div style="text-align:center"><span class="delta" id="f-delta"></span></div>
+      <button class="btn" id="f-next" onclick="nextScenario()">متابعة ←</button>
+    </div>
+  </section>
+
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow">اكتملت الجلسة</div></div>
+    <div class="card">
+      <div class="final-label">رصيد العقل الاستثماري</div>
+      <div class="final-amount" id="r-amount">0</div>
+      <div class="final-label">نقطة &nbsp;·&nbsp; من أصل 116</div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <ul class="principles" id="r-principles"></ul>
+      <div class="quote">«في عالم الاستثمار، أكبرُ عدوٍّ لك هو على الأرجح أنت نفسك»<span>— بنجامين جراهام</span></div>
+      <button class="btn" onclick="restart()">أعد المحاولة 🔄</button>
+      <button class="btn ghost" onclick="restart()">اقرأ الملخص مرة أخرى 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const SCENARIOS = [
+  {
+    cure:"مبدأ · هامش الأمان",
+    short:"الشراء دون القيمة الحقيقية بهامش أمان",
+    situation:"سهمُ شركةٍ متينة قدّرتَ قيمته الحقيقية بـ100، والسوق يعرضه بـ70. ما قرارك؟",
+    choices:[
+      {t:"أشتري الآن — فجوة 30٪ دون القيمة هامشُ أمانٍ يحميني إن أخطأتُ في تقديري", q:"best", d:20,
+       fb:"هامش الأمان جوهرُ الاستثمار العاقل عند جراهام: الفجوة بين السعر والقيمة هي درعُك ضد الخطأ وسوء الحظ معاً.",
+       y1:"امتلكتَ أصلاً جيداً بخصم", y5:"أُغلقت الفجوة لصالحك ونمت قيمتك"},
+      {t:"أنتظر حتى يصل السعر إلى القيمة العادلة (100) تماماً ثم أشتري", q:"ok", d:6,
+       fb:"الشراء عند القيمة العادلة مقبول، لكنه يترك هامشاً ضئيلاً لا يحميك إن جانبَك التقدير.",
+       y1:"دخولٌ بلا هامشٍ يُذكر", y5:"عائدٌ عاديٌّ بمخاطرةٍ أعلى"},
+      {t:"أتجاهل القيمة وأشتري لأن سعره يصعد والجميع يتحدّث عنه", q:"bad", d:-8,
+       fb:"الشراء بمعزلٍ عن القيمة مضاربةٌ لا استثمار؛ بلا هامش أمان يتحوّل أي خطأٍ إلى خسارة.",
+       y1:"دفعتَ أكثر من القيمة", y5:"تصحيحٌ محا مكاسبك الورقية"}
+    ]
+  },
+  {
+    cure:"مبدأ · السيد سوق خادمٌ لا مرشد",
+    short:"تجاهُل نشوة السوق لا ملاحقتها",
+    situation:"يعرض «السيد سوق» اليوم في نوبة نشوةٍ أسعاراً مبالغاً فيها، والجميع يشتري بحماس. ماذا تفعل؟",
+    choices:[
+      {t:"أتجاهل حماسه — أتعامل معه حين يناسبني فقط، ولا يفرض مزاجُه عليّ قراراً", q:"best", d:19,
+       fb:"السيد سوق موجودٌ لخدمتك لا لإرشادك؛ عروضه المتهوّرة لا تُلزمك. العاقل يستغلّ تقلّبه ولا ينقاد له.",
+       y1:"نجوتَ من شراء القمّة", y5:"انضباطٌ حماك من فقاعةٍ انفجرت"},
+      {t:"أشتري قليلاً كي لا تفوتني الموجة، مع شيءٍ من الحذر", q:"ok", d:6,
+       fb:"مجاراة النشوة «قليلاً» تبقى ملاحقةً للسعر؛ الحماس الجماعي ليس سبباً للشراء.",
+       y1:"دخولٌ متأخّرٌ بسعرٍ مرتفع", y5:"مكاسبُ متذبذبةٌ بلا أساس"},
+      {t:"أشتري بقوّة لألحق بالركب قبل فوات الأوان", q:"bad", d:-9,
+       fb:"شراء الذروة في أوج النشوة يمحو هامش الأمان؛ حين يصحو السوق تتبخّر المبالغة.",
+       y1:"اشتريتَ القمّة", y5:"خسارةٌ حين عاد السعر إلى رشده"}
+    ]
+  },
+  {
+    cure:"مبدأ · كن جشعاً حين يخاف الناس",
+    short:"الشراء في الذعر لا البيع معه",
+    situation:"تنهار الأسعار وتنتشر عناوينُ مرعبة. «السيد سوق» في ذعرٍ يعرض أسهمك الجيدة بأبخس الأثمان. ماذا تفعل؟",
+    choices:[
+      {t:"أشتري المزيد من القيمة الجيدة بخصم — ذعرُه فرصتي", q:"best", d:20,
+       fb:"هبوط السعر مع ثبات قيمة الشركة تخفيضٌ لا كارثة؛ العاقل يشتري حين يبيع الخائفون.",
+       y1:"اقتنصتَ أصولاً ممتازةً بخصم", y5:"تعافى السوق فتضاعفت محفظتك"},
+      {t:"أتمسّك بما لديّ ولا أبيع، لكنني لا أشتري المزيد", q:"ok", d:6,
+       fb:"عدم البيع في الذعر قرارٌ سليم، لكنك فوّتَّ فرصة شراءٍ بخصمٍ نادر.",
+       y1:"حافظتَ على مركزك", y5:"نموٌّ جيدٌ دون اغتنام الفرصة"},
+      {t:"أبيع لأوقف الخسارة قبل أن تتفاقم", q:"bad", d:-9,
+       fb:"البيع في القاع تثبيتٌ للخسارة وأكبرُ أخطاء المستثمر؛ عدوّك الأول نفسُك لا السوق.",
+       y1:"بِعتَ في القاع", y5:"عُدتَ تشتري أغلى بعد التعافي"}
+    ]
+  },
+  {
+    cure:"مبدأ · التنويع وحماية رأس المال",
+    short:"توزيع المخاطر لا المراهنة على سهمٍ واحد",
+    situation:"تريد توظيف مدّخراتك. هل تركّزها في سهمٍ واحدٍ «واثقٌ» منه، أم توزّعها؟",
+    choices:[
+      {t:"أوزّعها على عدّة أصولٍ جيدةٍ ومتنوّعة — التنويع يحميني من خطأٍ واحدٍ قاتل", q:"best", d:19,
+       fb:"القاعدة الأولى عند جراهام: لا تخسر رأس المال. التنويع يحميه حين يخيب أحدُ الرهانات.",
+       y1:"محفظةٌ متوازنةٌ أقلّ تقلّباً", y5:"نموٌّ ثابتٌ نجا من تعثّر سهمٍ واحد"},
+      {t:"أوزّعها على سهمين أو ثلاثةٍ في القطاع نفسه الذي أفهمه جيداً", q:"ok", d:6,
+       fb:"تنويعٌ جزئيّ؛ لكن التركّز في قطاعٍ واحدٍ يُبقيك معرّضاً لصدمةٍ تضرب القطاع كلّه.",
+       y1:"تنويعٌ شكليّ", y5:"صدمةُ قطاعٍ هزّت محفظتك"},
+      {t:"أضعها كلّها في السهم الذي أثق به أكثر — التركيز يضاعف الربح", q:"bad", d:-8,
+       fb:"المراهنة بكل شيءٍ على سهمٍ واحدٍ مضاربةٌ لا استثمار؛ خطأٌ واحدٌ قد يمحو رأس المال.",
+       y1:"تقلّبٌ عنيفٌ يقضّ مضجعك", y5:"تعثّرُ السهم الواحد كلّفك الكثير"}
+    ]
+  },
+  {
+    cure:"مبدأ · اعرف نوع المستثمر الذي أنت",
+    short:"اختيار أسلوبٍ يناسب وقتك ومعرفتك",
+    situation:"عملُك يستهلك وقتك، وتتابع الأسواق بصعوبة. أيّ أسلوبٍ استثماريٍّ تختار؟",
+    choices:[
+      {t:"الأسلوب الدفاعي: محفظةٌ متنوّعةٌ بسيطةٌ أتابعها بهدوءٍ دون مضاربةٍ يومية", q:"best", d:18,
+       fb:"يقسم جراهام المستثمرين إلى دفاعيٍّ ومهاجم؛ والأهمّ صدقُك مع نفسك. الدفاعي يربح بالصبر لا بالنشاط.",
+       y1:"راحةُ بالٍ ونتائجُ ثابتة", y5:"تراكمٌ هادئٌ بلا قراراتٍ متهوّرة"},
+      {t:"الأسلوب المهاجم: أحلّل وأنتقي بنشاطٍ رغم ضيق وقتي", q:"ok", d:6,
+       fb:"المهاجم يحتاج وقتاً ومعرفةً كبيرين؛ نصفُ الجهد في أسلوبٍ نشطٍ يجلب نصفَ النتائج أو أسوأ.",
+       y1:"جهدٌ كثيرٌ بعائدٍ متذبذب", y5:"إرهاقٌ ونتائجُ دون السوق"},
+      {t:"أقفز بين الأسلوبين حسب أخبار اليوم والتوصيات الرائجة", q:"bad", d:-8,
+       fb:"التنقّل بين الأساليب وراء الأخبار مضاربةٌ مقنّعة؛ لا أسلوبَ يثمر بلا التزامٍ به.",
+       y1:"قراراتٌ متناقضة", y5:"محفظةٌ بلا بوصلة"}
+    ]
+  },
+  {
+    cure:"مبدأ · الانضباط والاستثمار المنتظم",
+    short:"الشراء بمبلغٍ ثابتٍ بانتظامٍ مهما كان مزاج السوق",
+    situation:"تريد بناء محفظتك على سنوات. كيف تضخّ أموالك في السوق؟",
+    choices:[
+      {t:"أستثمر مبلغاً ثابتاً بانتظامٍ شهرياً مهما صعد السوق أو هبط (متوسّط التكلفة)", q:"best", d:20,
+       fb:"الاستثمار المنتظم يحوّل تقلّب السوق إلى حليف: تشتري أكثر حين تنخفض الأسعار وأقلّ حين ترتفع، ويُبعد العاطفة عن القرار.",
+       y1:"بنيتَ عادةً تتجاهل ضجيج السوق", y5:"محفظةٌ نمت بثباتٍ عبر الدورات"},
+      {t:"أنتظر «اللحظة المثالية» لأضخّ مبلغاً كبيراً دفعةً واحدة", q:"ok", d:6,
+       fb:"توقيت السوق وهمٌ يقع فيه الكثيرون؛ انتظار القاع غالباً يُبقي مالك خارج السوق ويفوّت النمو.",
+       y1:"مالٌ ظلّ منتظراً خارج السوق", y5:"فاتك نموٌّ بسبب انتظار التوقيت"},
+      {t:"أضخّ بكثافةٍ حين يرتفع السوق وأتوقّف حين يهبط خوفاً", q:"bad", d:-8,
+       fb:"الشراء في الصعود والتوقّف في الهبوط عكسُ المنطق تماماً؛ هكذا تشتري غالياً وتفوّت الرخيص.",
+       y1:"اشتريتَ في القمم", y5:"عائدٌ ضعيفٌ من توقيتٍ معكوس"}
+    ]
+  }
+];
+
+const VERDICTS = {
+  best:{title:"📈 قرارُ المستثمر العاقل", cls:"best"},
+  ok:{title:"⚖️ مقبول… لكن العاطفة تتسلّل", cls:"ok"},
+  bad:{title:"📉 مزاجُ السوق تحكّم بك", cls:"bad"}
+};
+
+let idx = 0, wealth = 0, mastered = [];
+const $ = id => document.getElementById(id);
+
+function fmt(n){
+  const s = Math.abs(n).toLocaleString('en-US').replace(/,/g,'٬');
+  return (n<0?'−':'')+s;
+}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function renderDots(){
+  $('dots').innerHTML = SCENARIOS.map((_,i)=>`<div class="dot ${i<idx?'on':''} ${i===idx?'now':''}"></div>`).join('');
+}
+function renderWealth(animateFrom){
+  const el = $('wealth');
+  el.classList.toggle('neg', wealth<0);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(animateFrom===undefined || reduce){ el.innerHTML = fmt(wealth)+' <small>نقطة</small>'; return; }
+  const start = animateFrom, diff = wealth-start, dur = 900, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    el.innerHTML = fmt(Math.round(start+diff*e))+' <small>نقطة</small>';
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function startGame(){
+  idx = 0; wealth = 0; mastered = [];
+  $('ledger').style.display = 'block';
+  renderWealth(); renderDots(); renderScenario(); show('game');
+}
+function renderScenario(){
+  const s = SCENARIOS[idx];
+  $('g-eyebrow').textContent = `الموقف ${idx+1} من ${SCENARIOS.length} · ${s.cure}`;
+  $('g-situation').textContent = s.situation;
+  const letters = ['أ','ب','ج'];
+  $('g-choices').innerHTML = s.choices.map((c,i)=>
+    `<button class="choice" onclick="choose(${i})"><span class="badge">${letters[i]}</span><span>${c.t}</span></button>`).join('');
+  renderDots();
+}
+function choose(ci){
+  const s = SCENARIOS[idx], c = s.choices[ci];
+  const before = wealth;
+  wealth += c.d;
+  mastered.push(c.q === 'best');
+  const v = VERDICTS[c.q];
+  $('f-verdict').className = 'verdict '+v.cls;
+  $('f-title').textContent = v.title;
+  $('f-text').textContent = c.fb;
+  $('f-y1').textContent = c.y1;
+  $('f-y5').textContent = c.y5;
+  const dEl = $('f-delta');
+  dEl.className = 'delta '+(c.d>0?'up':c.d<0?'down':'flat');
+  dEl.textContent = (c.d>0?'📈 +':c.d<0?'📉 −':'⏳ ')+(c.d===0?'لا تغيير':Math.abs(c.d)+' نقطة');
+  $('f-next').textContent = (idx === SCENARIOS.length-1) ? 'اكشف نتيجتك النهائية 📈' : 'الموقف التالي ←';
+  show('feedback');
+  renderWealth(before);
+}
+function nextScenario(){
+  idx++;
+  if(idx < SCENARIOS.length){ renderScenario(); show('game'); }
+  else showResults();
+}
+function rankOf(w){
+  if(w>=95) return {r:"🎩 مستثمرٌ عاقلٌ بحقّ!", n:"عقلك يطبّق هامش الأمان ويتجاهل ضجيج السوق. حان وقت تطبيق ذلك على محفظتك الحقيقية بانضباط."};
+  if(w>=60) return {r:"📈 على طريق جراهام", n:"تمتلك معظم المبادئ. راجع أدناه أين تحكّمت بك العاطفة، وأعد المحاولة لتُحكمها."};
+  if(w>=25) return {r:"🌱 بدأتَ تفكّر كمستثمر", n:"وضعتَ أولى اللبنات. أعد قراءة فصلَي «هامش الأمان» و«السيد سوق» ثم عُد."};
+  return {r:"📉 السوق يقودك لا خطّتك", n:"لا بأس — هذا أهمّ درس. عدوّك الأول هو نفسُك؛ ابدأ بقاعدة هامش الأمان ولا تنقَد لمزاج السوق."};
+}
+function showResults(){
+  $('ledger').style.display = 'none';
+  const rk = rankOf(wealth);
+  const amountEl = $('r-amount');
+  amountEl.classList.toggle('neg', wealth<0);
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n;
+  $('r-principles').innerHTML = SCENARIOS.map((s,i)=>
+    `<li><span class="p-mark ${mastered[i]?'yes':'no'}">${mastered[i]?'✓':'✗'}</span><span>${s.short}</span></li>`).join('');
+  show('results');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ amountEl.textContent = fmt(wealth); return; }
+  const dur = 1400, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    amountEl.textContent = fmt(Math.round(wealth*e));
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function restart(){ $('ledger').style.display = 'none'; show('intro'); }
+</script>
+</body>
+</html>

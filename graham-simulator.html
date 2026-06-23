@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>محفظة المستثمر الذكي — محاكاة مع السيد سوق</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#0A1A1C; --lapis-deep:#06110F; --lapis-panel:#102A2A;
+    --gold:#C9A24B; --gold-bright:#E3C173; --sand:#EAF1EC; --sand-dim:#9DB3AC;
+    --ember:#CB6A4E; --reed:#5FB389; --shadow:0 12px 32px rgba(2,8,7,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:'Tajawal',sans-serif;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #12423E 0%, transparent 60%),
+      linear-gradient(180deg, var(--lapis-night) 0%, #04100E 100%);
+    color:var(--sand); min-height:100vh; line-height:1.7;
+  }
+  body::after{
+    content:""; position:fixed; inset:auto 0 0 0; height:3px; z-index:5;
+    background:linear-gradient(90deg, transparent 0, var(--reed) 28%, var(--gold) 50%, var(--reed) 72%, transparent 100%);
+    box-shadow:0 -4px 16px rgba(95,179,137,.3); opacity:.9;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+
+  .ledger{
+    position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:12px 18px 10px;
+    background:linear-gradient(180deg, rgba(10,26,28,.97) 70%, rgba(10,26,28,.85));
+    border-bottom:1px solid rgba(201,162,75,.45);backdrop-filter:blur(6px);
+  }
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;justify-content:space-between;gap:10px}
+  .stat{text-align:center;flex:1}
+  .stat-label{font-size:.7rem;color:var(--sand-dim);font-weight:500}
+  .stat-val{font-family:'Amiri',serif;font-weight:700;font-size:1.2rem;color:var(--gold-bright);white-space:nowrap}
+  .stat-val.passive{color:var(--reed)}
+  .stat-val.neg{color:var(--ember)}
+  .stat-val.small{font-size:1.05rem;color:var(--sand)}
+  .race{margin-top:10px}
+  .race-bar{height:7px;border-radius:99px;background:rgba(234,241,236,.15);overflow:hidden}
+  .race-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--reed),var(--gold-bright));transition:width .5s ease;width:0%}
+  .race-label{text-align:center;font-size:.72rem;color:var(--sand-dim);margin-top:4px;font-weight:700}
+
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;color:var(--gold);border:1px solid rgba(201,162,75,.55);border-radius:99px;padding:4px 14px;margin-bottom:14px;background:rgba(201,162,75,.08)}
+  h1{font-family:'Amiri',serif;font-size:2.1rem;font-weight:700;line-height:1.4;color:var(--gold-bright);margin-bottom:6px}
+  h2.situation{font-family:'Amiri',serif;font-size:1.5rem;line-height:1.6;color:var(--sand);font-weight:700;margin-bottom:8px}
+  .flavor{color:var(--sand-dim);font-size:.97rem;margin-bottom:20px;line-height:1.85}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+
+  .card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(201,162,75,.32);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow)}
+  .money-line{display:flex;justify-content:space-between;background:rgba(6,17,15,.55);border:1px solid rgba(234,241,236,.16);border-radius:12px;padding:10px 14px;margin-bottom:8px;font-size:.92rem}
+  .money-line b{color:var(--gold-bright);font-family:'Amiri',serif;font-size:1.1rem}
+  .money-line.out b{color:var(--ember)}
+  .money-line.in b{color:var(--reed)}
+  .money-line.net{border-color:rgba(201,162,75,.5)}
+  .money-box{margin-bottom:18px}
+
+  .choice{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;background:rgba(6,17,15,.6);border:1px solid rgba(234,241,236,.16);border-radius:14px;padding:15px 16px;margin-bottom:12px;color:var(--sand);font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.65;cursor:pointer;transition:border-color .2s, background .2s, transform .15s}
+  .choice:hover,.choice:focus-visible{border-color:var(--gold);background:rgba(201,162,75,.10);transform:translateY(-1px)}
+  .choice:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
+  .badge{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(201,162,75,.16);border:1px solid rgba(201,162,75,.5);color:var(--gold-bright);font-weight:800;font-size:.95rem;margin-top:2px}
+
+  .verdict{border-radius:14px;padding:18px;margin-bottom:16px;border:1px solid}
+  .verdict.best{background:rgba(95,179,137,.13);border-color:rgba(95,179,137,.6)}
+  .verdict.ok{background:rgba(201,162,75,.12);border-color:rgba(201,162,75,.55)}
+  .verdict.bad{background:rgba(203,106,78,.13);border-color:rgba(203,106,78,.6)}
+  .verdict-title{font-family:'Amiri',serif;font-size:1.32rem;font-weight:700;margin-bottom:8px}
+  .verdict.best .verdict-title{color:#7FD3AC}
+  .verdict.ok .verdict-title{color:var(--gold-bright)}
+  .verdict.bad .verdict-title{color:#E89B7E}
+  .verdict p{font-size:.98rem}
+  .fund-move{display:flex;flex-direction:column;gap:8px;margin-bottom:18px}
+  .fund-move .row{display:flex;justify-content:space-between;background:rgba(6,17,15,.5);border:1px solid rgba(234,241,236,.14);border-radius:12px;padding:10px 14px;font-size:.92rem}
+  .fund-move .row b{font-family:'Amiri',serif;font-size:1.05rem}
+  .pos{color:#7FD3AC}.negc{color:#E89B7E}
+
+  .btn{display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;color:#06110F;background:linear-gradient(180deg,var(--gold-bright),#A9842F);border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(201,162,75,.3)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(201,162,75,.42)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(201,162,75,.55);box-shadow:none;margin-top:10px}
+
+  .final-amount{font-family:'Amiri',serif;font-size:3rem;font-weight:700;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
+  .final-amount.win{color:var(--reed)}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{text-align:center;font-family:'Amiri',serif;font-size:1.65rem;font-weight:700;color:var(--sand);margin-bottom:6px}
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:22px}
+  .kpis{display:flex;gap:10px;margin-bottom:22px}
+  .kpi{flex:1;text-align:center;background:rgba(6,17,15,.5);border:1px solid rgba(234,241,236,.16);border-radius:12px;padding:12px 8px}
+  .kpi b{display:block;font-family:'Amiri',serif;font-size:1.4rem;color:var(--gold-bright)}
+  .kpi span{font-size:.74rem;color:var(--sand-dim)}
+  .quote{font-family:'Amiri',serif;font-size:1.22rem;font-weight:700;line-height:1.9;text-align:center;color:var(--gold-bright);border-top:1px solid rgba(201,162,75,.35);border-bottom:1px solid rgba(201,162,75,.35);padding:18px 6px;margin-bottom:22px}
+  .quote span{display:block;font-family:'Tajawal',sans-serif;font-size:.85rem;font-weight:500;color:var(--sand-dim);margin-top:8px}
+
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:radial-gradient(circle at 35% 30%, rgba(201,162,75,.22), rgba(95,179,137,.05));box-shadow:0 0 30px rgba(201,162,75,.22)}
+  .intro-list{margin:0 0 26px;list-style:none}
+  .intro-list li{display:flex;gap:10px;margin-bottom:10px;color:var(--sand);font-size:.98rem}
+  .intro-list li::before{content:"◆";color:var(--gold);font-size:.7rem;margin-top:7px}
+
+  @media (max-width:420px){h1{font-size:1.75rem}h2.situation{font-size:1.3rem}.final-amount{font-size:2.4rem}.stat-val{font-size:1.05rem}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+  /* إصلاح: نص قائمة المقدّمة يتدفّق ككتلةٍ طبيعية مع إبقاء الكلمات الغليظة في مواضعها بدل تقطيع السطر */
+  .intro-list li{display:block;position:relative;padding-right:22px;gap:0}
+  .intro-list li::before{position:absolute;right:0;top:.5em;margin-top:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div class="stat"><div class="stat-label">المحطّة</div><div class="stat-val small" id="s-month">1 / 12</div></div>
+      <div class="stat"><div class="stat-label">📈 محفظتك</div><div class="stat-val passive" id="s-portfolio">0</div></div>
+      <div class="stat"><div class="stat-label">💵 سيولتك</div><div class="stat-val small" id="s-cash">0</div></div>
+    </div>
+    <div class="race">
+      <div class="race-bar"><div class="race-fill" id="race-fill"></div></div>
+      <div class="race-label" id="race-label">🎯 نحو الهدف: 0 / 200٬000</div>
+    </div>
+  </div>
+
+  <section class="screen active" id="intro">
+    <div class="intro-seal">🏦</div>
+    <div style="text-align:center">
+      <div class="eyebrow">محاكاة استثمار · كتاب «المستثمر الذكي»</div>
+      <h1>محفظة المستثمر الذكي</h1>
+      <p class="sub">12 محطّةً مع «السيد سوق» المتقلّب. هل تحكمك خطتُك… أم مزاجُه؟</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>تبدأ بـ <b>100,000 درهم</b> سيولة، وتبني محفظةً عبر 12 محطّة.</li>
+        <li>في كل محطّة يعرض «السيد سوق» مزاجاً (نشوةً أو ذعراً)، وأنت تقرّر: تشتري القيمة، تتمسّك، أم تبيع.</li>
+        <li>القرار الحكيم (هامش أمان، تجاهل المزاج، صبر) ينمّي محفظتك؛ <b>الانفعال يحرقها</b>.</li>
+        <li>الهدف: مضاعفة ثروتك إلى <b>200,000 درهم</b> بالانضباط لا بالحظ.</li>
+      </ul>
+      <button class="btn" onclick="startGame()">افتح حسابك وابدأ ▸</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="eyebrow" id="g-eyebrow"></div>
+    <h2 class="situation" id="g-title"></h2>
+    <p class="flavor" id="g-flavor"></p>
+    <div class="money-box" id="g-money"></div>
+    <div id="g-choices"></div>
+  </section>
+
+  <section class="screen" id="feedback">
+    <div class="card">
+      <div class="verdict" id="f-verdict">
+        <div class="verdict-title" id="f-title"></div>
+        <p id="f-text"></p>
+      </div>
+      <div class="fund-move" id="f-moves"></div>
+      <button class="btn" id="f-next" onclick="nextMonth()">المحطّة التالية ▸</button>
+    </div>
+  </section>
+
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow">انتهت الرحلة</div></div>
+    <div class="card">
+      <div class="final-label">ثروتك الكلية بعد 12 محطّة</div>
+      <div class="final-amount" id="r-amount">0</div>
+      <div class="final-label">درهم &nbsp;·&nbsp; رأس مالك البدئي: 100,000</div>
+      <div class="kpis">
+        <div class="kpi"><b id="r-return">0%</b><span>العائد الإجمالي</span></div>
+        <div class="kpi"><b id="r-good">0/12</b><span>قرارات منضبطة</span></div>
+      </div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <div class="quote">«السوق في المدى القصير آلةُ تصويت، وفي المدى الطويل آلةُ وزن»<span>— بنجامين جراهام</span></div>
+      <button class="btn" onclick="startGame()">أعد الرحلة 🔄</button>
+      <button class="btn ghost" onclick="restart()">عُد إلى الملخص 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const START_CASH=100000, GOAL=200000, NPERIODS=12;
+
+const PERIODS = [
+  { title:"المحطّة 1 · أوّل لقاءٍ مع السيد سوق",
+    flavor:"يطرق بابك «السيد سوق»، شريكُك المتقلّب المزاج، عارضاً أسهم شركةٍ متينة بسعرٍ أقلّ من قيمتها الحقيقية. معك 100,000 درهم. ما خطوتك الأولى؟",
+    choices:[
+      {t:"أشتري بجزءٍ محسوبٍ بعد التأكد من «هامش أمانٍ» بين السعر والقيمة", q:"best", buy:50000, growth:1.10,
+       fb:"هامش الأمان جوهر جراهام: تشتري بأقلّ من القيمة الحقيقية، فيحميك الفارق إن أخطأتَ ويُربحك إن أصبت.",
+       move:[["استثمار في القيمة","−50٬000 سيولة","negc"],["نمو نحو القيمة العادلة","+10%","pos"]]},
+      {t:"أشتري كميةً صغيرة جداً وأنا متردّد", q:"ok", buy:15000, growth:1.08,
+       fb:"الحذر مقبول، لكن حين تكون القيمة واضحةً والهامش كافياً، التردّد المفرط يضيّع عائداً آمناً.",
+       move:[["استثمار صغير","−15٬000 سيولة","negc"],["نمو","+8%","pos"]]},
+      {t:"أنتظر وأُبقي كل مالي سيولةً خوفاً من أي تحرّك", q:"bad", growth:1,
+       fb:"البقاء النقدي الدائم خوفاً من السوق له ثمن: التضخّم يقضم مدّخراتك، والفرص الواضحة تمرّ من أمامك.",
+       move:[["لا استثمار","السيولة كما هي",""]]}
+    ]},
+  { title:"المحطّة 2 · نشوة السوق",
+    flavor:"يعود «السيد سوق» اليوم في نشوةٍ غامرة، يعرض أسعاراً مبالَغاً فيها للجميع ويغريك بالشراء بأي ثمن. الكلّ يشتري بحماس.",
+    choices:[
+      {t:"أتجاهل حماسه — لا أشتري بسعرٍ يفوق القيمة مهما بدا متفائلاً", q:"best", growth:1,
+       fb:"السيد سوق خادمٌ لا مرشد. عروضه المتهوّرة لا تُلزمك؛ والشراء فوق القيمة يمحو هامش أمانك.",
+       move:[["انضباط","لم تطارد السعر",""]]},
+      {t:"أشتري قليلاً كي لا «تفوتني» الموجة", q:"ok", buy:10000, growth:0.95,
+       fb:"الخوف من الفوات فخٌّ. شراء جزءٍ بسعرٍ مبالغٍ فيه يقلّل عائدك حين يعود السعر إلى رشده.",
+       move:[["شراء بسعرٍ مرتفع","−10٬000 سيولة","negc"],["تصحيح لاحق","−5%","negc"]]},
+      {t:"أندفع وأشتري بكثافةٍ على سعر النشوة", q:"bad", buy:40000, growth:0.82,
+       fb:"اشتريتَ القمّة بلا هامش أمان. حين يستيقظ السيد سوق من نشوته، تتبخّر المبالغة وتتكبّد الخسارة.",
+       move:[["شراء مكثّف بالقمّة","−40٬000 سيولة","negc"],["انكماش الفقاعة","−18%","negc"]]}
+    ]},
+  { title:"المحطّة 3 · ذعر السوق",
+    flavor:"تنهار الأسعار وتنتشر عناوين مرعبة. يطرق «السيد سوق» وهو في ذعرٍ شديد، يعرض أسهمك الجيدة بأبخس الأثمان ويتوسّل إليك أن تبيع.",
+    choices:[
+      {t:"أستغلّ ذعره: أشتري المزيد من الشركات الجيدة بأسعارٍ زهيدة", q:"best", buy:40000, growth:1.25,
+       fb:"كن جشعاً حين يخاف الآخرون. ذعر السيد سوق هو فرصة المستثمر العاقل ليشتري القيمة بخصم.",
+       move:[["شراء في الذعر","−40٬000 سيولة","negc"],["تعافٍ قويٌّ لاحقاً","+25%","pos"]]},
+      {t:"أتمسّك بما لديّ ولا أبيع، لكنني لا أشتري", q:"ok", growth:1.12,
+       fb:"عدم البيع في الذعر قرارٌ سليم؛ لكنك فوّتّ فرصة الشراء بخصمٍ نادرٍ كهذا.",
+       move:[["تماسك","لم تبِع بخسارة",""],["تعافٍ","+12%","pos"]]},
+      {t:"أبيع كل شيءٍ هلعاً لأوقف الخسارة", q:"bad", sellFrac:1, growth:1,
+       fb:"الذعر أغلى نصيحة. بِعتَ القيمة في القاع وثبّتّ الخسارة، بينما كان السوق على وشك التعافي. عدوّ المستثمر الأول هو نفسه.",
+       move:[["بيعٌ بدافع الهلع","تسييل المحفظة بالكامل","negc"],["فاتك التعافي","0%",""]]}
+    ]},
+  { title:"المحطّة 4 · إغراء التركيز",
+    flavor:"محفظتك تتركّز في سهمٍ واحدٍ أحببتَه. ينصحك «السيد سوق» بأن تراهن بكل شيءٍ عليه وحده. ماذا تفعل؟",
+    choices:[
+      {t:"أوزّع استثماري على عدّة شركاتٍ وقطاعاتٍ متينة", q:"best", growth:1.10,
+       fb:"التنويع يحميك من خطأ التقدير في شركةٍ واحدة. يوصي جراهام المستثمرَ الدفاعي بمحفظةٍ متنوّعةٍ متوازنة.",
+       move:[["توزيع المخاطر","محفظةٌ متنوّعة",""],["نموٌّ مستقر","+10%","pos"]]},
+      {t:"أبقي التركيز لكن أضيف شركةً أو اثنتين", q:"ok", growth:1.05,
+       fb:"تنويعٌ جزئيٌّ أفضل من لا شيء، لكن التركيز الزائد يبقى مصدر خطرٍ غير ضروري.",
+       move:[["تنويع محدود","+5%","pos"]]},
+      {t:"أراهن بكل محفظتي على السهم الواحد", q:"bad", growth:0.80,
+       fb:"وضعتَ كل بيضك في سلّةٍ واحدة. خطأٌ واحدٌ في تقدير شركةٍ واحدةٍ قد يمحو ثروتك كلها.",
+       move:[["تركيزٌ كامل","رهانٌ على سهمٍ واحد","negc"],["السهم يتعثّر","−20%","negc"]]}
+    ]},
+  { title:"المحطّة 5 · سوقٌ متمايل",
+    flavor:"السوق يتمايل صعوداً وهبوطاً بلا اتجاهٍ واضح. تتساءل: متى أستثمر سيولتي المتبقّية؟",
+    choices:[
+      {t:"أستثمر مبلغاً ثابتاً بانتظامٍ كل فترة بغضّ النظر عن المزاج", q:"best", buy:30000, growth:1.12,
+       fb:"«متوسّط التكلفة»: بالشراء المنتظم تشتري وحداتٍ أكثر حين تنخفض وأقلّ حين ترتفع، فيهبط متوسط كلفتك دون توقيتٍ للسوق.",
+       move:[["استثمارٌ منتظم","−30٬000 سيولة","negc"],["متوسّط كلفةٍ منخفض","+12%","pos"]]},
+      {t:"أنتظر «اللحظة المثالية» للدخول دفعةً واحدة", q:"ok", growth:1,
+       fb:"توقيت القاع تماماً شبه مستحيلٍ حتى للمحترفين. الانتظار الكامل غالباً يُفوّت أكثر مما يوفّر.",
+       move:[["انتظار التوقيت","بقيتَ خارج السوق",""]]},
+      {t:"أقفز داخلاً وخارجاً مع كل تمايلٍ محاولاً المضاربة", q:"bad", sellFrac:0.3, growth:0.90,
+       fb:"المضاربة على التمايلات قصيرة المدى تستنزفك في الرسوم والأخطاء. يفرّق جراهام بوضوحٍ بين الاستثمار والمضاربة.",
+       move:[["مضاربةٌ متكرّرة","بيعٌ متهوّر −30%","negc"],["خسائر التداول","−10%","negc"]]}
+    ]},
+  { title:"المحطّة 6 · السهم «الساخن»",
+    flavor:"سهمٌ يتحدّث عنه الجميع وقد تضاعف سعره دون أن تتحسّن أرباح شركته. يلحّ عليك «السيد سوق» لتلحق بالركب قبل فوات الأوان.",
+    choices:[
+      {t:"أرفض — السعر تجاوز القيمة بكثير، والقصص لا تُسدّد أرباحاً", q:"best", growth:1,
+       fb:"السعر هو ما تدفعه، والقيمة ما تحصل عليه. الشراء بناءً على الإثارة لا الأرباح مضاربةٌ محضة.",
+       move:[["انضباط القيمة","تجاهلتَ الضجيج",""]]},
+      {t:"أشتري كميةً رمزيةً «للمجاراة»", q:"ok", buy:8000, growth:0.85,
+       fb:"حتى المبلغ الرمزي في سهمٍ مبالغٍ فيه يخالف مبدأ القيمة. الإثارة ليست تحليلاً.",
+       move:[["شراءٌ رمزي","−8٬000 سيولة","negc"],["تصحيح السعر","−15%","negc"]]},
+      {t:"أشتري بقوّةٍ قبل أن «يفوتني القطار»", q:"bad", buy:35000, growth:0.70,
+       fb:"طاردتَ سعراً منفصلاً عن القيمة. حين تنفجر القصّة، يبقى من اشترى الوهمَ بأغلى الأثمان.",
+       move:[["شراءٌ بكثافة","−35٬000 سيولة","negc"],["انهيار الفقاعة","−30%","negc"]]}
+    ]},
+  { title:"المحطّة 7 · أيُّ مستثمرٍ تكون؟",
+    flavor:"تفكّر في أسلوبك: هل تتابع السوق يومياً وتتداول بنشاط، أم تبني محفظةً متينةً وتدعها تعمل؟",
+    choices:[
+      {t:"أتبنّى نهج المستثمر الدفاعي: محفظةٌ متوازنة أراجعها دورياً لا يومياً", q:"best", growth:1.10,
+       fb:"معظم الناس يناسبهم «المستثمر الدفاعي»: جهدٌ معقول، تنويع، ومراجعةٌ هادئة. تجنّبك المتابعةُ المحمومة قراراتٍ انفعالية.",
+       move:[["نهجٌ دفاعيٌّ منضبط","+10%","pos"]]},
+      {t:"أمزج قليلاً: أتداول جزءاً وأستثمر الباقي", q:"ok", growth:1.03,
+       fb:"المستثمر «المغامر» يتطلّب وقتاً وخبرةً كبيرين؛ نصف الالتزام بنهجٍ نشطٍ غالباً يأتي بنصف نتائجه أو أسوأ.",
+       move:[["نهجٌ مختلط","+3%","pos"]]},
+      {t:"أتابع الشاشة كل ساعةٍ وأتداول مع كل خبر", q:"bad", growth:0.85,
+       fb:"المتابعة اللحظية تشعل الانفعال. كثرة الحركة عدوّةُ العائد؛ السوق يكافئ الصبر لا النشاط المحموم.",
+       move:[["تداولٌ محموم","−15%","negc"]]}
+    ]},
+  { title:"المحطّة 8 · السيد سوق يطرق كل يوم",
+    flavor:"يطرق «السيد سوق» بابك كل يومٍ بسعرٍ جديدٍ صاخب. تشعر بضغطٍ لتتفاعل مع كل عرضٍ يقدّمه.",
+    choices:[
+      {t:"أتذكّر أنه خادمٌ لا سيّد: أتجاهل عروضه اليومية وأتصرّف فقط حين يقدّم سعراً سخيفاً لصالحي", q:"best", growth:1.08,
+       fb:"عبقرية تشبيه جراهام: السيد سوق موجودٌ لخدمتك لا لإرشادك. تتعامل معه حين يناسبك، وتتجاهله بقية الوقت.",
+       move:[["تجاهل الضجيج اليومي","+8%","pos"]]},
+      {t:"أتحقّق من الأسعار يومياً لكن نادراً ما أتصرّف", q:"ok", growth:1.02,
+       fb:"حتى مجرّد المتابعة اليومية تستنزف هدوءك وتغريك بالتصرّف الانفعالي تدريجياً.",
+       move:[["متابعةٌ قلقة","+2%","pos"]]},
+      {t:"أدع سعره اليومي يحدّد مزاجي وقراراتي", q:"bad", sellFrac:0.2, growth:0.92,
+       fb:"حين يصير مزاج السوق مزاجَك، تبيع في الخوف وتشتري في الطمع — وهي وصفةٌ مضمونةٌ للخسارة.",
+       move:[["انفعالٌ مع السوق","بيعٌ قلق −20%","negc"],["قراراتٌ سيّئة","−8%","negc"]]}
+    ]},
+  { title:"المحطّة 9 · إعادة التوازن",
+    flavor:"بعد صعودٍ جيّد، صار أحد أصولك يشكّل نسبةً ضخمةً من محفظتك. يعرض «السيد سوق» سعراً مرتفعاً عليه اليوم.",
+    choices:[
+      {t:"أعيد التوازن: أبيع جزءاً من المتضخّم وأعيد توزيعه على ما هو أقلّ من قيمته", q:"best", growth:1.10,
+       fb:"إعادة التوازن انضباطٌ ذكي: تقتطف بعض الأرباح من المرتفع وتعيدها لما يحمل هامش أمانٍ أكبر.",
+       move:[["إعادة توازن","بيع جزءٍ بسعرٍ جيد",""],["محفظةٌ متوازنة","+10%","pos"]]},
+      {t:"أترك كل شيءٍ كما هو", q:"ok", growth:1.02,
+       fb:"عدم إعادة التوازن ليس كارثة، لكنه يترك محفظتك معرّضةً أكثر من اللازم لأصلٍ واحد.",
+       move:[["لا تغيير","+2%","pos"]]},
+      {t:"أضخّ المزيد في الأصل المرتفع لأنه «رابح»", q:"bad", buy:25000, growth:0.85,
+       fb:"مطاردة الرابح بعد صعودٍ كبير تزيد تركّزك عند أعلى المخاطر. أداء الأمس ليس ضماناً للغد.",
+       move:[["تركيزٌ أكبر بالقمّة","−25٬000 سيولة","negc"],["تصحيح","−15%","negc"]]}
+    ]},
+  { title:"المحطّة 10 · عامٌ هادئ",
+    flavor:"عامٌ هادئٌ بلا إثارة: لا انهيار ولا نشوة، فقط شركاتٌ جيّدةٌ تعمل بهدوء. تشعر بالملل وتتساءل إن كان عليك «فعل شيءٍ ما».",
+    choices:[
+      {t:"لا أفعل شيئاً متهوّراً: أترك أصولي الجيدة تراكم عوائدها بصبر", q:"best", growth:1.12,
+       fb:"العائد المركّب يكافئ الصبر. أكثر ثروات المستثمرين بُنيت بالجلوس على شركاتٍ جيدةٍ سنواتٍ طويلة، لا بالحركة الدائمة.",
+       move:[["صبرٌ وتركيب","+12%","pos"]]},
+      {t:"أجري بعض التعديلات الطفيفة «لأبقى نشطاً»", q:"ok", growth:1.04,
+       fb:"الحركة من أجل الحركة تكلفةٌ بلا فائدةٍ غالباً. أحياناً أفضل قرارٍ هو ألّا تفعل شيئاً.",
+       move:[["تعديلاتٌ بلا داعٍ","+4%","pos"]]},
+      {t:"أبيع أصولي الجيدة بحثاً عن «إثارةٍ» أكبر في مكانٍ آخر", q:"bad", sellFrac:0.5, growth:0.95,
+       fb:"قطعتَ تراكم العائد المركّب مللاً. الاستثمار الناجح غالباً مُمِلّ — والإثارة تُكلّف.",
+       move:[["بيعٌ بحثاً عن إثارة","تسييل نصف المحفظة","negc"],["فوّتّ التراكم","−5%","negc"]]}
+    ]},
+  { title:"المحطّة 11 · الهبوط الأخير",
+    flavor:"قُبيل النهاية، يضرب هبوطٌ حادّ. «السيد سوق» في أسوأ نوبات اكتئابه، يعرض كل شيءٍ بأسعارٍ مذهلة الانخفاض.",
+    choices:[
+      {t:"أستثمر آخر سيولتي بثقةٍ في القيمة المخفّضة", q:"best", buy:30000, growth:1.28,
+       fb:"اختبارك الأخير لمبدأ جراهام: حين يكتئب السيد سوق وتنخفض القيمة الجيدة، يشتري المنضبط بأكبر هامش أمان.",
+       move:[["شراءٌ في القاع","−30٬000 سيولة","negc"],["تعافٍ كبير","+28%","pos"]]},
+      {t:"أتماسك ولا أبيع، وأنتظر دون شراء", q:"ok", growth:1.15,
+       fb:"الصمود دون بيعٍ سليم، لكن السيولة المتاحة في قاعٍ كهذا كانت فرصةً تاريخيةً للشراء.",
+       move:[["تماسك","لم تبِع",""],["تعافٍ","+15%","pos"]]},
+      {t:"أستسلم وأبيع خوفاً من مزيدٍ من الهبوط", q:"bad", sellFrac:0.8, growth:1,
+       fb:"الاستسلام في القاع يحوّل خسارةً ورقيةً مؤقتة إلى خسارةٍ دائمة. التقلّب ليس خسارةً ما لم تبِع.",
+       move:[["بيعٌ قرب القاع","تسييل 80% بخسارة","negc"],["فاتك التعافي","0%",""]]}
+    ]},
+  { title:"المحطّة 12 · الحصاد",
+    flavor:"تنجلي العاصفة ويعود «السيد سوق» إلى رشده عارضاً أسعاراً عادلة. محطّتك الأخيرة: كيف تختم رحلتك؟",
+    choices:[
+      {t:"ألتزم بخطتي: محفظةٌ متنوّعةٌ من القيمة أتركها تنمو على المدى الطويل", q:"best", growth:1.12,
+       fb:"أنهيتَ كمستثمرٍ عاقل: انضباطٌ، وهامش أمان، وصبر. عدوّ المستثمر الأكبر هو نفسه — وأنت تغلّبتَ عليه.",
+       move:[["انضباطٌ طويل المدى","+12%","pos"]]},
+      {t:"أسيّل جزءاً كبيراً «لأطمئن» وأترك الباقي", q:"ok", growth:1.04,
+       fb:"تأمين بعض الأرباح مقبول، لكن الخروج الكبير دون داعٍ يقطع نموّاً مركّباً طويل الأمد.",
+       move:[["تسييلٌ جزئي","+4%","pos"]]},
+      {t:"أبيع كل شيءٍ وأخرج — تعبتُ من التقلّبات", q:"bad", sellFrac:1, growth:1,
+       fb:"الخروج الكامل بدافع الإرهاق العاطفي يُنهي رحلة العائد المركّب باكراً. الانضباط يدوم أطول من المشاعر.",
+       move:[["خروجٌ كامل","تسييل المحفظة","negc"],["انتهى التركيب","0%",""]]}
+    ]}
+];
+
+const VERDICTS = {
+  best:{title:"🏛️ قرارٌ يليق بمستثمرٍ عاقل", cls:"best"},
+  ok:{title:"⚖️ مقبول… لكن دون المثالي", cls:"ok"},
+  bad:{title:"📉 السيد سوق تلاعب بمشاعرك", cls:"bad"}
+};
+
+let month, cash, portfolio, invested, good;
+const $ = id => document.getElementById(id);
+function fmt(n){ const s = Math.abs(Math.round(n)).toLocaleString('en-US').replace(/,/g,'٬'); return (n<0?'−':'')+s; }
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function startGame(){
+  month=1; cash=START_CASH; portfolio=0; invested=0; good=[];
+  $('ledger').style.display='block';
+  enterMonth();
+}
+function enterMonth(){
+  updateLedger();
+  renderMonth();
+  show('game');
+}
+function total(){ return cash + portfolio; }
+function updateLedger(){
+  $('s-month').textContent = month+' / '+NPERIODS;
+  $('s-portfolio').textContent = fmt(portfolio);
+  const cEl = $('s-cash'); cEl.textContent = fmt(cash); cEl.classList.toggle('neg', cash<0);
+  const t = total();
+  const pct = Math.min(t/GOAL*100,100);
+  $('race-fill').style.width = pct+'%';
+  $('race-label').textContent = (t>=GOAL?'🎯 بلغتَ الهدف! ':'🎯 نحو الهدف: ')+fmt(t)+' / '+fmt(GOAL);
+}
+function renderMonth(){
+  const m = PERIODS[month-1];
+  $('g-eyebrow').textContent = `المحطّة ${month} من ${NPERIODS}`;
+  $('g-title').textContent = m.title;
+  $('g-flavor').textContent = m.flavor;
+  let rows = `<div class="money-line"><span>💵 سيولتك المتاحة</span><b>${fmt(cash)}</b></div>`;
+  rows += `<div class="money-line in"><span>📈 قيمة محفظتك</span><b>${fmt(portfolio)}</b></div>`;
+  rows += `<div class="money-line net"><span>🎯 ثروتك الكلية</span><b>${fmt(total())}</b></div>`;
+  $('g-money').innerHTML = rows;
+  const letters=['أ','ب','ج'];
+  $('g-choices').innerHTML = m.choices.map((c,i)=>
+    `<button class="choice" onclick="choose(${i})"><span class="badge">${letters[i]}</span><span>${c.t}</span></button>`).join('');
+}
+function choose(ci){
+  const m = PERIODS[month-1], c = m.choices[ci];
+  if(c.buy){ const amt = Math.min(c.buy, Math.max(cash,0)); cash -= amt; portfolio += amt; invested += amt; }
+  if(c.sellFrac){ const sold = Math.round(portfolio*c.sellFrac); portfolio -= sold; cash += sold; }
+  if(c.growth){ portfolio = Math.round(portfolio*c.growth); }
+  good[month-1] = (c.q==='best');
+  const v = VERDICTS[c.q];
+  $('f-verdict').className = 'verdict '+v.cls;
+  $('f-title').textContent = v.title;
+  $('f-text').textContent = c.fb;
+  $('f-moves').innerHTML = c.move.map(r=>
+    `<div class="row"><span>${r[0]}</span><b class="${r[2]}">${r[1]}</b></div>`).join('');
+  $('f-next').textContent = (month===NPERIODS) ? 'اكشف نتيجتك النهائية 🏛️' : 'المحطّة التالية ▸';
+  updateLedger();
+  show('feedback');
+}
+function nextMonth(){
+  month++;
+  if(month<=NPERIODS) enterMonth();
+  else showResults();
+}
+function rankOf(t){
+  if(t>=GOAL) return {r:"🏛️ مستثمرٌ عاقلٌ حقيقي!", n:"ضاعفتَ ثروتك بالانضباط لا بالحظ: هامش أمان، وتجاهلٌ لمزاج السوق، وصبر. غلبتَ ألدّ أعداء المستثمر: نفسك."};
+  if(t>=140000) return {r:"📈 على طريق جراهام", n:"نمت محفظتك بثبات. بعض القرارات الانفعالية كبحتك — راجع أين طاردتَ السعر أو ذعرتَ، وأعد المحاولة."};
+  if(t>=100000) return {r:"⚖️ حافظتَ على رأس مالك تقريباً", n:"تجنّبتَ الكوارث، لكن الإفراط في الحذر أو بعض المضاربة حدّ من نموّك. القيمة + الصبر يصنعان الفارق."};
+  return {r:"📉 السيد سوق تلاعب بمشاعرك", n:"بِعتَ في الذعر أو طاردتَ النشوة. لا بأس — هذا أهمّ دروس جراهام. أعد المحاولة وكن خادمَ خطتك لا أسيرَ مزاج السوق."};
+}
+function showResults(){
+  $('ledger').style.display='none';
+  const t = total();
+  const rk = rankOf(t);
+  const amountEl = $('r-amount');
+  amountEl.classList.toggle('win', t>=GOAL);
+  const ret = Math.round((t/START_CASH-1)*100);
+  $('r-return').textContent = (ret>=0?'+':'−')+Math.abs(ret)+'%';
+  $('r-good').textContent = good.filter(Boolean).length+'/'+NPERIODS;
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n;
+  show('results');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ amountEl.textContent = fmt(t); return; }
+  const dur=1500, t0=performance.now();
+  (function tick(ts){
+    const p=Math.min((ts-t0)/dur,1), e=1-Math.pow(1-p,3);
+    amountEl.textContent = fmt(Math.round(t*e));
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function restart(){ $('ledger').style.display='none'; show('intro'); }
+</script>
+</body>
+</html>

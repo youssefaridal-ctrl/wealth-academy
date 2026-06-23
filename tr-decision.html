@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>صندوق حرّيتك المالية — لعبة القرارات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#260E12; --lapis-deep:#1A080B; --lapis-panel:#3B161B;
+    --gold:#D9A23B; --gold-bright:#F0C36B; --sand:#F5ECE9; --sand-dim:#C2A4A2;
+    --ember:#D2674E; --reed:#5FB389; --ruby:#C8455A; --ruby-deep:#9C2F42; --ruby-bright:#E8718A;
+    --shadow:0 12px 32px rgba(20,4,6,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:'Tajawal',sans-serif;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #4D1622 0%, transparent 60%),
+      linear-gradient(180deg, var(--lapis-night) 0%, #100507 100%);
+    color:var(--sand); min-height:100vh; line-height:1.7;
+  }
+  body::after{
+    content:""; position:fixed; inset:auto 0 0 0; height:3px; z-index:5;
+    background:linear-gradient(90deg, transparent 0, var(--ruby) 30%, var(--gold-bright) 50%, var(--ruby) 70%, transparent 100%);
+    box-shadow:0 -4px 16px rgba(200,69,90,.35); opacity:.9;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+
+  .ledger{
+    position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:14px 18px 12px;
+    background:linear-gradient(180deg, rgba(38,14,18,.97) 70%, rgba(38,14,18,.85));
+    border-bottom:1px solid rgba(200,69,90,.45);backdrop-filter:blur(6px);
+  }
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .ledger-label{font-size:.78rem;color:var(--sand-dim);font-weight:500}
+  .ledger-amount{font-family:'Cairo',sans-serif;font-weight:800;font-size:1.4rem;color:var(--gold-bright);letter-spacing:.3px;white-space:nowrap}
+  .ledger-amount small{font-size:.82rem;color:var(--sand-dim);font-family:'Tajawal',sans-serif;font-weight:500;margin-right:4px}
+  .ledger-amount.neg{color:var(--ember)}
+  .dots{display:flex;gap:6px;margin-top:8px;justify-content:center}
+  .dot{width:26px;height:4px;border-radius:99px;background:rgba(245,236,233,.16);transition:background .4s}
+  .dot.on{background:var(--ruby)}
+  .dot.now{background:var(--ruby-bright);box-shadow:0 0 8px rgba(232,113,138,.8)}
+
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  .eyebrow{
+    display:inline-block;font-size:.78rem;font-weight:700;color:var(--ruby-bright);
+    border:1px solid rgba(200,69,90,.55);border-radius:99px;padding:4px 14px;
+    margin-bottom:14px;letter-spacing:.3px;background:rgba(200,69,90,.1);
+  }
+  h1{font-family:'Cairo',sans-serif;font-size:2.2rem;font-weight:900;line-height:1.3;color:var(--gold-bright);margin-bottom:6px}
+  h2.situation{font-family:'Tajawal',sans-serif;font-size:1.4rem;line-height:1.75;color:var(--sand);font-weight:700;margin-bottom:22px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+
+  .card{
+    background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));
+    border:1px solid rgba(200,69,90,.32);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow);
+  }
+
+  .choice{
+    display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;
+    background:rgba(26,8,11,.6);border:1px solid rgba(245,236,233,.16);
+    border-radius:14px;padding:15px 16px;margin-bottom:12px;color:var(--sand);
+    font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.65;cursor:pointer;
+    transition:border-color .2s, background .2s, transform .15s;
+  }
+  .choice:hover,.choice:focus-visible{border-color:var(--ruby);background:rgba(200,69,90,.12);transform:translateY(-1px)}
+  .choice:focus-visible{outline:2px solid var(--ruby-bright);outline-offset:2px}
+  .badge{
+    flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:rgba(200,69,90,.18);border:1px solid rgba(200,69,90,.55);color:var(--ruby-bright);font-weight:800;font-size:.95rem;margin-top:2px;
+  }
+
+  .verdict{border-radius:14px;padding:18px;margin-bottom:16px;border:1px solid}
+  .verdict.best{background:rgba(95,179,137,.14);border-color:rgba(95,179,137,.6)}
+  .verdict.ok{background:rgba(217,162,59,.12);border-color:rgba(217,162,59,.55)}
+  .verdict.bad{background:rgba(210,103,78,.14);border-color:rgba(210,103,78,.6)}
+  .verdict-title{font-family:'Cairo',sans-serif;font-size:1.22rem;font-weight:800;margin-bottom:8px}
+  .verdict.best .verdict-title{color:#8FE0B6}
+  .verdict.ok .verdict-title{color:var(--gold-bright)}
+  .verdict.bad .verdict-title{color:#F0987C}
+  .verdict p{font-size:.98rem}
+
+  .timeline{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+  .t-row{display:flex;gap:12px;align-items:flex-start;background:rgba(26,8,11,.55);border-radius:12px;padding:12px 14px;border:1px solid rgba(245,236,233,.12)}
+  .t-when{flex:0 0 auto;font-weight:800;color:var(--ruby-bright);font-size:.85rem;border-left:1px solid rgba(200,69,90,.4);padding-left:12px;min-width:74px}
+  .t-what{font-size:.95rem;color:var(--sand)}
+
+  .delta{display:inline-flex;align-items:center;gap:8px;font-family:'Cairo',sans-serif;font-weight:800;font-size:1.3rem;border-radius:12px;padding:8px 16px;margin-bottom:18px}
+  .delta.up{background:rgba(95,179,137,.16);color:#8FE0B6;border:1px solid rgba(95,179,137,.5)}
+  .delta.down{background:rgba(210,103,78,.16);color:#F0987C;border:1px solid rgba(210,103,78,.5)}
+  .delta.flat{background:rgba(245,236,233,.08);color:var(--sand-dim);border:1px solid rgba(245,236,233,.22)}
+
+  .btn{
+    display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;
+    color:#260E12;background:linear-gradient(180deg,var(--ruby-bright),var(--ruby-deep));border-radius:14px;padding:15px;
+    transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(156,47,66,.4);
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(156,47,66,.5)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(217,162,59,.55);box-shadow:none;margin-top:10px}
+
+  .final-amount{font-family:'Cairo',sans-serif;font-size:3rem;font-weight:900;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
+  .final-amount.neg{color:var(--ember)}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{text-align:center;font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800;color:var(--sand);margin-bottom:6px}
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:22px}
+  .principles{list-style:none;margin-bottom:22px}
+  .principles li{display:flex;gap:10px;align-items:center;padding:10px 14px;margin-bottom:8px;background:rgba(26,8,11,.55);border-radius:12px;border:1px solid rgba(245,236,233,.12);font-size:.95rem}
+  .p-mark{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+  .p-mark.yes{background:rgba(95,179,137,.2);color:#8FE0B6;border:1px solid rgba(95,179,137,.6)}
+  .p-mark.no{background:rgba(210,103,78,.2);color:#F0987C;border:1px solid rgba(210,103,78,.6)}
+  .quote{font-family:'Cairo',sans-serif;font-size:1.16rem;font-weight:700;line-height:1.85;text-align:center;color:var(--gold-bright);border-top:1px solid rgba(217,162,59,.35);border-bottom:1px solid rgba(217,162,59,.35);padding:18px 6px;margin-bottom:22px}
+  .quote span{display:block;font-family:'Tajawal',sans-serif;font-size:.85rem;font-weight:500;color:var(--sand-dim);margin-top:8px}
+
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--ruby);display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:radial-gradient(circle at 35% 30%, rgba(200,69,90,.3), rgba(217,162,59,.05));box-shadow:0 0 30px rgba(200,69,90,.3)}
+  .intro-list{margin:0 0 26px;padding:0;list-style:none}
+  .intro-list li{display:block;position:relative;padding-right:22px;color:var(--sand);font-size:.98rem;margin-bottom:10px}
+  .intro-list li::before{content:"◆";color:var(--ruby);font-size:.7rem;position:absolute;right:0;top:.5em}
+
+  @media (max-width:420px){h1{font-size:1.85rem}h2.situation{font-size:1.25rem}.final-amount{font-size:2.4rem}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div>
+        <div class="ledger-label">صندوق الحرّية المالية</div>
+        <div class="ledger-amount" id="wealth">0 <small>نقطة</small></div>
+      </div>
+      <div style="font-size:1.6rem">🎰</div>
+    </div>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <section class="screen active" id="intro">
+    <div class="intro-seal">🎰</div>
+    <div style="text-align:center">
+      <div class="eyebrow">لعبة قرارات · كتاب «المال: إتقان اللعبة»</div>
+      <h1>صندوق حرّيتك المالية</h1>
+      <p class="sub">القاعدة لا تتغيّر… القاعدة فقط مهمّشة. هل تطبّقها؟</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>ستواجه <b>6 مواقف</b> على خطوات توني روبنز السبع نحو الحرّية المالية.</li>
+        <li>كل قرارٍ يرفع أو يخفض <b>صندوق حرّيتك المالية</b>.</li>
+        <li>المبدأ: <b>القاعدة قبل اللعبة</b> — خصّص جزءاً من كل دخلٍ لصندوقٍ لا يُمسّ ويستثمر تلقائياً.</li>
+        <li>اجمع أعلى رصيدٍ ممكن… حتى تبني <b>دخلاً يكفيك مدى الحياة</b>.</li>
+      </ul>
+      <button class="btn" onclick="startGame()">ابدأ اللعبة المالية ▸</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="eyebrow" id="g-eyebrow"></div>
+    <h2 class="situation" id="g-situation"></h2>
+    <div id="g-choices"></div>
+  </section>
+
+  <section class="screen" id="feedback">
+    <div class="card">
+      <div class="verdict" id="f-verdict">
+        <div class="verdict-title" id="f-title"></div>
+        <p id="f-text"></p>
+      </div>
+      <div class="timeline">
+        <div class="t-row"><div class="t-when">بعد سنة</div><div class="t-what" id="f-y1"></div></div>
+        <div class="t-row"><div class="t-when">بعد 5 سنوات</div><div class="t-what" id="f-y5"></div></div>
+      </div>
+      <div style="text-align:center"><span class="delta" id="f-delta"></span></div>
+      <button class="btn" id="f-next" onclick="nextScenario()">متابعة ←</button>
+    </div>
+  </section>
+
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow">اكتملت الجلسة</div></div>
+    <div class="card">
+      <div class="final-label">صندوق حرّيتك المالية</div>
+      <div class="final-amount" id="r-amount">0</div>
+      <div class="final-label">نقطة &nbsp;·&nbsp; من أصل 116</div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <ul class="principles" id="r-principles"></ul>
+      <div class="quote">«ادّخر أولاً، ثم أنفق ما تبقّى — لا العكس»<span>— توني روبنز</span></div>
+      <button class="btn" onclick="restart()">أعد المحاولة 🔄</button>
+      <button class="btn ghost" onclick="restart()">اقرأ الملخص مرة أخرى 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const SCENARIOS = [
+  {
+    cure:"المبدأ · القاعدة قبل اللعبة",
+    short:"تخصيص نسبةٍ ثابتة قبل أي إنفاق",
+    situation:"وصلك راتبٌ جديد. ما أول ما تفعله به؟",
+    choices:[
+      {t:"أحوّل نسبةً ثابتة (10-15%) فوراً إلى «صندوق الحرّية المالية» قبل أي إنفاق", q:"best", d:20,
+       fb:"«ادّخر أولاً» هي القاعدة الأولى عند روبنز. التحويل التلقائي يحوّل الادّخار من قرارٍ شهري إلى نظامٍ لا يُكسر.",
+       y1:"صندوقٌ ينمو شهراً بعد شهر", y5:"أساسٌ متينٌ نحو الحرّية المالية"},
+      {t:"أنفق على ما أحتاج ثم أدّخر ما تبقّى إن وُجد", q:"ok", d:5,
+       fb:"الادّخار «إن تبقّى شيء» نادراً ما يحدث؛ الإنفاق يتمدّد ليشغل الدخل بالكامل.",
+       y1:"ادّخارٌ هشٌّ وغير منتظم", y5:"صندوقٌ بالكاد تكوّن"},
+      {t:"أنفق الراتب كاملاً هذا الشهر وأعد التخطيط لاحقاً", q:"bad", d:-9,
+       fb:"تأجيل الادّخار «للشهر القادم» عادةٌ تتكرّر إلى ما لا نهاية وتُبقيك بلا صندوقٍ على الإطلاق.",
+       y1:"صفر إضافات للصندوق", y5:"بداية متأخّرة بسنواتٍ ثمينة"}
+    ]
+  },
+  {
+    cure:"المبدأ · قوة الفائدة المركّبة والوقت",
+    short:"البدء مبكراً أهمّ من المبلغ الكبير",
+    situation:"لديك مبلغٌ صغيرٌ فقط للاستثمار الشهري. هل يستحق الأمر البدء الآن؟",
+    choices:[
+      {t:"أبدأ فوراً بالمبلغ المتاح، فالوقت عاملٌ أقوى من حجم المبلغ في الفائدة المركّبة", q:"best", d:19,
+       fb:"بفضل الفائدة المركّبة، من يبدأ مبكراً بمبلغٍ صغير يتفوّق غالباً على من يبدأ متأخّراً بمبلغٍ أكبر.",
+       y1:"بدايةٌ مبكّرة تستفيد من الزمن", y5:"نموٌّ مضاعَفٌ بفعل الوقت"},
+      {t:"أنتظر حتى يكبر دخلي لأبدأ بمبلغٍ «يستحق الأمر»", q:"ok", d:6,
+       fb:"كل سنة تأخيرٍ هي سنةٌ من الفائدة المركّبة المفقودة لا يمكن استرجاعها لاحقاً.",
+       y1:"لا نموّ خلال فترة الانتظار", y5:"فرصةٌ ضائعةٌ من الزمن المركّب"},
+      {t:"أرى أن المبلغ صغيرٌ جداً ولا يستحق حتى المحاولة", q:"bad", d:-8,
+       fb:"الاستهانة بالمبالغ الصغيرة تتجاهل أقوى قوة في الاستثمار: الزمن المركّب.",
+       y1:"صفر بداية", y5:"سنواتٌ من النموّ المحتمل ضاعت"}
+    ]
+  },
+  {
+    cure:"المبدأ · الانتباه للرسوم الخفية",
+    short:"الرسوم الصغيرة تلتهم الثروة بمرور السنين",
+    situation:"تدرس صندوقين استثماريين: أحدهما برسومٍ سنوية مرتفعة وعوائد تاريخية مشابهة للآخر منخفض الرسوم. ماذا تختار؟",
+    choices:[
+      {t:"أختار الصندوق منخفض الرسوم، فالفرق الصغير في الرسوم يتراكم إلى مبالغ ضخمة عبر السنين", q:"best", d:20,
+       fb:"روبنز يحذّر بشدّة من الرسوم الخفية؛ فرقٌ يبدو صغيراً (1-2%) سنوياً قد يلتهم نصف ثروتك المتوقّعة على المدى الطويل.",
+       y1:"وفّرتَ تكلفةً خفية مستمرّة", y5:"فارقٌ كبيرٌ في صافي ثروتك"},
+      {t:"أختار حسب الأداء التاريخي فقط دون مقارنة الرسوم بدقّة", q:"ok", d:5,
+       fb:"الأداء التاريخي لا يضمن المستقبل، بينما الرسوم تُخصم بثبات سنةً بعد سنة.",
+       y1:"تكلفةٌ خفيّةٌ تتراكم", y5:"عائدٌ صافٍ أقلّ من المتوقَّع"},
+      {t:"أتجاهل موضوع الرسوم تماماً لأنه «تفصيلٌ صغير»", q:"bad", d:-9,
+       fb:"الرسوم ليست تفصيلاً؛ هي أحد أكبر العوامل التي تحدّد ثروتك النهائية عند التقاعد.",
+       y1:"خصمٌ خفيٌّ مستمر", y5:"عشرات الآلاف المفقودة بصمت"}
+    ]
+  },
+  {
+    cure:"المبدأ · توزيع الأصول والتنويع",
+    short:"سلّة الأمان مقابل سلّة النمو ضد سلّة الأحلام",
+    situation:"كل مدّخراتك في أصلٍ واحدٍ شديد التقلّب أملاً في عوائد سريعة. كيف تعيد التفكير في تخصيصك؟",
+    choices:[
+      {t:"أوزّع مدّخراتي بين سلّة أمانٍ مستقرّة وسلّة نموٍّ متوسّطة المخاطر وسلّة مخاطرةٍ محدودة للأحلام الكبرى", q:"best", d:18,
+       fb:"التنويع بين سلال الأمان والنمو والمخاطرة يحميك من خسارة الكل في تقلّبٍ واحد، وهو جوهر التخصيص الذكي عند روبنز.",
+       y1:"حمايةٌ من تقلّبٍ مفاجئ", y5:"نموٌّ ثابتٌ مع أمانٍ نسبي"},
+      {t:"أبقي معظم المال في الأصل المتقلّب وأضع جزءاً صغيراً فقط في الأمان", q:"ok", d:5,
+       fb:"التنويع الجزئي أفضل من العدم، لكن التركيز الزائد في أصلٍ متقلّبٍ يبقيك معرّضاً لخسائر كبيرة.",
+       y1:"تعرّضٌ كبيرٌ للتقلّب", y5:"نتيجةٌ متفاوتة بشدّة"},
+      {t:"أضع كل مدّخراتي في الأصل الواحد لأنه «الأعلى عائداً»", q:"bad", d:-9,
+       fb:"وضع كل البيض في سلّةٍ واحدة متقلّبة يعني أن أي انهيارٍ فيها قد يمحو سنوات من المدّخرات.",
+       y1:"خطر خسارةٍ شاملة", y5:"ثروةٌ قد تُمحى بتقلّبٍ واحد"}
+    ]
+  },
+  {
+    cure:"المبدأ · ضبط نفسيتك الاستثمارية",
+    short:"الانضباط النفسي يسبق أي استراتيجية",
+    situation:"انهار السوق بشكلٍ حاد ويتحدّث الجميع عن بيع كل شيءٍ فوراً. كيف تتصرّف؟",
+    choices:[
+      {t:"ألتزم بخطّتي طويلة الأمد ولا أبيع بدافع الذعر، فالانهيارات جزءٌ طبيعيٌّ من الدورة", q:"best", d:19,
+       fb:"التحكّم في النفسية الاستثمارية وقت الذعر هو ما يميّز روبنز عن أغلب الناس؛ البيع في القعر يحوّل خسارةً مؤقتة إلى خسارةٍ دائمة.",
+       y1:"حافظتَ على استثماراتك خلال العاصفة", y5:"تعافٍ كاملٌ مع نموٍّ إضافي"},
+      {t:"أبيع نصف استثماراتي «للأمان» تحت ضغط القلق", q:"ok", d:5,
+       fb:"البيع الجزئي بدافع الخوف يحوّل خسارةً ورقية إلى خسارةٍ حقيقية جزئية دون داعٍ واضح.",
+       y1:"خسارةٌ جزئيةٌ مؤكَّدة", y5:"تعافٍ جزئيٌّ فقط"},
+      {t:"أبيع كل استثماراتي فوراً لأوقف الخسائر مهما كان السعر", q:"bad", d:-9,
+       fb:"البيع بالذعر في القعر هو أكبر خطأٍ استثماريٍّ شائع — يحوّل التقلّب الطبيعي إلى خسارةٍ نهائية.",
+       y1:"خسارةٌ كاملةٌ مُحقَّقة", y5:"فاتك التعافي الذي تلا الانهيار"}
+    ]
+  },
+  {
+    cure:"المبدأ · الدخل الدائم لا الرقم الكبير",
+    short:"الهدف دخلٌ يكفي مدى الحياة لا مجرّد رقمٍ في الحساب",
+    situation:"تخطّط لتقاعدك. كيف تحدّد هدفك المالي الحقيقي؟",
+    choices:[
+      {t:"أحدّد الدخل الشهري الذي يكفي نمط حياتي، ثم أبني محفظةً تولّد هذا الدخل تلقائياً ومدى الحياة", q:"best", d:20,
+       fb:"الهدف عند روبنز ليس «رقماً كبيراً» في الحساب، بل دخلاً يتدفّق باستمرار يكفي حياتك دون أن تلمس رأس المال.",
+       y1:"خطّةٌ واضحة الهدف", y5:"حرّيةٌ مالية تتحقّق تدريجياً بثبات"},
+      {t:"أحدّد رقماً كبيراً عشوائياً «يبدو كافياً» دون حساب الدخل الفعلي منه", q:"ok", d:6,
+       fb:"رقمٌ بلا حسابٍ دقيق للدخل الذي يولّده قد يكون غير كافٍ أو غير ضروريٍّ بهذا الحجم.",
+       y1:"خطّةٌ غامضة المعنى", y5:"نتيجةٌ قد تخيب التوقعات"},
+      {t:"لا أخطّط أصلاً وأترك الأمر للمستقبل ليحلّ نفسه", q:"bad", d:-8,
+       fb:"غياب الهدف الواضح يعني غياب الخطّة، وغياب الخطّة يعني الاعتماد على الحظ وحده.",
+       y1:"لا تقدّم نحو الحرّية المالية", y5:"تقاعدٌ غير مضمون"}
+    ]
+  }
+];
+
+const VERDICTS = {
+  best:{title:"🎰 قاعدةٌ ذكية — هكذا يبني روبنز الحرّية المالية", cls:"best"},
+  ok:{title:"⚖️ مقبول… لكن النظام لا يزال هشّاً", cls:"ok"},
+  bad:{title:"🌀 قرارٌ يؤخّر حرّيتك المالية", cls:"bad"}
+};
+
+let idx = 0, wealth = 0, mastered = [];
+const $ = id => document.getElementById(id);
+
+function fmt(n){
+  const s = Math.abs(n).toLocaleString('en-US').replace(/,/g,'٬');
+  return (n<0?'−':'')+s;
+}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function renderDots(){
+  $('dots').innerHTML = SCENARIOS.map((_,i)=>`<div class="dot ${i<idx?'on':''} ${i===idx?'now':''}"></div>`).join('');
+}
+function renderWealth(animateFrom){
+  const el = $('wealth');
+  el.classList.toggle('neg', wealth<0);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(animateFrom===undefined || reduce){ el.innerHTML = fmt(wealth)+' <small>نقطة</small>'; return; }
+  const start = animateFrom, diff = wealth-start, dur = 900, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    el.innerHTML = fmt(Math.round(start+diff*e))+' <small>نقطة</small>';
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function startGame(){
+  idx = 0; wealth = 0; mastered = [];
+  $('ledger').style.display = 'block';
+  renderWealth(); renderDots(); renderScenario(); show('game');
+}
+function renderScenario(){
+  const s = SCENARIOS[idx];
+  $('g-eyebrow').textContent = `الموقف ${idx+1} من ${SCENARIOS.length} · ${s.cure}`;
+  $('g-situation').textContent = s.situation;
+  const letters = ['أ','ب','ج'];
+  $('g-choices').innerHTML = s.choices.map((c,i)=>
+    `<button class="choice" onclick="choose(${i})"><span class="badge">${letters[i]}</span><span>${c.t}</span></button>`).join('');
+  renderDots();
+}
+function choose(ci){
+  const s = SCENARIOS[idx], c = s.choices[ci];
+  const before = wealth;
+  wealth += c.d;
+  mastered.push(c.q === 'best');
+  const v = VERDICTS[c.q];
+  $('f-verdict').className = 'verdict '+v.cls;
+  $('f-title').textContent = v.title;
+  $('f-text').textContent = c.fb;
+  $('f-y1').textContent = c.y1;
+  $('f-y5').textContent = c.y5;
+  const dEl = $('f-delta');
+  dEl.className = 'delta '+(c.d>0?'up':c.d<0?'down':'flat');
+  dEl.textContent = (c.d>0?'📈 +':c.d<0?'📉 −':'⏳ ')+(c.d===0?'لا تغيير':Math.abs(c.d)+' نقطة');
+  $('f-next').textContent = (idx === SCENARIOS.length-1) ? 'اكشف نتيجتك النهائية 🎰' : 'الموقف التالي ←';
+  show('feedback');
+  renderWealth(before);
+}
+function nextScenario(){
+  idx++;
+  if(idx < SCENARIOS.length){ renderScenario(); show('game'); }
+  else showResults();
+}
+function rankOf(w){
+  if(w>=95) return {r:"🎰 صندوق حرّيتك المالية مكتمل البناء!", n:"تطبّق قواعد روبنز السبع بإتقان: الادّخار أولاً، والتنويع، وضبط الرسوم والنفسية. طبّقها على مالك الحقيقي الآن."};
+  if(w>=60) return {r:"💰 صندوقٌ في طور النمو الجيد", n:"تمتلك معظم المبادئ. راجع ما أخطأت فيه أدناه ورسّخه."};
+  if(w>=25) return {r:"🌱 بدأتَ تبني صندوقك", n:"وضعتَ أولى لبنات الحرّية المالية. أعد قراءة الفصول ثم عُد."};
+  return {r:"🌀 صندوقك بحاجةٍ لقاعدةٍ أوضح", n:"لا بأس — الوعي أول خطوة. ابدأ بأبسط قاعدة: ادّخر أولاً، لا لاحقاً."};
+}
+function showResults(){
+  $('ledger').style.display = 'none';
+  const rk = rankOf(wealth);
+  const amountEl = $('r-amount');
+  amountEl.classList.toggle('neg', wealth<0);
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n;
+  $('r-principles').innerHTML = SCENARIOS.map((s,i)=>
+    `<li><span class="p-mark ${mastered[i]?'yes':'no'}">${mastered[i]?'✓':'✗'}</span><span>${s.short}</span></li>`).join('');
+  show('results');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ amountEl.textContent = fmt(wealth); return; }
+  const dur = 1400, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    amountEl.textContent = fmt(Math.round(wealth*e));
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function restart(){ $('ledger').style.display = 'none'; show('intro'); }
+</script>
+</body>
+</html>

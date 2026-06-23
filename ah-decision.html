@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>بنِ عاداتك المالية الذرّية — لعبة القرارات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#0E2018; --lapis-deep:#08140F; --lapis-panel:#163B2C;
+    --gold:#D9A23B; --gold-bright:#F0C36B; --sand:#EAF2EE; --sand-dim:#A3BCAF;
+    --ember:#D2674E; --reed:#48B27F; --reed-deep:#33875F; --reed-bright:#74D6A6;
+    --shadow:0 12px 32px rgba(2,12,8,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:'Tajawal',sans-serif;background:radial-gradient(1200px 600px at 50% -10%, #1F4D38 0%, transparent 60%),linear-gradient(180deg, var(--lapis-night) 0%, #060F0A 100%);color:var(--sand);min-height:100vh;line-height:1.7}
+  body::after{content:"";position:fixed;inset:auto 0 0 0;height:3px;z-index:5;background:linear-gradient(90deg, transparent 0, var(--reed) 30%, var(--gold-bright) 50%, var(--reed) 70%, transparent 100%);box-shadow:0 -4px 16px rgba(72,178,127,.35);opacity:.9}
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+  .ledger{position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:14px 18px 12px;background:linear-gradient(180deg, rgba(14,32,24,.97) 70%, rgba(14,32,24,.85));border-bottom:1px solid rgba(72,178,127,.45);backdrop-filter:blur(6px)}
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .ledger-label{font-size:.78rem;color:var(--sand-dim);font-weight:500}
+  .ledger-amount{font-family:'Cairo',sans-serif;font-weight:800;font-size:1.4rem;color:var(--gold-bright);letter-spacing:.3px;white-space:nowrap}
+  .ledger-amount small{font-size:.82rem;color:var(--sand-dim);font-family:'Tajawal',sans-serif;font-weight:500;margin-right:4px}
+  .ledger-amount.neg{color:var(--ember)}
+  .dots{display:flex;gap:6px;margin-top:8px;justify-content:center}
+  .dot{width:26px;height:4px;border-radius:99px;background:rgba(234,242,238,.16);transition:background .4s}
+  .dot.on{background:var(--reed)}
+  .dot.now{background:var(--reed-bright);box-shadow:0 0 8px rgba(116,214,166,.8)}
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;color:var(--reed-bright);border:1px solid rgba(72,178,127,.55);border-radius:99px;padding:4px 14px;margin-bottom:14px;letter-spacing:.3px;background:rgba(72,178,127,.1)}
+  h1{font-family:'Cairo',sans-serif;font-size:2.2rem;font-weight:900;line-height:1.3;color:var(--gold-bright);margin-bottom:6px}
+  h2.situation{font-family:'Tajawal',sans-serif;font-size:1.4rem;line-height:1.75;color:var(--sand);font-weight:700;margin-bottom:22px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+  .card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(72,178,127,.32);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow)}
+  .choice{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;background:rgba(8,20,15,.6);border:1px solid rgba(234,242,238,.16);border-radius:14px;padding:15px 16px;margin-bottom:12px;color:var(--sand);font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.65;cursor:pointer;transition:border-color .2s, background .2s, transform .15s}
+  .choice:hover,.choice:focus-visible{border-color:var(--reed);background:rgba(72,178,127,.12);transform:translateY(-1px)}
+  .choice:focus-visible{outline:2px solid var(--reed-bright);outline-offset:2px}
+  .badge{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(72,178,127,.18);border:1px solid rgba(72,178,127,.55);color:var(--reed-bright);font-weight:800;font-size:.95rem;margin-top:2px}
+  .verdict{border-radius:14px;padding:18px;margin-bottom:16px;border:1px solid}
+  .verdict.best{background:rgba(72,178,127,.14);border-color:rgba(72,178,127,.6)}
+  .verdict.ok{background:rgba(217,162,59,.12);border-color:rgba(217,162,59,.55)}
+  .verdict.bad{background:rgba(210,103,78,.14);border-color:rgba(210,103,78,.6)}
+  .verdict-title{font-family:'Cairo',sans-serif;font-size:1.22rem;font-weight:800;margin-bottom:8px}
+  .verdict.best .verdict-title{color:#8FE0B6}
+  .verdict.ok .verdict-title{color:var(--gold-bright)}
+  .verdict.bad .verdict-title{color:#F0987C}
+  .verdict p{font-size:.98rem}
+  .compound-viz{display:flex;align-items:center;justify-content:center;gap:6px;margin:16px 0;flex-wrap:wrap}
+  .compound-bar{flex:0 0 auto;width:18px;border-radius:4px 4px 0 0;background:linear-gradient(180deg,var(--reed-bright),var(--reed-deep));transition:height .6s cubic-bezier(.2,.8,.2,1)}
+  .timeline{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+  .t-row{display:flex;gap:12px;align-items:flex-start;background:rgba(8,20,15,.55);border-radius:12px;padding:12px 14px;border:1px solid rgba(234,242,238,.12)}
+  .t-when{flex:0 0 auto;font-weight:800;color:var(--reed-bright);font-size:.85rem;border-left:1px solid rgba(72,178,127,.4);padding-left:12px;min-width:74px}
+  .t-what{font-size:.95rem;color:var(--sand)}
+  .delta{display:inline-flex;align-items:center;gap:8px;font-family:'Cairo',sans-serif;font-weight:800;font-size:1.3rem;border-radius:12px;padding:8px 16px;margin-bottom:18px}
+  .delta.up{background:rgba(72,178,127,.16);color:#8FE0B6;border:1px solid rgba(72,178,127,.5)}
+  .delta.down{background:rgba(210,103,78,.16);color:#F0987C;border:1px solid rgba(210,103,78,.5)}
+  .delta.flat{background:rgba(234,242,238,.08);color:var(--sand-dim);border:1px solid rgba(234,242,238,.22)}
+  .btn{display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;color:#0E2018;background:linear-gradient(180deg,var(--reed-bright),var(--reed-deep));border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(51,135,95,.4)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(51,135,95,.5)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(217,162,59,.55);box-shadow:none;margin-top:10px}
+  .final-amount{font-family:'Cairo',sans-serif;font-size:3rem;font-weight:900;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
+  .final-amount.neg{color:var(--ember)}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{text-align:center;font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800;color:var(--sand);margin-bottom:6px}
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:22px}
+  .principles{list-style:none;margin-bottom:22px}
+  .principles li{display:flex;gap:10px;align-items:center;padding:10px 14px;margin-bottom:8px;background:rgba(8,20,15,.55);border-radius:12px;border:1px solid rgba(234,242,238,.12);font-size:.95rem}
+  .p-mark{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+  .p-mark.yes{background:rgba(72,178,127,.2);color:#8FE0B6;border:1px solid rgba(72,178,127,.6)}
+  .p-mark.no{background:rgba(210,103,78,.2);color:#F0987C;border:1px solid rgba(210,103,78,.6)}
+  .quote{font-family:'Cairo',sans-serif;font-size:1.16rem;font-weight:700;line-height:1.85;text-align:center;color:var(--gold-bright);border-top:1px solid rgba(217,162,59,.35);border-bottom:1px solid rgba(217,162,59,.35);padding:18px 6px;margin-bottom:22px}
+  .quote span{display:block;font-family:'Tajawal',sans-serif;font-size:.85rem;font-weight:500;color:var(--sand-dim);margin-top:8px}
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--reed);display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:radial-gradient(circle at 35% 30%, rgba(72,178,127,.3), rgba(217,162,59,.05));box-shadow:0 0 30px rgba(72,178,127,.3)}
+  .intro-list{margin:0 0 26px;padding:0;list-style:none}
+  .intro-list li{display:block;position:relative;padding-right:22px;color:var(--sand);font-size:.98rem;margin-bottom:10px}
+  .intro-list li::before{content:"◆";color:var(--reed);font-size:.7rem;position:absolute;right:0;top:.5em}
+  @media (max-width:420px){h1{font-size:1.85rem}h2.situation{font-size:1.25rem}.final-amount{font-size:2.4rem}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div>
+        <div class="ledger-label">رصيد التحسّن اليومي 1%</div>
+        <div class="ledger-amount" id="wealth">0 <small>نقطة</small></div>
+      </div>
+      <div style="font-size:1.6rem">🔁</div>
+    </div>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <section class="screen active" id="intro">
+    <div class="intro-seal">🔁</div>
+    <div style="text-align:center">
+      <div class="eyebrow">لعبة قرارات · كتاب «العادات الذرّية»</div>
+      <h1>بنِ عاداتك المالية الذرّية</h1>
+      <p class="sub">تحسّنٌ بنسبة 1% يومياً يبدو تافهاً، لكنه يتضخّم بشكلٍ مذهلٍ بمرور الوقت.</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>ستواجه <b>6 مواقف</b> على مبادئ جيمس كلير في «العادات الذرّية».</li>
+        <li>كل قرارٍ يرفع أو يخفض <b>رصيد التحسّن اليومي</b> لديك، وسترى تأثيره يتراكم بصرياً.</li>
+        <li>المبدأ: <b>حلقة العادة (إشارة ← شغف ← استجابة ← مكافأة)</b> تحدّد سلوكك المالي اليومي دون أن تشعر.</li>
+        <li>اجمع أعلى رصيدٍ ممكن… حتى تبني نظاماً ماليّاً يعمل تلقائياً لصالحك.</li>
+      </ul>
+      <button class="btn" onclick="startGame()">ابدأ البناء ▸</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="eyebrow" id="g-eyebrow"></div>
+    <h2 class="situation" id="g-situation"></h2>
+    <div id="g-choices"></div>
+  </section>
+
+  <section class="screen" id="feedback">
+    <div class="card">
+      <div class="verdict" id="f-verdict">
+        <div class="verdict-title" id="f-title"></div>
+        <p id="f-text"></p>
+      </div>
+      <div class="compound-viz" id="f-viz"></div>
+      <div class="timeline">
+        <div class="t-row"><div class="t-when">بعد سنة</div><div class="t-what" id="f-y1"></div></div>
+        <div class="t-row"><div class="t-when">بعد 5 سنوات</div><div class="t-what" id="f-y5"></div></div>
+      </div>
+      <div style="text-align:center"><span class="delta" id="f-delta"></span></div>
+      <button class="btn" id="f-next" onclick="nextScenario()">متابعة ←</button>
+    </div>
+  </section>
+
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow">اكتملت الجلسة</div></div>
+    <div class="card">
+      <div class="final-label">رصيد التحسّن اليومي 1%</div>
+      <div class="final-amount" id="r-amount">0</div>
+      <div class="final-label">نقطة &nbsp;·&nbsp; من أصل 116</div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <ul class="principles" id="r-principles"></ul>
+      <div class="quote">«التغيّرات الصغيرة كل يومٍ تتراكم لتصنع نتائج مذهلة بمرور الوقت»<span>— جيمس كلير</span></div>
+      <button class="btn" onclick="restart()">أعد المحاولة 🔄</button>
+      <button class="btn ghost" onclick="restart()">اقرأ الملخص مرة أخرى 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const SCENARIOS = [
+  {
+    cure:"المبدأ · أنظمةٌ صغيرة لا أهدافٌ كبيرة",
+    short:"النظام اليومي الصغير أهمّ من الهدف الكبير وحده",
+    situation:"تحدّد هدفاً مالياً كبيراً (الاستقلالية المالية)، لكنك لم تبنِ أي نظامٍ يوميٍّ يقودك إليه.",
+    choices:[
+      {t:"أبني نظاماً يومياً صغيراً (تحويلٌ تلقائي، تتبّع نفقاتٍ بسيط) يخدم الهدف دون الاعتماد على الإرادة وحدها", q:"best", d:20,
+       fb:"كلير يؤكّد: «أنت لا ترتفع لمستوى أهدافك، بل تسقط لمستوى أنظمتك». النظام اليومي الصغير هو ما يحقّق الهدف الكبير فعلياً.",
+       y1:"نظامٌ يعمل تلقائياً يومياً", y5:"تراكمٌ كبيرٌ بفعل التكرار الصغير المستمر"},
+      {t:"أحدّد الهدف بوضوحٍ شديد وأعتمد على «الحافز» و«الإرادة» وحدهما لتحقيقه", q:"ok", d:5,
+       fb:"الحافز والإرادة يتقلّبان يومياً؛ بلا نظامٍ ثابتٍ يحلّ محلّهما، يصعب الاستمرار على المدى الطويل.",
+       y1:"تقدّمٌ متقطّعٌ حسب الحافز اليومي", y5:"نتيجةٌ غير مستقرّة"},
+      {t:"أكتفي بكتابة الهدف وتكراره ذهنياً دون أي نظامٍ عمليٍّ يومي", q:"bad", d:-8,
+       fb:"الهدف بلا نظامٍ عمليٍّ يبقى نيّةً حسنة لا تتحوّل لعادةٍ فعلية تُغيّر الواقع المالي.",
+       y1:"لا تغيير فعليٍّ في السلوك اليومي", y5:"هدفٌ لم يتحقّق رغم وضوحه"}
+    ]
+  },
+  {
+    cure:"المبدأ · حلقة العادة: إشارة، شغف، استجابة، مكافأة",
+    short:"كل عادةٍ مالية (جيدة أو سيئة) تتبع هذه الحلقة الأربعية",
+    situation:"تلاحظ أنك تفتح تطبيق التسوّق كل مساء بعد العمل (إشارة: التعب) وتشتري شيئاً صغيراً (مكافأة: راحة فورية).",
+    choices:[
+      {t:"أحلّل الحلقة كاملةً وأستبدل الاستجابة بعادةٍ أرخص تمنح نفس المكافأة (راحة) دون إنفاق", q:"best", d:19,
+       fb:"كلير يحلّل العادة كحلقةٍ من 4 مراحل؛ تغيير الاستجابة مع الحفاظ على نفس الإشارة والمكافأة هو أسهل طريقةٍ لتعديل سلوكٍ مالي.",
+       y1:"عادةٌ استهلاكية استُبدلت بعادةٍ أرخص", y5:"وفرٌ متراكمٌ من استبدال عادةٍ واحدة"},
+      {t:"أحاول «الإرادة فقط» لمنع نفسي من فتح التطبيق دون تغيير الإشارة أو المكافأة", q:"ok", d:5,
+       fb:"الاعتماد على الإرادة وحدها دون تعديل الحلقة نفسها يجعل النجاح مؤقّتاً وعُرضةً للانتكاس.",
+       y1:"نجاحٌ متقطّعٌ يعتمد على قوة الإرادة اللحظية", y5:"احتمالية انتكاسٍ للعادة القديمة"},
+      {t:"أتجاهل الأمر كلياً لأن «المبلغ صغيرٌ في كل مرّة»", q:"bad", d:-7,
+       fb:"العادات الصغيرة المتكرّرة يومياً تتراكم لمبالغ كبيرة بمرور الأشهر والسنين، حتى لو بدت تافهة كل مرّة.",
+       y1:"استمرار العادة دون أي وعيٍ بتكلفتها", y5:"مبلغٌ كبيرٌ تراكم دون أن يُلاحَظ"}
+    ]
+  },
+  {
+    cure:"المبدأ · الهوية تسبق السلوك",
+    short:"«أنا شخصٌ يدّخر» أقوى من «أريد أن أدّخر»",
+    situation:"تحاول الادّخار، لكنك تصف نفسك دائماً بأنك «لست شخصاً جيداً مع المال».",
+    choices:[
+      {t:"أعيد تعريف هويتي تدريجياً: كل قرار ادّخارٍ صغير هو «صوتٌ» يؤكّد أنني شخصٌ يدير ماله بحكمة", q:"best", d:18,
+       fb:"كلير يؤكّد أن أعمق تغييرٍ سلوكي يحدث عبر تغيير الهوية الذاتية؛ كل عادةٍ صغيرة هي «دليلٌ» يبني هويةً جديدة بمرور الوقت.",
+       y1:"هويةٌ جديدة بدأت تتشكّل عبر أفعالٍ صغيرة", y5:"سلوكٌ ماليٌّ متّسقٌ مع الهوية الجديدة"},
+      {t:"أحاول الادّخار رغم استمراري في وصف نفسي بأنني «سيء مع المال»", q:"ok", d:5,
+       fb:"الفعل المتكرّر رغم استمرار الهوية القديمة يخلق صراعاً داخلياً يصعب الاستمرار معه طويلاً.",
+       y1:"نجاحٌ هشٌّ يتعارض مع الهوية الذاتية", y5:"احتمالية تراجعٍ للسلوك القديم"},
+      {t:"أستمر في تكرار «لست شخصاً جيداً مع المال» وأتوقّف عن المحاولة كلياً", q:"bad", d:-8,
+       fb:"الهوية السلبية المتكرّرة تصبح نبوءةً ذاتية التحقّق تمنع أي تحسّنٍ سلوكي فعلي.",
+       y1:"لا تغيير سلوكي أو ادّخاري", y5:"استمرار النمط السلبي القديم"}
+    ]
+  },
+  {
+    cure:"المبدأ · قاعدة الدقيقتين وتسهيل العادة الجيدة",
+    short:"كل ما يسهل الفعل الجيد يزيد احتمال تكراره يومياً",
+    situation:"تريد تتبّع نفقاتك يومياً، لكن عملية التسجيل في تطبيقك المالي معقّدة وتستغرق وقتاً طويلاً.",
+    choices:[
+      {t:"أبسّط العملية لأقصى درجة (تسجيلٌ سريعٌ بضغطة واحدة) لتصبح العادة سهلةً بما يكفي للاستمرار يومياً", q:"best", d:19,
+       fb:"كلير يصف «قاعدة الدقيقتين»: تسهيل العادة الجيدة قدر الإمكان يزيد احتمال الاستمرار بها؛ كل عقبةٍ صغيرة تقلّل الاحتمال بشكلٍ كبير.",
+       y1:"تتبّعٌ يوميٌّ منتظمٌ بفعل السهولة", y5:"بياناتٌ ماليةٌ دقيقة تراكمت لاتخاذ قراراتٍ أفضل"},
+      {t:"أستمر في استخدام التطبيق المعقّد، وأنوي «الانتظام أكثر» دون تبسيط العملية", q:"ok", d:5,
+       fb:"النيّة الحسنة بلا تبسيطٍ فعلي للعقبات غالباً ما تتلاشى أمام تعقيد العملية اليومية المتكرّر.",
+       y1:"تتبّعٌ متقطّعٌ بسبب التعقيد المستمر", y5:"بياناتٌ ناقصة تقلّل دقّة القرارات المالية"},
+      {t:"أتوقّف عن أي تتبّعٍ كلياً بسبب صعوبة العملية الحالية", q:"bad", d:-7,
+       fb:"التوقّف الكامل بسبب عقبةٍ يمكن حلّها بالتبسيط يفوّت فائدة الوعي المالي المستمر بنفقاتك.",
+       y1:"لا وعيٌ منتظمٌ بأنماط الإنفاق", y5:"قراراتٌ ماليةٌ تُتّخذ بمعلوماتٍ ناقصة"}
+    ]
+  },
+  {
+    cure:"المبدأ · مكدّس العادات (Habit Stacking)",
+    short:"ربط عادةٍ جديدة بعادةٍ موجودة بالفعل يسهّل ترسيخها",
+    situation:"تريد بناء عادة مراجعة ميزانيتك أسبوعياً، لكنك تنسى دائماً القيام بذلك.",
+    choices:[
+      {t:"أربط مراجعة الميزانية بعادةٍ أسبوعية موجودة بالفعل (مثل تحضير قهوة السبت)، فتصبح إشارةً تلقائية للعادة الجديدة", q:"best", d:18,
+       fb:"«مكدّس العادات» عند كلير يستخدم عادةً قائمة كإشارةٍ موثوقة لعادةٍ جديدة، مما يزيد احتمال الاستمرار بشكلٍ كبير دون الاعتماد على الذاكرة وحدها.",
+       y1:"مراجعةٌ أسبوعية منتظمة بفعل الربط الذكي", y5:"وعيٌ ماليٌّ مستمر بفضل عادةٍ مترسّخة"},
+      {t:"أضع تذكيراً في الهاتف لمراجعة الميزانية أسبوعياً دون ربطها بعادةٍ موجودة", q:"ok", d:5,
+       fb:"التذكيرات الرقمية مفيدة لكنها أقلّ ثباتاً من ربط العادة الجديدة بسياقٍ يومي مألوف بالفعل.",
+       y1:"مراجعةٌ متقطّعة تعتمد على الانتباه للتذكير", y5:"انتظامٌ أقلّ من الربط بعادةٍ راسخة"},
+      {t:"أنوي المراجعة «حين أتذكّر» دون أي نظامٍ أو ربطٍ بعادةٍ موجودة", q:"bad", d:-7,
+       fb:"الاعتماد على «التذكّر العشوائي» وحده يجعل العادة الجديدة هشّةً وعُرضةً للنسيان المستمر.",
+       y1:"مراجعاتٌ نادرة وغير منتظمة", y5:"غياب وعيٍّ ماليٍّ منتظم"}
+    ]
+  },
+  {
+    cure:"المبدأ · التحسّن 1% يومياً يتراكم بشكلٍ مذهل",
+    short:"الفرق بين التحسّن اليومي الصغير والتراجع اليومي الصغير ضخمٌ على المدى الطويل",
+    situation:"تقيّم وضعك المالي العام: هل تتحسّن نفقاتك وادّخارك بنسبةٍ صغيرة يومياً، أم تتراجع بنسبةٍ صغيرة دون أن تشعر؟",
+    choices:[
+      {t:"أراقب اتجاه عاداتي المالية الصغيرة بانتظام، وأحرص على أن يكون الاتجاه العام تحسّناً تراكمياً لا تراجعاً صامتاً", q:"best", d:20,
+       fb:"كلير يوضح رياضياً أن 1% تحسّنٍ يومي يُضاعف النتيجة عدّة مراتٍ خلال سنة، بينما 1% تراجعٍ يومي يقترب من الصفر؛ الفرق هائلٌ رغم صغر النسبة كل يوم.",
+       y1:"اتجاهٌ تصاعديٌّ واضحٌ في العادات المالية", y5:"نتيجةٌ تراكميةٌ مذهلة بفعل الاستمرارية"},
+      {t:"أراقب وضعي المالي مرّةً واحدة سنوياً فقط دون تتبّع الاتجاه اليومي الصغير", q:"ok", d:5,
+       fb:"المراقبة النادرة تفوّت إمكانية تصحيح المسار مبكّراً إن كان الاتجاه اليومي الصغير سلبياً دون أن يُلاحَظ.",
+       y1:"لا وعيٌ بالاتجاه اليومي الفعلي", y5:"نتيجةٌ قد تتفاوت بشدّة عن التوقّعات"},
+      {t:"لا أراقب أي شيءٍ وأفترض أن «الأمور ستتحسّن من نفسها مع الوقت»", q:"bad", d:-8,
+       fb:"الافتراض السلبي بلا أي مراقبةٍ أو تدخّل يسمح للتراجع اليومي الصغير (إن وُجد) بالتراكم دون أي تصحيح.",
+       y1:"تراجعٌ صامتٌ قد يتراكم دون أن يُلاحَظ", y5:"نتيجةٌ سلبية غير متوقَّعة قد تتكشّف فجأة"}
+    ]
+  }
+];
+
+const VERDICTS = {
+  best:{title:"🔁 نظامٌ يومي ذكي — هكذا يفكّر جيمس كلير", cls:"best"},
+  ok:{title:"⚖️ مقبول… لكن النظام غير مكتمل", cls:"ok"},
+  bad:{title:"🌀 عادةٌ تتراكم سلباً دون وعي", cls:"bad"}
+};
+
+let idx = 0, wealth = 0, mastered = [];
+const $ = id => document.getElementById(id);
+
+function fmt(n){
+  const s = Math.abs(n).toLocaleString('en-US').replace(/,/g,'٬');
+  return (n<0?'−':'')+s;
+}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function renderDots(){
+  $('dots').innerHTML = SCENARIOS.map((_,i)=>`<div class="dot ${i<idx?'on':''} ${i===idx?'now':''}"></div>`).join('');
+}
+function renderWealth(animateFrom){
+  const el = $('wealth');
+  el.classList.toggle('neg', wealth<0);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(animateFrom===undefined || reduce){ el.innerHTML = fmt(wealth)+' <small>نقطة</small>'; return; }
+  const start = animateFrom, diff = wealth-start, dur = 900, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    el.innerHTML = fmt(Math.round(start+diff*e))+' <small>نقطة</small>';
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function renderCompoundViz(d){
+  /* تصوّرٌ تفاعلي: أعمدة متصاعدة تمثّل التراكم اليومي بحسب القرار (1% تحسّن أو تراجع) */
+  const bars = 12;
+  const rate = d > 0 ? 1.01 : d < 0 ? 0.99 : 1.0;
+  let val = 20;
+  const heights = [];
+  for(let i=0;i<bars;i++){ val *= Math.pow(rate, 30); heights.push(Math.min(val, 140)); }
+  const maxH = Math.max(...heights, 20);
+  $('f-viz').innerHTML = heights.map((h,i)=>
+    `<div class="compound-bar" style="height:2px" data-h="${Math.max(4, (h/maxH)*120)}"></div>`).join('');
+  requestAnimationFrame(()=>{
+    document.querySelectorAll('.compound-bar').forEach((b,i)=>{
+      setTimeout(()=>{ b.style.height = b.dataset.h+'px'; }, i*40);
+    });
+  });
+}
+function startGame(){
+  idx = 0; wealth = 0; mastered = [];
+  $('ledger').style.display = 'block';
+  renderWealth(); renderDots(); renderScenario(); show('game');
+}
+function renderScenario(){
+  const s = SCENARIOS[idx];
+  $('g-eyebrow').textContent = `الموقف ${idx+1} من ${SCENARIOS.length} · ${s.cure}`;
+  $('g-situation').textContent = s.situation;
+  const letters = ['أ','ب','ج'];
+  $('g-choices').innerHTML = s.choices.map((c,i)=>
+    `<button class="choice" onclick="choose(${i})"><span class="badge">${letters[i]}</span><span>${c.t}</span></button>`).join('');
+  renderDots();
+}
+function choose(ci){
+  const s = SCENARIOS[idx], c = s.choices[ci];
+  const before = wealth;
+  wealth += c.d;
+  mastered.push(c.q === 'best');
+  const v = VERDICTS[c.q];
+  $('f-verdict').className = 'verdict '+v.cls;
+  $('f-title').textContent = v.title;
+  $('f-text').textContent = c.fb;
+  $('f-y1').textContent = c.y1;
+  $('f-y5').textContent = c.y5;
+  renderCompoundViz(c.d);
+  const dEl = $('f-delta');
+  dEl.className = 'delta '+(c.d>0?'up':c.d<0?'down':'flat');
+  dEl.textContent = (c.d>0?'📈 +':c.d<0?'📉 −':'⏳ ')+(c.d===0?'لا تغيير':Math.abs(c.d)+' نقطة');
+  $('f-next').textContent = (idx === SCENARIOS.length-1) ? 'اكشف نتيجتك النهائية 🔁' : 'الموقف التالي ←';
+  show('feedback');
+  renderWealth(before);
+}
+function nextScenario(){
+  idx++;
+  if(idx < SCENARIOS.length){ renderScenario(); show('game'); }
+  else showResults();
+}
+function rankOf(w){
+  if(w>=95) return {r:"🔁 نظامك اليومي يعمل بإتقان", n:"تطبّق مبادئ جيمس كلير بإتقان: الأنظمة الصغيرة، وحلقة العادة، والهوية، والتراكم اليومي. طبّقها على حياتك المالية الحقيقية الآن."};
+  if(w>=60) return {r:"🌿 نظامك في طور التشكّل الجيد", n:"تمتلك معظم المبادئ. راجع ما أخطأت فيه أدناه ورسّخه."};
+  if(w>=25) return {r:"⏳ بدأتَ تبني عاداتك الذرّية", n:"وضعتَ أولى لبنات النظام اليومي. أعد قراءة الفصول ثم عُد."};
+  return {r:"🌀 عاداتك المالية لا تزال عشوائية", n:"لا بأس — الوعي أول خطوة. ابدأ بسؤالٍ واحد: «ما النظام الصغير الذي يمكن أن أبنيه اليوم؟»"};
+}
+function showResults(){
+  $('ledger').style.display = 'none';
+  const rk = rankOf(wealth);
+  const amountEl = $('r-amount');
+  amountEl.classList.toggle('neg', wealth<0);
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n;
+  $('r-principles').innerHTML = SCENARIOS.map((s,i)=>
+    `<li><span class="p-mark ${mastered[i]?'yes':'no'}">${mastered[i]?'✓':'✗'}</span><span>${s.short}</span></li>`).join('');
+  show('results');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ amountEl.textContent = fmt(wealth); return; }
+  const dur = 1400, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    amountEl.textContent = fmt(Math.round(wealth*e));
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function restart(){ $('ledger').style.display = 'none'; show('intro'); }
+</script>
+</body>
+</html>

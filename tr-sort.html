@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>يبني الحرّية أم يؤجّلها؟ — تحدي الـ60 ثانية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#260E12; --lapis-deep:#1A080B; --lapis-panel:#3B161B;
+    --gold:#D9A23B; --gold-bright:#F0C36B; --sand:#F5ECE9; --sand-dim:#C2A4A2;
+    --ember:#D2674E; --reed:#5FB389; --ruby:#C8455A; --ruby-deep:#9C2F42;
+    --shadow:0 12px 32px rgba(20,4,6,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:'Tajawal',sans-serif;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #4D1622 0%, transparent 60%),
+      linear-gradient(180deg, var(--lapis-night) 0%, #100507 100%);
+    color:var(--sand); min-height:100vh; line-height:1.7;
+  }
+  body::after{
+    content:""; position:fixed; inset:auto 0 0 0; height:3px; z-index:5;
+    background:linear-gradient(90deg, transparent 0, var(--ruby) 30%, var(--gold-bright) 50%, var(--ruby) 70%, transparent 100%);
+    box-shadow:0 -4px 16px rgba(200,69,90,.35); opacity:.9;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+
+  .ledger{
+    position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:12px 18px;
+    background:linear-gradient(180deg, rgba(38,14,18,.97) 70%, rgba(38,14,18,.85));
+    border-bottom:1px solid rgba(200,69,90,.45);backdrop-filter:blur(6px);
+  }
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .stat{text-align:center}
+  .stat-label{font-size:.7rem;color:var(--sand-dim);font-weight:500}
+  .stat-val{font-family:'Cairo',sans-serif;font-weight:800;font-size:1.3rem;color:var(--gold-bright)}
+  .timer-wrap{flex:1;max-width:200px}
+  .timer-bar{height:8px;border-radius:99px;background:rgba(245,236,233,.15);overflow:hidden}
+  .timer-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--ruby),var(--gold));transition:width .25s linear}
+  .timer-fill.low{background:linear-gradient(90deg,#F0987C,var(--ember))}
+  .timer-num{text-align:center;font-size:.78rem;color:var(--sand-dim);margin-top:3px;font-weight:700}
+
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;color:var(--ruby);border:1px solid rgba(200,69,90,.55);border-radius:99px;padding:4px 14px;margin-bottom:14px;background:rgba(200,69,90,.1)}
+  h1{font-family:'Cairo',sans-serif;font-size:2.15rem;font-weight:900;line-height:1.3;color:var(--gold-bright);margin-bottom:6px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+
+  .card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(200,69,90,.32);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow)}
+
+  .statement-card{
+    min-height:190px;display:flex;align-items:center;justify-content:center;text-align:center;
+    background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));
+    border:1px solid rgba(200,69,90,.4);border-radius:18px;padding:28px 22px;
+    box-shadow:var(--shadow);margin-bottom:18px;position:relative;transition:border-color .15s, box-shadow .15s;
+  }
+  .statement-card.hit{border-color:var(--reed);box-shadow:0 0 0 3px rgba(95,179,137,.35), var(--shadow)}
+  .statement-card.miss{border-color:var(--ember);box-shadow:0 0 0 3px rgba(210,103,78,.35), var(--shadow)}
+  .statement{font-family:'Cairo',sans-serif;font-size:1.4rem;line-height:1.7;font-weight:700;color:var(--sand)}
+  .flash{position:absolute;top:10px;left:14px;font-size:1.5rem;opacity:0;transform:scale(.5);transition:opacity .15s, transform .15s}
+  .flash.show{opacity:1;transform:scale(1)}
+  .counter{position:absolute;top:12px;right:16px;font-size:.75rem;color:var(--sand-dim);font-weight:700}
+  .streak{position:absolute;bottom:10px;right:16px;font-size:.8rem;color:var(--gold-bright);font-weight:800;opacity:0;transition:opacity .2s}
+  .streak.show{opacity:1}
+
+  .sort-btns{display:flex;gap:12px}
+  .sort{flex:1;border-radius:16px;padding:18px 10px;cursor:pointer;text-align:center;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.02rem;line-height:1.5;transition:transform .12s, box-shadow .2s;border:1px solid}
+  .sort .ic{display:block;font-size:1.6rem;margin-bottom:4px}
+  .sort small{display:block;font-weight:500;font-size:.74rem;opacity:.85;margin-top:2px}
+  .sort.fat{background:rgba(95,179,137,.16);border-color:rgba(95,179,137,.65);color:#8FE0B6}
+  .sort.hole{background:rgba(210,103,78,.16);border-color:rgba(210,103,78,.65);color:#F0987C}
+  .sort:hover{transform:translateY(-2px)}
+  .sort:active{transform:scale(.97)}
+  .sort:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
+
+  .btn{display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;color:#260E12;background:linear-gradient(180deg,#E8718A,var(--ruby-deep));border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(156,47,66,.4)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(156,47,66,.5)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(217,162,59,.55);box-shadow:none;margin-top:10px}
+
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--ruby);display:flex;align-items:center;justify-content:center;font-size:2.1rem;background:radial-gradient(circle at 35% 30%, rgba(200,69,90,.3), rgba(217,162,59,.05));box-shadow:0 0 30px rgba(200,69,90,.3)}
+  .intro-list{margin:0 0 26px;list-style:none}
+  .intro-list li{display:block;position:relative;padding-right:22px;color:var(--sand);font-size:.98rem;margin-bottom:10px}
+  .intro-list li::before{content:"◆";color:var(--ruby);font-size:.7rem;position:absolute;right:0;top:.5em}
+
+  .final-amount{font-family:'Cairo',sans-serif;font-size:3rem;font-weight:900;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{text-align:center;font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800;color:var(--sand);margin-bottom:6px}
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:20px}
+  .kpis{display:flex;gap:10px;margin-bottom:22px}
+  .kpi{flex:1;text-align:center;background:rgba(26,8,11,.55);border:1px solid rgba(245,236,233,.16);border-radius:12px;padding:12px 8px}
+  .kpi b{display:block;font-family:'Cairo',sans-serif;font-size:1.4rem;color:var(--gold-bright)}
+  .kpi span{font-size:.75rem;color:var(--sand-dim)}
+
+  .review-title{font-family:'Cairo',sans-serif;font-size:1.22rem;font-weight:800;color:var(--gold-bright);margin-bottom:12px;text-align:center}
+  .review{list-style:none;margin-bottom:22px}
+  .review li{background:rgba(26,8,11,.55);border:1px solid rgba(245,236,233,.12);border-radius:12px;padding:12px 14px;margin-bottom:9px}
+  .review .head{display:flex;gap:10px;align-items:flex-start;font-size:.95rem;font-weight:700}
+  .r-mark{flex:0 0 auto;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;margin-top:2px}
+  .r-mark.yes{background:rgba(95,179,137,.2);color:#8FE0B6;border:1px solid rgba(95,179,137,.6)}
+  .r-mark.no{background:rgba(210,103,78,.2);color:#F0987C;border:1px solid rgba(210,103,78,.6)}
+  .r-mark.skip{background:rgba(245,236,233,.1);color:var(--sand-dim);border:1px solid rgba(245,236,233,.3)}
+  .review .lesson{font-size:.85rem;color:var(--sand-dim);margin-top:6px;padding-right:34px}
+  .review .lesson b{color:var(--ruby)}
+
+  @media (max-width:420px){h1{font-size:1.8rem}.statement{font-size:1.22rem}.final-amount{font-size:2.4rem}.sort{font-size:.92rem}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div class="stat"><div class="stat-label">النقاط</div><div class="stat-val" id="s-score">0</div></div>
+      <div class="timer-wrap">
+        <div class="timer-bar"><div class="timer-fill" id="t-fill" style="width:100%"></div></div>
+        <div class="timer-num" id="t-num">60 ثانية</div>
+      </div>
+      <div class="stat"><div class="stat-label">سلسلة 🔥</div><div class="stat-val" id="s-streak">0</div></div>
+    </div>
+  </div>
+
+  <section class="screen active" id="intro">
+    <div class="intro-seal">🎰</div>
+    <div style="text-align:center">
+      <div class="eyebrow">فرز سريع · كتاب «المال: إتقان اللعبة»</div>
+      <h1>يبني الحرّية أم يؤجّلها؟</h1>
+      <p class="sub">سلوكياتٌ ماليةٌ تمرّ بسرعة… أيّها يبني صندوق حرّيتك المالية وأيّها يؤجّلها؟</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>أمامك <b>60 ثانية</b> و<b>16 سلوكاً</b> مالياً.</li>
+        <li>اضغط <b>🟢 يبني الحرّية</b> أو <b>🔴 يؤجّلها</b> — بسرعة!</li>
+        <li>القاعدة: <b>الادّخار أولاً، والرسوم الخفية، والتنويع، وضبط النفسية</b>.</li>
+        <li>في النهاية: مراجعة كاملة بمنطق توني روبنز وراء كل بطاقة.</li>
+      </ul>
+      <button class="btn" onclick="startGame()">ابدأ التحدي ⚡</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="statement-card" id="st-card">
+      <span class="counter" id="st-counter"></span>
+      <span class="flash" id="st-flash">✓</span>
+      <span class="streak" id="st-streak"></span>
+      <div class="statement" id="st-text"></div>
+    </div>
+    <div class="sort-btns">
+      <button class="sort fat" onclick="answer(true)"><span class="ic">🟢</span>يبني الحرّية<small>نظامٌ يخدم المستقبل</small></button>
+      <button class="sort hole" onclick="answer(false)"><span class="ic">🔴</span>يؤجّلها<small>عادةٌ تُبقيك مكانك</small></button>
+    </div>
+  </section>
+
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow">انتهى التحدي</div></div>
+    <div class="card">
+      <div class="final-label">رصيدك النهائي</div>
+      <div class="final-amount" id="r-score">0</div>
+      <div class="final-label">نقطة</div>
+      <div class="kpis">
+        <div class="kpi"><b id="r-acc">0%</b><span>دقة التصنيف</span></div>
+        <div class="kpi"><b id="r-best">0</b><span>أطول سلسلة 🔥</span></div>
+        <div class="kpi"><b id="r-done">0/16</b><span>بطاقات صنّفتها</span></div>
+      </div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <div class="review-title">🎰 لوح المراجعة — منطق كل بطاقة</div>
+      <ul class="review" id="r-review"></ul>
+      <button class="btn" onclick="startGame()">أعد التحدي ⚡</button>
+      <button class="btn ghost" onclick="backToIntro()">عُد إلى الملخص 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* fat:true = يبني الحرّية المالية ، false = يؤجّلها */
+const CARDS = [
+  {s:"تحويلٌ تلقائي لنسبةٍ ثابتة من كل راتبٍ إلى صندوق الادّخار قبل أي إنفاق", fat:true,  l:"«ادّخر أولاً» قاعدة روبنز الأولى: التحويل التلقائي يحوّل الادّخار من قرارٍ إلى نظام."},
+  {s:"الادّخار فقط إن تبقّى شيءٌ من الراتب بعد الإنفاق", fat:false, l:"الإنفاق يتمدّد ليشغل الدخل كاملاً؛ ادّخارٌ «إن تبقّى» نادراً ما يحدث."},
+  {s:"البدء بالاستثمار فوراً بمبلغٍ صغير بدل الانتظار حتى يكبر الدخل", fat:true,  l:"الوقت أقوى من حجم المبلغ في الفائدة المركّبة؛ البداية المبكّرة تتفوّق غالباً."},
+  {s:"تأجيل الاستثمار حتى يصبح المبلغ المتاح «كبيراً يستحق الأمر»", fat:false, l:"كل سنة تأخيرٍ هي فائدة مركّبة مفقودة لا يمكن استرجاعها."},
+  {s:"مقارنة رسوم الصناديق الاستثمارية بدقّة قبل الاختيار", fat:true,  l:"فرقٌ صغيرٌ في الرسوم سنوياً يلتهم مبالغ ضخمة من الثروة عبر عقود."},
+  {s:"تجاهل الرسوم الخفية لأنها «تفصيلٌ صغير لا يستحق الاهتمام»", fat:false, l:"الرسوم ليست تفصيلاً؛ هي من أكبر العوامل التي تحدّد ثروتك النهائية."},
+  {s:"توزيع المدّخرات بين سلال أمانٍ ونموٍّ ومخاطرةٍ محدودة", fat:true,  l:"التنويع بين السلال يحميك من خسارة الكل في تقلّبٍ واحد."},
+  {s:"وضع كل المدّخرات في أصلٍ واحدٍ متقلّب «لأنه الأعلى عائداً»", fat:false, l:"تركيز كل البيض في سلّةٍ واحدة متقلّبة يعرّضك لخسارةٍ شاملة محتملة."},
+  {s:"الالتزام بالخطّة الاستثمارية طويلة الأمد رغم انهيار السوق المؤقت", fat:true,  l:"البيع في القعر بدافع الذعر يحوّل خسارةً مؤقتة إلى خسارةٍ دائمة."},
+  {s:"بيع كل الاستثمارات بالذعر فور أي انهيارٍ في السوق", fat:false, l:"البيع بالذعر هو أكبر خطأٍ استثماريٍّ شائع؛ يفوّت التعافي اللاحق."},
+  {s:"تحديد هدفٍ واضح: دخلٌ شهريٌّ يكفي نمط حياتك مدى الحياة", fat:true,  l:"الهدف الحقيقي عند روبنز هو الدخل الدائم لا مجرّد رقمٍ كبير في الحساب."},
+  {s:"تحديد رقمٍ كبيرٍ عشوائي «يبدو كافياً» دون حساب الدخل الناتج عنه", fat:false, l:"رقمٌ بلا حسابٍ دقيق للدخل الناتج قد يكون غير كافٍ فعلياً."},
+  {s:"مراجعة توزيع الأصول دورياً وإعادة التوازن بين السلال", fat:true,  l:"إعادة التوازن الدورية تحافظ على مستوى المخاطرة الذي اخترته أصلاً."},
+  {s:"ترك المحفظة دون أي مراجعةٍ لسنواتٍ طويلة بعد بنائها الأول", fat:false, l:"التغيّرات في الأسواق قد تحوّل توازن المحفظة الأصلي إلى مخاطرةٍ غير مقصودة."},
+  {s:"معاملة صندوق الحرّية المالية كخطٍّ أحمر لا يُمسّ تحت أي ضغطٍ استهلاكي", fat:true,  l:"حماية الصندوق من الإنفاق الطارئ هي ما يضمن استمرار نموّه عبر السنين."},
+  {s:"السحب من صندوق الادّخار لتمويل رغباتٍ استهلاكية غير ضرورية", fat:false, l:"كل سحبٍ غير ضروري يكسر تراكم الفائدة المركّبة التي بُنيت بصبر."}
+];
+
+const TIME = 60;
+let deck=[], i=0, score=0, correct=0, streak=0, best=0, timeLeft=TIME, timerId=null, answers=[], locked=false;
+const $ = id => document.getElementById(id);
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function shuffle(a){
+  const arr=[...a];
+  for(let k=arr.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[arr[k],arr[j]]=[arr[j],arr[k]];}
+  return arr;
+}
+function startGame(){
+  deck = shuffle(CARDS); i=0; score=0; correct=0; streak=0; best=0; timeLeft=TIME;
+  answers = deck.map(()=>null); locked=false;
+  $('ledger').style.display='block';
+  updateHud(); renderCard(); show('game');
+  clearInterval(timerId);
+  timerId = setInterval(()=>{ timeLeft--; updateTimer(); if(timeLeft<=0){ clearInterval(timerId); endGame(); } },1000);
+  updateTimer();
+}
+function updateTimer(){
+  const fill = $('t-fill');
+  fill.style.width = Math.max(timeLeft/TIME*100,0)+'%';
+  fill.classList.toggle('low', timeLeft<=10);
+  $('t-num').textContent = timeLeft+' ثانية';
+}
+function updateHud(){ $('s-score').textContent = score; $('s-streak').textContent = streak; }
+function renderCard(){
+  $('st-counter').textContent = `بطاقة ${i+1} / ${deck.length}`;
+  $('st-text').textContent = deck[i].s;
+  $('st-card').classList.remove('hit','miss');
+}
+function answer(saidBuild){
+  if(locked || i>=deck.length) return;
+  locked = true;
+  const c = deck[i];
+  const ok = (saidBuild === c.fat);
+  answers[i] = ok;
+  const card = $('st-card'), flash = $('st-flash'), stk = $('st-streak');
+  if(ok){
+    correct++; streak++; best=Math.max(best,streak);
+    score += 10 + (streak>=3 ? 5 : 0);
+    card.classList.add('hit'); flash.textContent='✓';
+    if(streak>=3){ stk.textContent='🔥 سلسلة ×'+streak; stk.classList.add('show'); }
+  }else{
+    streak=0; card.classList.add('miss'); flash.textContent='✗'; stk.classList.remove('show');
+  }
+  flash.classList.add('show');
+  updateHud();
+  setTimeout(()=>{
+    flash.classList.remove('show'); i++;
+    if(i>=deck.length){ clearInterval(timerId); endGame(); }
+    else { renderCard(); locked=false; }
+  }, 320);
+}
+function rankOf(c){
+  if(c>=14) return {r:"🎰 تبني الحرّية المالية بإتقان", n:"تميّز السلوك البنّاء من المؤجّل في لمح البصر — هذا جوهر منهج توني روبنز."};
+  if(c>=10) return {r:"💰 صندوقك في طور النمو الجيد", n:"أساسك جيد. راجع البطاقات التي أخطأت فيها أدناه وأعد التحدي."};
+  if(c>=6)  return {r:"⚠️ بعض عادات التأجيل ما زالت تخدعك", n:"بعض الأنماط المؤجّلة ما زالت تخدعك. لوح المراجعة سيعيد ضبط نظامك."};
+  return {r:"🌀 صندوقك بحاجةٍ لقاعدةٍ أوضح", n:"لا تقلق — الوعي أول خطوة. اقرأ لوح المراجعة ثم عُد للتحدي."};
+}
+function endGame(){
+  $('ledger').style.display='none';
+  const done = answers.filter(a=>a!==null).length;
+  const acc = done? Math.round(correct/done*100) : 0;
+  const rk = rankOf(correct);
+  $('r-score').textContent = score;
+  $('r-acc').textContent = acc+'%';
+  $('r-best').textContent = best;
+  $('r-done').textContent = done+'/'+deck.length;
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n;
+  $('r-review').innerHTML = deck.map((c,k)=>{
+    const a = answers[k];
+    const mark = a===null ? `<span class="r-mark skip">·</span>` : a ? `<span class="r-mark yes">✓</span>` : `<span class="r-mark no">✗</span>`;
+    const tag = c.fat ? '🟢 يبني الحرّية' : '🔴 يؤجّلها';
+    return `<li><div class="head">${mark}<span>${c.s}</span></div><div class="lesson"><b>${tag}</b> — ${c.l}</div></li>`;
+  }).join('');
+  show('results');
+}
+function backToIntro(){ clearInterval(timerId); $('ledger').style.display='none'; show('intro'); }
+</script>
+</body>
+</html>

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>فعّل النظام الثاني — لعبة القرارات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#250E1C; --lapis-deep:#180812; --lapis-panel:#3B172E;
+    --gold:#D9A23B; --gold-bright:#F0C36B; --sand:#F3E9F0; --sand-dim:#C2A0B8;
+    --ember:#D2674E; --reed:#5FB389; --magenta:#C0508F; --magenta-deep:#933A6C; --magenta-bright:#E07FB5;
+    --shadow:0 12px 32px rgba(16,4,12,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:'Tajawal',sans-serif;background:radial-gradient(1200px 600px at 50% -10%, #4D1F3C 0%, transparent 60%),linear-gradient(180deg, var(--lapis-night) 0%, #100610 100%);color:var(--sand);min-height:100vh;line-height:1.7}
+  body::after{content:"";position:fixed;inset:auto 0 0 0;height:3px;z-index:5;background:linear-gradient(90deg, transparent 0, var(--magenta) 30%, var(--gold-bright) 50%, var(--magenta) 70%, transparent 100%);box-shadow:0 -4px 16px rgba(192,80,143,.35);opacity:.9}
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+  .ledger{position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:14px 18px 12px;background:linear-gradient(180deg, rgba(37,14,28,.97) 70%, rgba(37,14,28,.85));border-bottom:1px solid rgba(192,80,143,.45);backdrop-filter:blur(6px)}
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .ledger-label{font-size:.78rem;color:var(--sand-dim);font-weight:500}
+  .ledger-amount{font-family:'Cairo',sans-serif;font-weight:800;font-size:1.4rem;color:var(--gold-bright);letter-spacing:.3px;white-space:nowrap}
+  .ledger-amount small{font-size:.82rem;color:var(--sand-dim);font-family:'Tajawal',sans-serif;font-weight:500;margin-right:4px}
+  .ledger-amount.neg{color:var(--ember)}
+  .dots{display:flex;gap:6px;margin-top:8px;justify-content:center}
+  .dot{width:26px;height:4px;border-radius:99px;background:rgba(243,233,240,.16);transition:background .4s}
+  .dot.on{background:var(--magenta)}
+  .dot.now{background:var(--magenta-bright);box-shadow:0 0 8px rgba(224,127,181,.8)}
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;color:var(--magenta-bright);border:1px solid rgba(192,80,143,.55);border-radius:99px;padding:4px 14px;margin-bottom:14px;letter-spacing:.3px;background:rgba(192,80,143,.1)}
+  h1{font-family:'Cairo',sans-serif;font-size:2.2rem;font-weight:900;line-height:1.3;color:var(--gold-bright);margin-bottom:6px}
+  h2.situation{font-family:'Tajawal',sans-serif;font-size:1.4rem;line-height:1.75;color:var(--sand);font-weight:700;margin-bottom:22px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+  .card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(192,80,143,.32);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow)}
+  .choice{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;background:rgba(24,8,18,.6);border:1px solid rgba(243,233,240,.16);border-radius:14px;padding:15px 16px;margin-bottom:12px;color:var(--sand);font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.65;cursor:pointer;transition:border-color .2s, background .2s, transform .15s}
+  .choice:hover,.choice:focus-visible{border-color:var(--magenta);background:rgba(192,80,143,.12);transform:translateY(-1px)}
+  .choice:focus-visible{outline:2px solid var(--magenta-bright);outline-offset:2px}
+  .badge{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(192,80,143,.18);border:1px solid rgba(192,80,143,.55);color:var(--magenta-bright);font-weight:800;font-size:.95rem;margin-top:2px}
+  .verdict{border-radius:14px;padding:18px;margin-bottom:16px;border:1px solid}
+  .verdict.best{background:rgba(95,179,137,.14);border-color:rgba(95,179,137,.6)}
+  .verdict.ok{background:rgba(217,162,59,.12);border-color:rgba(217,162,59,.55)}
+  .verdict.bad{background:rgba(210,103,78,.14);border-color:rgba(210,103,78,.6)}
+  .verdict-title{font-family:'Cairo',sans-serif;font-size:1.22rem;font-weight:800;margin-bottom:8px}
+  .verdict.best .verdict-title{color:#8FE0B6}
+  .verdict.ok .verdict-title{color:var(--gold-bright)}
+  .verdict.bad .verdict-title{color:#F0987C}
+  .verdict p{font-size:.98rem}
+  .timeline{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+  .t-row{display:flex;gap:12px;align-items:flex-start;background:rgba(24,8,18,.55);border-radius:12px;padding:12px 14px;border:1px solid rgba(243,233,240,.12)}
+  .t-when{flex:0 0 auto;font-weight:800;color:var(--magenta-bright);font-size:.85rem;border-left:1px solid rgba(192,80,143,.4);padding-left:12px;min-width:74px}
+  .t-what{font-size:.95rem;color:var(--sand)}
+  .delta{display:inline-flex;align-items:center;gap:8px;font-family:'Cairo',sans-serif;font-weight:800;font-size:1.3rem;border-radius:12px;padding:8px 16px;margin-bottom:18px}
+  .delta.up{background:rgba(95,179,137,.16);color:#8FE0B6;border:1px solid rgba(95,179,137,.5)}
+  .delta.down{background:rgba(210,103,78,.16);color:#F0987C;border:1px solid rgba(210,103,78,.5)}
+  .delta.flat{background:rgba(243,233,240,.08);color:var(--sand-dim);border:1px solid rgba(243,233,240,.22)}
+  .btn{display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;color:#250E1C;background:linear-gradient(180deg,var(--magenta-bright),var(--magenta-deep));border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(147,58,108,.4)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(147,58,108,.5)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(217,162,59,.55);box-shadow:none;margin-top:10px}
+  .final-amount{font-family:'Cairo',sans-serif;font-size:3rem;font-weight:900;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
+  .final-amount.neg{color:var(--ember)}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{text-align:center;font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800;color:var(--sand);margin-bottom:6px}
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:22px}
+  .principles{list-style:none;margin-bottom:22px}
+  .principles li{display:flex;gap:10px;align-items:center;padding:10px 14px;margin-bottom:8px;background:rgba(24,8,18,.55);border-radius:12px;border:1px solid rgba(243,233,240,.12);font-size:.95rem}
+  .p-mark{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+  .p-mark.yes{background:rgba(95,179,137,.2);color:#8FE0B6;border:1px solid rgba(95,179,137,.6)}
+  .p-mark.no{background:rgba(210,103,78,.2);color:#F0987C;border:1px solid rgba(210,103,78,.6)}
+  .quote{font-family:'Cairo',sans-serif;font-size:1.16rem;font-weight:700;line-height:1.85;text-align:center;color:var(--gold-bright);border-top:1px solid rgba(217,162,59,.35);border-bottom:1px solid rgba(217,162,59,.35);padding:18px 6px;margin-bottom:22px}
+  .quote span{display:block;font-family:'Tajawal',sans-serif;font-size:.85rem;font-weight:500;color:var(--sand-dim);margin-top:8px}
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--magenta);display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:radial-gradient(circle at 35% 30%, rgba(192,80,143,.3), rgba(217,162,59,.05));box-shadow:0 0 30px rgba(192,80,143,.3)}
+  .intro-list{margin:0 0 26px;padding:0;list-style:none}
+  .intro-list li{display:block;position:relative;padding-right:22px;color:var(--sand);font-size:.98rem;margin-bottom:10px}
+  .intro-list li::before{content:"◆";color:var(--magenta);font-size:.7rem;position:absolute;right:0;top:.5em}
+  @media (max-width:420px){h1{font-size:1.85rem}h2.situation{font-size:1.25rem}.final-amount{font-size:2.4rem}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div>
+        <div class="ledger-label">رصيد التفكير البطيء</div>
+        <div class="ledger-amount" id="wealth">0 <small>نقطة</small></div>
+      </div>
+      <div style="font-size:1.6rem">🧠</div>
+    </div>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <section class="screen active" id="intro">
+    <div class="intro-seal">🧠</div>
+    <div style="text-align:center">
+      <div class="eyebrow">لعبة قرارات · كتاب «التفكير بسرعة وببطء»</div>
+      <h1>فعّل النظام الثاني</h1>
+      <p class="sub">النظام الأول سريعٌ وحدسي وكثير الأخطاء؛ النظام الثاني بطيءٌ ومنطقيٌّ ويحتاج جهداً.</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>ستواجه <b>6 مواقف</b> على مبادئ دانيال كانمان في «التفكير بسرعة وببطء».</li>
+        <li>كل قرارٍ يرفع أو يخفض <b>رصيد التفكير البطيء</b> لديك.</li>
+        <li>المبدأ: <b>النظام 1 سريعٌ وتلقائي وعُرضةٌ للانحياز؛ النظام 2 بطيءٌ ومتأمّلٌ لكنه أدقّ في القرارات المعقّدة</b>.</li>
+        <li>اجمع أعلى رصيدٍ ممكن… حتى تتقن تفعيل النظام الثاني وقت الحاجة.</li>
+      </ul>
+      <button class="btn" onclick="startGame()">ابدأ التفكير ▸</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="eyebrow" id="g-eyebrow"></div>
+    <h2 class="situation" id="g-situation"></h2>
+    <div id="g-choices"></div>
+  </section>
+
+  <section class="screen" id="feedback">
+    <div class="card">
+      <div class="verdict" id="f-verdict">
+        <div class="verdict-title" id="f-title"></div>
+        <p id="f-text"></p>
+      </div>
+      <div class="timeline">
+        <div class="t-row"><div class="t-when">بعد سنة</div><div class="t-what" id="f-y1"></div></div>
+        <div class="t-row"><div class="t-when">بعد 5 سنوات</div><div class="t-what" id="f-y5"></div></div>
+      </div>
+      <div style="text-align:center"><span class="delta" id="f-delta"></span></div>
+      <button class="btn" id="f-next" onclick="nextScenario()">متابعة ←</button>
+    </div>
+  </section>
+
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow">اكتملت الجلسة</div></div>
+    <div class="card">
+      <div class="final-label">رصيد التفكير البطيء</div>
+      <div class="final-amount" id="r-amount">0</div>
+      <div class="final-label">نقطة &nbsp;·&nbsp; من أصل 116</div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <ul class="principles" id="r-principles"></ul>
+      <div class="quote">«لا شيء في الحياة مهمٌّ بقدر ما تظنّه وقت تفكيرك فيه»<span>— دانيال كانمان</span></div>
+      <button class="btn" onclick="restart()">أعد المحاولة 🔄</button>
+      <button class="btn ghost" onclick="restart()">اقرأ الملخص مرة أخرى 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const SCENARIOS = [
+  {
+    cure:"المبدأ · النظام 1 السريع مقابل النظام 2 البطيء",
+    short:"القرارات المالية المعقّدة تحتاج تفعيل النظام البطيء عمداً",
+    situation:"تتلقّى عرض استثمارٍ يبدو مثيراً وعاطفياً مقنعاً، وتشعر برغبةٍ فورية في الموافقة السريعة.",
+    choices:[
+      {t:"أتوقّف عمداً وأفعّل تفكيراً بطيئاً ومنطقياً: أحلّل الأرقام والمخاطر قبل أي قرار، رغم الرغبة الفورية", q:"best", d:20,
+       fb:"كانمان يوضح أن النظام 1 يستجيب للعاطفة بسرعة لكنه عُرضةٌ للأخطاء؛ القرارات المالية المهمّة تحتاج تفعيلاً متعمَّداً للنظام 2 الأبطأ والأدقّ.",
+       y1:"قرارٌ مدروسٌ بعيداً عن الحماس اللحظي", y5:"نتيجةٌ أفضل بفضل التحليل المتأمَّل"},
+      {t:"أوافق بسرعةٍ بناءً على الانطباع الأول والحماس العاطفي دون تحليلٍ عميق", q:"ok", d:5,
+       fb:"الاعتماد على النظام 1 وحده في القرارات المالية المعقّدة يزيد احتمالية الوقوع في انحيازاتٍ مكلفة.",
+       y1:"قرارٌ سريعٌ قد يكون صحيحاً أو خاطئاً", y5:"نتيجةٌ غير مضمونة الجودة"},
+      {t:"أوافق فوراً دون أي تفكيرٍ لأن «الحدس النابع من الخبرة كافٍ دائماً»", q:"bad", d:-8,
+       fb:"الثقة الزائدة بالحدس وحده، دون تفعيل التفكير التحليلي، تجعلك عُرضةً لانحيازاتٍ معروفةٍ ومتكرّرة.",
+       y1:"قرارٌ متسرّعٌ بلا تحليل", y5:"خطر نتيجةٍ سلبية لم تُقيَّم مسبقاً"}
+    ]
+  },
+  {
+    cure:"المبدأ · النفور من الخسارة (Loss Aversion)",
+    short:"الخوف من الخسارة يؤثّر أقوى من الفرح بمكسبٍ مماثل",
+    situation:"استثمارك انخفض قليلاً، وتشعر برغبةٍ قوية في البيع فوراً لتجنّب أي خسارةٍ إضافية رغم أن التحليل يقول الاستمرار أفضل.",
+    choices:[
+      {t:"أعي أن النفور من الخسارة يضخّم شعوري بالخوف أكثر من الواقع، وأتّبع التحليل المنطقي بدل الدافع العاطفي للبيع", q:"best", d:19,
+       fb:"كانمان يصف «النفور من الخسارة»: الألم النفسي من خسارة مبلغٍ معيّن أقوى من فرح كسب نفس المبلغ؛ هذا يدفع لقراراتٍ متسرّعة.",
+       y1:"استمراريةٌ مدروسة بدل بيعٍ عاطفي", y5:"تعافٍ محتملٌ لو استمرّ التحليل صحيحاً"},
+      {t:"أبيع نصف الاستثمار «للتخفيف من القلق» دون تحليلٍ كاملٍ للوضع", q:"ok", d:5,
+       fb:"القرار الجزئي بدافع القلق العاطفي قد لا يستند لتحليلٍ موضوعي للوضع الفعلي للاستثمار.",
+       y1:"خسارةٌ جزئيةٌ مؤكَّدة", y5:"نتيجةٌ متوسّطة الجودة"},
+      {t:"أبيع كل الاستثمار فوراً بدافع الخوف من الخسارة وحده دون أي تحليل", q:"bad", d:-9,
+       fb:"البيع الكامل بدافع النفور العاطفي من الخسارة، دون تحليلٍ موضوعي، هو أكثر الأخطاء الشائعة في الاستثمار.",
+       y1:"خسارةٌ مؤكَّدة بسبب القرار العاطفي", y5:"فاتك أي تعافٍ محتملٍ لاحقاً"}
+    ]
+  },
+  {
+    cure:"المبدأ · الإفراط في الثقة (Overconfidence)",
+    short:"الثقة الزائدة بالتقديرات الشخصية تتجاوز الدقّة الفعلية غالباً",
+    situation:"تشعر بثقةٍ شديدة في قدرتك على التنبّؤ باتجاه السوق القادم، وتفكّر في مضاعفة استثماراتك بناءً على هذا الشعور.",
+    choices:[
+      {t:"أتذكّر أن الإفراط في الثقة شائعٌ جداً وغير موثوقٍ علمياً، وأحافظ على تنويعٍ وحذرٍ بدل المضاعفة الكاملة", q:"best", d:18,
+       fb:"كانمان يوثّق أن أغلب الناس (وحتى الخبراء) يبالغون في ثقتهم بدقّة تنبّؤاتهم؛ الحذر من هذا الانحياز يحمي من قراراتٍ متسرّعة.",
+       y1:"محفظةٌ متوازنة لم تتعرّض لمخاطرةٍ مفرطة", y5:"استقرارٌ نسبيٌّ بفضل الحذر من الثقة الزائدة"},
+      {t:"أزيد استثماراتي بشكلٍ معتدل بناءً على شعوري بالثقة دون تحليلٍ موضوعي كافٍ", q:"ok", d:5,
+       fb:"الزيادة المعتدلة بناءً على الثقة الذاتية وحدها لا تزال تحمل مخاطرةً غير محسوبة بدقّة.",
+       y1:"تعرّضٌ متوسّطٌ لمخاطرةٍ غير محسوبة", y5:"نتيجةٌ تعتمد على دقّة تنبّؤٍ غير موثوق"},
+      {t:"أضاعف استثماراتي بالكامل بناءً على ثقتي الشخصية وحدها دون أي تحليلٍ إضافي", q:"bad", d:-9,
+       fb:"المضاعفة الكاملة بناءً على الثقة الذاتية وحدها، رغم شيوع الإفراط في الثقة إحصائياً، تعرّضك لمخاطرةٍ كبيرة جداً.",
+       y1:"تعرّضٌ كاملٌ لمخاطرةٍ غير مدروسة", y5:"خطر خسارةٍ كبيرة إن كان التنبّؤ خاطئاً"}
+    ]
+  },
+  {
+    cure:"المبدأ · تأثير الترسيخ (Anchoring Effect)",
+    short:"أول رقمٍ تراه يؤثّر في تقييمك لكل ما يليه دون أن تشعر",
+    situation:"تساوم على سعر عقارٍ، والبائع يطلب سعراً أولياً مرتفعاً جداً، وتشعر أن أي سعرٍ أقلّ منه «يبدو صفقةً جيدة».",
+    choices:[
+      {t:"أتجاهل السعر الأولي المرتفع وأقيّم العقار بناءً على قيمته الفعلية المستقلّة عن رقم الترسيخ", q:"best", d:19,
+       fb:"كانمان يصف «تأثير الترسيخ»: أول رقمٍ تراه يصبح نقطة مرجعيةٍ تشوّه تقييمك للأرقام التالية، حتى لو كان عشوائياً أو متعمَّداً.",
+       y1:"تقييمٌ موضوعيٌّ مستقلٌّ عن الترسيخ", y5:"قرارٌ شراءٍ بسعرٍ يعكس القيمة الحقيقية"},
+      {t:"أساوم نزولاً من السعر الأولي مباشرةً دون تقييمٍ مستقلٍّ لقيمة العقار الفعلية", q:"ok", d:5,
+       fb:"المساومة من نقطة الترسيخ مباشرةً، دون تقييمٍ مستقلّ، قد تنتج سعراً أعلى من القيمة الفعلية رغم الشعور بالصفقة الجيدة.",
+       y1:"سعرٌ أقلّ من الطلب لكنه قد يكون مرتفعاً فعلياً", y5:"قيمةٌ فعلية أقلّ من السعر المدفوع"},
+      {t:"أوافق على سعرٍ قريبٍ من الطلب الأولي لأنه «بدا معقولاً مقارنةً بالرقم الأول»", q:"bad", d:-8,
+       fb:"الوقوع الكامل في تأثير الترسيخ يجعلك تدفع سعراً أعلى من القيمة الفعلية بناءً على رقمٍ أولي مصمَّمٍ للتأثير عليك.",
+       y1:"دفع سعرٍ أعلى من القيمة الفعلية", y5:"خسارةٌ في القيمة الحقيقية للصفقة"}
+    ]
+  },
+  {
+    cure:"المبدأ · الاستدلال بالتوافر (Availability Heuristic)",
+    short:"الأحداث التي تتذكّرها بسهولة تبدو أكثر احتمالاً من واقعها الفعلي",
+    situation:"تسمع عن حالةٍ واحدةٍ ناجحة جداً لصديقٍ استثمر في أصلٍ معيّن، وتشعر أن «هذا الأصل يضمن الربح» بناءً على هذه القصة الواحدة.",
+    choices:[
+      {t:"أتذكّر أن قصةً واحدة، رغم وضوحها وسهولة تذكّرها، لا تمثّل احتمالاً إحصائياً حقيقياً، وأبحث عن بياناتٍ أوسع قبل القرار", q:"best", d:18,
+       fb:"كانمان يصف «الاستدلال بالتوافر»: القصص الحيّة والسهلة التذكّر تبدو أكثر شيوعاً من واقعها الإحصائي الفعلي، وهذا يضلّل التقييم.",
+       y1:"قرارٌ مبنيٌّ على بياناتٍ أوسع لا قصةٍ واحدة", y5:"تقييمٌ أكثر دقّةً للمخاطر والفرص الفعلية"},
+      {t:"أستثمر مبلغاً صغيراً «للتجربة» بناءً على القصة الواحدة دون أي بحثٍ إضافي", q:"ok", d:5,
+       fb:"حتى الاستثمار الصغير بناءً على قصةٍ واحدة فقط لا يزال يفتقر لتقييمٍ موضوعي للاحتمالات الفعلية.",
+       y1:"تعرّضٌ محدودٌ لكن غير مدروس", y5:"نتيجةٌ تعتمد على الحظ أكثر من التحليل"},
+      {t:"أستثمر مبلغاً كبيراً بثقةٍ كاملة بناءً على قصة نجاحٍ واحدة سمعتها", q:"bad", d:-9,
+       fb:"الاستثمار الكبير بناءً على قصةٍ واحدةٍ سهلة التذكّر، دون أي تحليلٍ إحصائي حقيقي، مخاطرةٌ غير محسوبة بالمرّة.",
+       y1:"تعرّضٌ كاملٌ لمخاطرةٍ غير محسوبة", y5:"خطر خسارةٍ كبيرة إن لم تتكرّر القصة الناجحة"}
+    ]
+  },
+  {
+    cure:"المبدأ · التأطير (Framing Effect)",
+    short:"طريقة عرض المعلومة تغيّر القرار حتى لو كان المحتوى الفعلي واحداً",
+    situation:"يُعرَض عليك استثمارٌ بطريقتين: «فرصة 70% للربح» أو «خطر 30% للخسارة» — وهما نفس الاحتمال بالضبط.",
+    choices:[
+      {t:"أدرك أن الصياغتين تصفان نفس الاحتمال بالضبط، وأقيّم الاستثمار بناءً على الأرقام الفعلية لا طريقة العرض", q:"best", d:18,
+       fb:"كانمان يصف «تأثير التأطير»: نفس المعلومة بصياغتين مختلفتين تُحدِث قراراتٍ مختلفة، رغم أن المحتوى الرياضي واحدٌ تماماً.",
+       y1:"تقييمٌ موضوعيٌّ مستقلٌّ عن طريقة الصياغة", y5:"قراراتٌ متّسقة بصرف النظر عن العرض"},
+      {t:"أتأثّر بصياغة «فرصة الربح» وأشعر بتفاؤلٍ أكبر دون إدراك أنها نفس المخاطرة بالضبط", q:"ok", d:5,
+       fb:"التأثّر بالصياغة الإيجابية دون إدراك تطابق الاحتمال الفعلي يُظهر وقوعاً جزئياً في تأثير التأطير.",
+       y1:"قرارٌ متأثّرٌ بالصياغة لا بالواقع الرياضي", y5:"نتيجةٌ قد لا تعكس تقييماً موضوعياً حقيقياً"},
+      {t:"أرفض الاستثمار كلياً عند صياغة «خطر 30% للخسارة» بينما كنتُ سأوافق لو قُدِّم بصياغة «فرصة 70% للربح»", q:"bad", d:-8,
+       fb:"اتخاذ قراراتٍ متناقضة لنفس الاحتمال بالضبط بناءً فقط على الصياغة دليلٌ واضحٌ على الوقوع الكامل في تأثير التأطير.",
+       y1:"قرارٌ غير متّسقٍ منطقياً", y5:"فرصٌ ضائعة أو مخاطرٌ مقبولة بلا أساسٍ موضوعي"}
+    ]
+  }
+];
+
+const VERDICTS = {
+  best:{title:"🧠 نظامٌ ثانٍ مفعَّل — هكذا يفكّر كانمان", cls:"best"},
+  ok:{title:"⚖️ مقبول… لكن النظام الأول يتدخّل", cls:"ok"},
+  bad:{title:"🌀 انحيازٌ يقود قرارك المالي", cls:"bad"}
+};
+
+let idx = 0, wealth = 0, mastered = [];
+const $ = id => document.getElementById(id);
+
+function fmt(n){
+  const s = Math.abs(n).toLocaleString('en-US').replace(/,/g,'٬');
+  return (n<0?'−':'')+s;
+}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function renderDots(){
+  $('dots').innerHTML = SCENARIOS.map((_,i)=>`<div class="dot ${i<idx?'on':''} ${i===idx?'now':''}"></div>`).join('');
+}
+function renderWealth(animateFrom){
+  const el = $('wealth');
+  el.classList.toggle('neg', wealth<0);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(animateFrom===undefined || reduce){ el.innerHTML = fmt(wealth)+' <small>نقطة</small>'; return; }
+  const start = animateFrom, diff = wealth-start, dur = 900, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    el.innerHTML = fmt(Math.round(start+diff*e))+' <small>نقطة</small>';
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function startGame(){
+  idx = 0; wealth = 0; mastered = [];
+  $('ledger').style.display = 'block';
+  renderWealth(); renderDots(); renderScenario(); show('game');
+}
+function renderScenario(){
+  const s = SCENARIOS[idx];
+  $('g-eyebrow').textContent = `الموقف ${idx+1} من ${SCENARIOS.length} · ${s.cure}`;
+  $('g-situation').textContent = s.situation;
+  const letters = ['أ','ب','ج'];
+  $('g-choices').innerHTML = s.choices.map((c,i)=>
+    `<button class="choice" onclick="choose(${i})"><span class="badge">${letters[i]}</span><span>${c.t}</span></button>`).join('');
+  renderDots();
+}
+function choose(ci){
+  const s = SCENARIOS[idx], c = s.choices[ci];
+  const before = wealth;
+  wealth += c.d;
+  mastered.push(c.q === 'best');
+  const v = VERDICTS[c.q];
+  $('f-verdict').className = 'verdict '+v.cls;
+  $('f-title').textContent = v.title;
+  $('f-text').textContent = c.fb;
+  $('f-y1').textContent = c.y1;
+  $('f-y5').textContent = c.y5;
+  const dEl = $('f-delta');
+  dEl.className = 'delta '+(c.d>0?'up':c.d<0?'down':'flat');
+  dEl.textContent = (c.d>0?'📈 +':c.d<0?'📉 −':'⏳ ')+(c.d===0?'لا تغيير':Math.abs(c.d)+' نقطة');
+  $('f-next').textContent = (idx === SCENARIOS.length-1) ? 'اكشف نتيجتك النهائية 🧠' : 'الموقف التالي ←';
+  show('feedback');
+  renderWealth(before);
+}
+function nextScenario(){
+  idx++;
+  if(idx < SCENARIOS.length){ renderScenario(); show('game'); }
+  else showResults();
+}
+function rankOf(w){
+  if(w>=95) return {r:"🧠 تفعّل النظام الثاني بإتقان وقت الحاجة", n:"تطبّق مبادئ كانمان بإتقان: تجاوز النفور من الخسارة، والإفراط في الثقة، والترسيخ، والتأطير. طبّقها على قراراتك المالية الحقيقية الآن."};
+  if(w>=60) return {r:"🔆 وعيك بالانحيازات يتطوّر", n:"تمتلك معظم المبادئ. راجع ما أخطأت فيه أدناه ورسّخه."};
+  if(w>=25) return {r:"⏳ بدأتَ تكتشف انحيازاتك", n:"وضعتَ أولى لبنات التفكير البطيء. أعد قراءة الفصول ثم عُد."};
+  return {r:"🌀 النظام الأول السريع يقود قراراتك", n:"لا بأس — الوعي أول خطوة. ابدأ بسؤالٍ واحد: «هل هذا قرارٌ سريعٌ أم تحليلٌ متأمَّل؟»"};
+}
+function showResults(){
+  $('ledger').style.display = 'none';
+  const rk = rankOf(wealth);
+  const amountEl = $('r-amount');
+  amountEl.classList.toggle('neg', wealth<0);
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n;
+  $('r-principles').innerHTML = SCENARIOS.map((s,i)=>
+    `<li><span class="p-mark ${mastered[i]?'yes':'no'}">${mastered[i]?'✓':'✗'}</span><span>${s.short}</span></li>`).join('');
+  show('results');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ amountEl.textContent = fmt(wealth); return; }
+  const dur = 1400, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    amountEl.textContent = fmt(Math.round(wealth*e));
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function restart(){ $('ledger').style.display = 'none'; show('intro'); }
+</script>
+</body>
+</html>

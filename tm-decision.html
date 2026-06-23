@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تحوّلك المالي يبدأ الآن — لعبة القرارات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#15202B; --lapis-deep:#0E1820; --lapis-panel:#1E2D3A;
+    --gold:#E8843B; --gold-bright:#FBA85A; --sand:#EEF3F5; --sand-dim:#9DB0BC;
+    --ember:#D9594B; --reed:#5DBE84;
+    --amethyst:#E8843B; --amethyst-deep:#C25E1F; --amethyst-bright:#FBA85A;
+    --shadow:0 12px 32px rgba(4,9,13,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:'Tajawal',sans-serif;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #24384A 0%, transparent 60%),
+      linear-gradient(180deg, var(--lapis-night) 0%, #0A131A 100%);
+    color:var(--sand); min-height:100vh; line-height:1.7;
+  }
+  body::after{
+    content:""; position:fixed; inset:auto 0 0 0; height:3px; z-index:5;
+    background:linear-gradient(90deg, transparent 0, var(--gold) 30%, var(--gold-bright) 50%, var(--gold) 70%, transparent 100%);
+    box-shadow:0 -4px 16px rgba(232,132,59,.35); opacity:.9;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+
+  .ledger{
+    position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:14px 18px 12px;
+    background:linear-gradient(180deg, rgba(21,32,43,.97) 70%, rgba(21,32,43,.85));
+    border-bottom:1px solid rgba(232,132,59,.45);backdrop-filter:blur(6px);
+  }
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .ledger-label{font-size:.78rem;color:var(--sand-dim);font-weight:500}
+  .ledger-amount{font-family:'Cairo',sans-serif;font-weight:800;font-size:1.4rem;color:var(--gold-bright);letter-spacing:.3px;white-space:nowrap}
+  .ledger-amount small{font-size:.82rem;color:var(--sand-dim);font-family:'Tajawal',sans-serif;font-weight:500;margin-right:4px}
+  .ledger-amount.neg{color:var(--ember)}
+  .dots{display:flex;gap:6px;margin-top:8px;justify-content:center}
+  .dot{width:26px;height:4px;border-radius:99px;background:rgba(238,243,245,.16);transition:background .4s}
+  .dot.on{background:var(--gold)}
+  .dot.now{background:var(--gold-bright);box-shadow:0 0 8px rgba(227,168,100,.8)}
+
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  .eyebrow{
+    display:inline-block;font-size:.78rem;font-weight:700;color:var(--gold);
+    border:1px solid rgba(232,132,59,.55);border-radius:99px;padding:4px 14px;
+    margin-bottom:14px;letter-spacing:.3px;background:rgba(232,132,59,.1);
+  }
+  h1{font-family:'Cairo',sans-serif;font-size:2.2rem;font-weight:900;line-height:1.3;color:var(--gold-bright);margin-bottom:6px}
+  h2.situation{font-family:'Tajawal',sans-serif;font-size:1.4rem;line-height:1.75;color:var(--sand);font-weight:700;margin-bottom:22px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+
+  .card{
+    background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));
+    border:1px solid rgba(232,132,59,.32);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow);
+  }
+
+  .choice{
+    display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;
+    background:rgba(14,24,32,.6);border:1px solid rgba(238,243,245,.16);
+    border-radius:14px;padding:15px 16px;margin-bottom:12px;color:var(--sand);
+    font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.65;cursor:pointer;
+    transition:border-color .2s, background .2s, transform .15s;
+  }
+  .choice:hover,.choice:focus-visible{border-color:var(--gold);background:rgba(232,132,59,.12);transform:translateY(-1px)}
+  .choice:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
+  .badge{
+    flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:rgba(232,132,59,.18);border:1px solid rgba(232,132,59,.55);color:var(--gold-bright);font-weight:800;font-size:.95rem;margin-top:2px;
+  }
+
+  .verdict{border-radius:14px;padding:18px;margin-bottom:16px;border:1px solid}
+  .verdict.best{background:rgba(93,190,132,.14);border-color:rgba(93,190,132,.6)}
+  .verdict.ok{background:rgba(232,132,59,.12);border-color:rgba(232,132,59,.55)}
+  .verdict.bad{background:rgba(217,89,75,.14);border-color:rgba(217,89,75,.6)}
+  .verdict-title{font-family:'Cairo',sans-serif;font-size:1.22rem;font-weight:800;margin-bottom:8px}
+  .verdict.best .verdict-title{color:#86D6A6}
+  .verdict.ok .verdict-title{color:var(--gold-bright)}
+  .verdict.bad .verdict-title{color:#EE9279}
+  .verdict p{font-size:.98rem}
+
+  .timeline{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+  .t-row{display:flex;gap:12px;align-items:flex-start;background:rgba(14,24,32,.55);border-radius:12px;padding:12px 14px;border:1px solid rgba(238,243,245,.12)}
+  .t-when{flex:0 0 auto;font-weight:800;color:var(--gold-bright);font-size:.85rem;border-left:1px solid rgba(232,132,59,.4);padding-left:12px;min-width:74px}
+  .t-what{font-size:.95rem;color:var(--sand)}
+
+  .delta{display:inline-flex;align-items:center;gap:8px;font-family:'Cairo',sans-serif;font-weight:800;font-size:1.3rem;border-radius:12px;padding:8px 16px;margin-bottom:18px}
+  .delta.up{background:rgba(93,190,132,.16);color:#86D6A6;border:1px solid rgba(93,190,132,.5)}
+  .delta.down{background:rgba(217,89,75,.16);color:#EE9279;border:1px solid rgba(217,89,75,.5)}
+  .delta.flat{background:rgba(238,243,245,.08);color:var(--sand-dim);border:1px solid rgba(238,243,245,.22)}
+
+  .btn{
+    display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;
+    color:#15202B;background:linear-gradient(180deg,var(--gold-bright),var(--amethyst-deep));border-radius:14px;padding:15px;
+    transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(194,94,31,.4);
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(194,94,31,.5)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(232,132,59,.55);box-shadow:none;margin-top:10px}
+
+  .final-amount{font-family:'Cairo',sans-serif;font-size:3rem;font-weight:900;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
+  .final-amount.neg{color:var(--ember)}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{text-align:center;font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800;color:var(--sand);margin-bottom:6px}
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:22px}
+  .principles{list-style:none;margin-bottom:22px}
+  .principles li{display:flex;gap:10px;align-items:center;padding:10px 14px;margin-bottom:8px;background:rgba(14,24,32,.55);border-radius:12px;border:1px solid rgba(238,243,245,.12);font-size:.95rem}
+  .p-mark{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+  .p-mark.yes{background:rgba(93,190,132,.2);color:#86D6A6;border:1px solid rgba(93,190,132,.6)}
+  .p-mark.no{background:rgba(217,89,75,.2);color:#EE9279;border:1px solid rgba(217,89,75,.6)}
+  .quote{font-family:'Cairo',sans-serif;font-size:1.16rem;font-weight:700;line-height:1.85;text-align:center;color:var(--gold-bright);border-top:1px solid rgba(232,132,59,.35);border-bottom:1px solid rgba(232,132,59,.35);padding:18px 6px;margin-bottom:22px}
+  .quote span{display:block;font-family:'Tajawal',sans-serif;font-size:.85rem;font-weight:500;color:var(--sand-dim);margin-top:8px}
+
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:radial-gradient(circle at 35% 30%, rgba(232,132,59,.3), rgba(93,190,132,.05));box-shadow:0 0 30px rgba(232,132,59,.3)}
+  .intro-list{margin:0 0 26px;padding:0;list-style:none}
+  .intro-list li{display:flex;gap:10px;margin-bottom:10px;color:var(--sand);font-size:.98rem}
+  .intro-list li::before{content:"◆";color:var(--gold);font-size:.7rem;margin-top:7px}
+
+  @media (max-width:420px){h1{font-size:1.85rem}h2.situation{font-size:1.25rem}.final-amount{font-size:2.4rem}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+  /* إصلاح: نص قائمة المقدّمة يتدفّق ككتلةٍ طبيعية مع إبقاء الكلمات الغليظة في مواضعها بدل تقطيع السطر */
+  .intro-list li{display:block;position:relative;padding-right:22px;gap:0}
+  .intro-list li::before{position:absolute;right:0;top:.5em;margin-top:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div>
+        <div class="ledger-label">رصيد اللياقة المالية</div>
+        <div class="ledger-amount" id="wealth">0 <small>نقطة</small></div>
+      </div>
+      <div style="font-size:1.6rem">💪</div>
+    </div>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <section class="screen active" id="intro">
+    <div class="intro-seal">💪</div>
+    <div style="text-align:center">
+      <div class="eyebrow">لعبة قرارات · كتاب «التحوّل الكامل لأموالك»</div>
+      <h1>تحوّلك المالي يبدأ الآن</h1>
+      <p class="sub">خطواتٌ بسيطةٌ صارمةٌ تخرجك من الديون إلى الحرّية — هل تلتزم بها؟</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>ستواجه <b>6 مواقف</b> ماليةً على خطوات رامزي السبع الشهيرة.</li>
+        <li>كل قرارٍ يرفع أو يخفض <b>رصيد لياقتك المالية</b>.</li>
+        <li>القاعدة: <b>عِش كما لا يعيش أحد اليوم، لتعيش غداً كما لا يستطيع أحد</b>.</li>
+        <li>اجمع أعلى رصيدٍ ممكن… حتى <b>تبلغ الحرّية المالية</b>.</li>
+      </ul>
+      <button class="btn" onclick="startGame()">ابدأ ▸</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="eyebrow" id="g-eyebrow"></div>
+    <h2 class="situation" id="g-situation"></h2>
+    <div id="g-choices"></div>
+  </section>
+
+  <section class="screen" id="feedback">
+    <div class="card">
+      <div class="verdict" id="f-verdict">
+        <div class="verdict-title" id="f-title"></div>
+        <p id="f-text"></p>
+      </div>
+      <div class="timeline">
+        <div class="t-row"><div class="t-when">بعد سنة</div><div class="t-what" id="f-y1"></div></div>
+        <div class="t-row"><div class="t-when">بعد 5 سنوات</div><div class="t-what" id="f-y5"></div></div>
+      </div>
+      <div style="text-align:center"><span class="delta" id="f-delta"></span></div>
+      <button class="btn" id="f-next" onclick="nextScenario()">متابعة ←</button>
+    </div>
+  </section>
+
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow">اكتملت الجلسة</div></div>
+    <div class="card">
+      <div class="final-label">رصيد اللياقة المالية</div>
+      <div class="final-amount" id="r-amount">0</div>
+      <div class="final-label">نقطة &nbsp;·&nbsp; من أصل 116</div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <ul class="principles" id="r-principles"></ul>
+      <div class="quote">«إن عشتَ اليوم كما لا يعيش أحد، فستعيش غداً كما لا يستطيع أحد»<span>— دايف رامزي، «التحوّل الكامل لأموالك»</span></div>
+      <button class="btn" onclick="restart()">أعد المحاولة 🔄</button>
+      <button class="btn ghost" onclick="restart()">اقرأ الملخص مرة أخرى 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const SCENARIOS = [
+  {
+    cure:"الخطوة الأولى · صندوق طوارئ مبدئي",
+    short:"ابدأ بصندوق طوارئ مبدئي قبل أيّ شيء",
+    situation:"قرّرتَ أخيراً ترتيب أموالك وعليك ديون. ما أوّل خطوةٍ تخطوها؟",
+    choices:[
+      {t:"أكوّن صندوق طوارئ مبدئياً صغيراً (نحو 10,000 درهم) قبل مهاجمة الديون", q:"best", d:20,
+       fb:"الخطوة الأولى عند رامزي: صندوق طوارئ مبدئي يحميك من ديونٍ جديدةٍ عند أوّل مفاجأة، فلا تنهار خطّتك.",
+       y1:"مفاجأةٌ صغيرةٌ لم تُعِدك إلى الاقتراض", y5:"أساسٌ ثابتٌ انطلقتَ منه بثقة"},
+      {t:"أتجاهل الطوارئ وأضع كل قرشٍ على الديون فوراً", q:"ok", d:5,
+       fb:"مهاجمة الديون نيّةٌ طيبة، لكن بلا صندوقٍ مبدئيٍّ ستعود للاقتراض عند أوّل طارئ.",
+       y1:"طارئٌ أعادك إلى البطاقة", y5:"تقدّمٌ يتعثّر مع كل مفاجأة"},
+      {t:"أؤجّل كل شيءٍ وأُكمل إنفاقي كالمعتاد", q:"bad", d:-8,
+       fb:"التأجيل وإبقاء الإنفاق كما هو يبقيك في الدوّامة؛ لا تتحرّك الثروة دون خطوةٍ أولى.",
+       y1:"لا تغيير… والديون تكبر", y5:"عامٌ ضاع دون تقدّم"}
+    ]
+  },
+  {
+    cure:"الخطوة الثانية · كرة الديون الثلجية",
+    short:"سدّد الديون من الأصغر للأكبر لبناء الزخم",
+    situation:"أمامك عدّة ديون. كيف تهاجمها؟",
+    choices:[
+      {t:"أرتّبها من الأصغر للأكبر وأسدّد الأصغر أولاً لأكسب زخماً وحماساً", q:"best", d:20,
+       fb:"«كرة الثلج»: تسديد الأصغر أولاً يمنحك انتصاراتٍ سريعةً تُشعل دافعيتك للاستمرار — السلوك أهمّ من الرياضيات.",
+       y1:"دَينٌ صغيرٌ اختفى فاشتعل حماسك", y5:"ديونٌ تساقطت تباعاً كأحجار الدومينو"},
+      {t:"أهاجم الأعلى فائدةً أولاً مهما كان حجمه", q:"ok", d:6,
+       fb:"الأعلى فائدةً منطقيٌّ رياضياً، لكنه يحرمك الانتصارات السريعة التي تبقيك متحمّساً؛ ورامزي يراهن على الزخم.",
+       y1:"تقدّمٌ بطيءٌ بلا حماس", y5:"خطّةٌ سليمةٌ لكنها أصعب التزاماً"},
+      {t:"أقترض قرضاً جديداً وأواصل الإنفاق كالعادة", q:"bad", d:-9,
+       fb:"قرضٌ جديدٌ مع إنفاقٍ مستمرٍّ يحفر الحفرة أعمق؛ لا يمكن أن تخرج من الدَّين بمزيدٍ منه.",
+       y1:"الحفرة تزداد عمقاً", y5:"دوّامةٌ من الديون لا تنتهي"}
+    ]
+  },
+  {
+    cure:"مبدأ · أغلق صنبور الديون",
+    short:"التوقّف عن صناعة ديونٍ جديدة",
+    situation:"بطاقتك الائتمانية تغريك بعرضٍ جديد، وأصدقاؤك يقترضون لشراء الأحدث. ماذا تفعل؟",
+    choices:[
+      {t:"أتوقّف نهائياً عن الديون الجديدة وأعتمد النقد فيما أملكه فعلاً", q:"best", d:19,
+       fb:"لا يمكن ملء دلوٍ مثقوب؛ التوقّف عن صناعة ديونٍ جديدة شرطٌ لأيّ تقدّم. والنقد يجعلك تشعر بما تنفقه حقاً.",
+       y1:"توقّف النزيف فبدأ الرصيد ينخفض", y5:"حياةٌ بلا أقساطٍ تطاردك"},
+      {t:"أقلّل استخدام البطاقة لكن أُبقيها «للطوارئ والمكافآت»", q:"ok", d:5,
+       fb:"إبقاء باب الدَّين موارباً يغري بالعودة؛ ونقاط المكافآت لا تساوي ثمن البقاء في الدوّامة.",
+       y1:"عثراتٌ متكرّرةٌ على البطاقة", y5:"تقدّمٌ يتسرّب من الباب الموارب"},
+      {t:"أقبل العرض وأقترض لأواكب مستوى من حولي", q:"bad", d:-8,
+       fb:"الاقتراض لمجاراة الآخرين يحوّل دخلك إلى أقساطٍ لغيرك، ويُبقيك أسيرَ المظهر.",
+       y1:"أقساطٌ جديدةٌ تلتهم دخلك", y5:"عبوديةٌ للدائنين باسم المظهر"}
+    ]
+  },
+  {
+    cure:"مبدأ · أعطِ كل درهمٍ وظيفة",
+    short:"ميزانيةٌ صفريةٌ تسبق الشهر",
+    situation:"يصلك راتبك أوّل الشهر. كيف تتعامل معه؟",
+    choices:[
+      {t:"أضع ميزانيةً صفريةً قبل الشهر: كل درهمٍ له وظيفةٌ محدّدةٌ مسبقاً", q:"best", d:19,
+       fb:"«أعطِ كل درهمٍ اسماً» قبل أن يبدأ الشهر؛ الميزانية الصفرية تجعلك أنت من يوجّه مالك بدل أن يتبخّر دون أثر.",
+       y1:"عرفتَ أين ذهب كل درهم", y5:"تحكّمٌ كاملٌ حوّل دخلك إلى ثروة"},
+      {t:"أتتبّع نفقاتي بنهاية الشهر لأرى أين ذهب المال", q:"ok", d:6,
+       fb:"التتبّع اللاحق أفضل من العمى، لكن التخطيط المسبق هو ما يمنع التسرّب قبل حدوثه.",
+       y1:"تسرّبٌ تكتشفه بعد فوات الأوان", y5:"تقدّمٌ يقيّده غياب الخطّة"},
+      {t:"أنفق على راحتي وأدّخر ما يتبقّى — إن تبقّى", q:"bad", d:-8,
+       fb:"«ادّخار المتبقّي» نادراً ما يحدث؛ فالإنفاق بلا خطّةٍ يبتلع كل شيءٍ قبل أن يصل الادّخار.",
+       y1:"لم يتبقَّ شيءٌ للادّخار", y5:"سنواتٌ بلا مدّخراتٍ تُذكر"}
+    ]
+  },
+  {
+    cure:"الخطوة الرابعة · استثمر 15%",
+    short:"استثمار 15% من الدخل بعد التخلّص من الديون",
+    situation:"تخلّصتَ من ديونك وكوّنتَ صندوق طوارئ كامل. ما التالي؟",
+    choices:[
+      {t:"أستثمر 15% من دخلي بانتظامٍ للتقاعد وأتركها تنمو", q:"best", d:19,
+       fb:"بعد التحرّر من الديون، يوصي رامزي باستثمار 15% بثباتٍ في أوعيةٍ طويلة الأجل؛ الانتظام والوقت يصنعان الثروة.",
+       y1:"بدأت بذرةُ التقاعد تنمو", y5:"تراكمٌ مركّبٌ يبني حرّيتك المستقبلية"},
+      {t:"أستثمر مبلغاً بسيطاً متردّداً وأنفق الباقي", q:"ok", d:6,
+       fb:"بعض الاستثمار أفضل من لا شيء، لكن أقلّ من 15% يبطئ بناء تقاعدك كثيراً.",
+       y1:"تراكمٌ بطيء", y5:"تقاعدٌ أصغر مما تستحق"},
+      {t:"أحتفل بنهاية الديون وأرفع نمط حياتي بالكامل", q:"bad", d:-8,
+       fb:"تضخيم نمط الحياة فور التحرّر من الديون يبدّد الفرصة؛ من تحرّر ثم بذّر يعود إلى حيث بدأ.",
+       y1:"عادت النفقات تبتلع دخلك", y5:"حرّيةٌ ضائعةٌ في ترفٍ زائل"}
+    ]
+  },
+  {
+    cure:"المبدأ الأعظم · عِش كما لا يعيش أحد",
+    short:"التضحية اليوم لتعيش غداً كما لا يستطيع أحد",
+    situation:"تشعر بإغراء الاستمتاع بدخلك الآن مثل الجميع، بينما خطّتك تتطلّب تضحيةً مؤقتة. ماذا تختار؟",
+    choices:[
+      {t:"أضحّي اليوم وأعيش بتقشّفٍ مؤقّتٍ حتى أبني حرّيتي المالية", q:"best", d:20,
+       fb:"شعار رامزي: «إن عشتَ اليوم كما لا يعيش أحد، فستعيش غداً كما لا يستطيع أحد». التضحية المؤقّتة ثمنُ حرّيةٍ دائمة.",
+       y1:"انضباطٌ مؤقّتٌ بدأ يثمر", y5:"حرّيةٌ ماليةٌ يعيشها قلّةٌ فقط"},
+      {t:"أوازن: أضحّي قليلاً وأستمتع كثيراً الآن", q:"ok", d:6,
+       fb:"التوازن مريح، لكنّ التقدّم الجادّ يتطلّب تضحيةً أعمق لفترةٍ محدودة؛ نصف الالتزام يؤخّر الحرّية.",
+       y1:"تقدّمٌ بطيءٌ ومريح", y5:"حرّيةٌ تتأخّر سنواتٍ إضافية"},
+      {t:"أعيش كالجميع الآن وأؤجّل التضحية للمستقبل", q:"bad", d:-8,
+       fb:"العيش كالجميع اليوم يعني أن تعيش كالجميع غداً: مطاردةً للأقساط بلا حرّية.",
+       y1:"متعةٌ آنيةٌ ودَينٌ مستمر", y5:"مستقبلٌ كحاضر الجميع: بلا حرّية"}
+    ]
+  }
+]
+
+const VERDICTS = {
+  best:{title:"💪 خطوةٌ تبني حرّيتك المالية", cls:"best"},
+  ok:{title:"⚖️ مقبول… لكن دون المثالي", cls:"ok"},
+  bad:{title:"💳 خطوةٌ تبقيك في الدوّامة", cls:"bad"}
+};
+
+let idx = 0, wealth = 0, mastered = [];
+const $ = id => document.getElementById(id);
+
+function fmt(n){
+  const s = Math.abs(n).toLocaleString('en-US').replace(/,/g,'٬');
+  return (n<0?'−':'')+s;
+}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function renderDots(){
+  $('dots').innerHTML = SCENARIOS.map((_,i)=>`<div class="dot ${i<idx?'on':''} ${i===idx?'now':''}"></div>`).join('');
+}
+function renderWealth(animateFrom){
+  const el = $('wealth');
+  el.classList.toggle('neg', wealth<0);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(animateFrom===undefined || reduce){ el.innerHTML = fmt(wealth)+' <small>نقطة</small>'; return; }
+  const start = animateFrom, diff = wealth-start, dur = 900, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    el.innerHTML = fmt(Math.round(start+diff*e))+' <small>نقطة</small>';
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function startGame(){
+  idx = 0; wealth = 0; mastered = [];
+  $('ledger').style.display = 'block';
+  renderWealth(); renderDots(); renderScenario(); show('game');
+}
+function renderScenario(){
+  const s = SCENARIOS[idx];
+  $('g-eyebrow').textContent = `الموقف ${idx+1} من ${SCENARIOS.length} · ${s.cure}`;
+  $('g-situation').textContent = s.situation;
+  const letters = ['أ','ب','ج'];
+  $('g-choices').innerHTML = s.choices.map((c,i)=>
+    `<button class="choice" onclick="choose(${i})"><span class="badge">${letters[i]}</span><span>${c.t}</span></button>`).join('');
+  renderDots();
+}
+function choose(ci){
+  const s = SCENARIOS[idx], c = s.choices[ci];
+  const before = wealth;
+  wealth += c.d;
+  mastered.push(c.q === 'best');
+  const v = VERDICTS[c.q];
+  $('f-verdict').className = 'verdict '+v.cls;
+  $('f-title').textContent = v.title;
+  $('f-text').textContent = c.fb;
+  $('f-y1').textContent = c.y1;
+  $('f-y5').textContent = c.y5;
+  const dEl = $('f-delta');
+  dEl.className = 'delta '+(c.d>0?'up':c.d<0?'down':'flat');
+  dEl.textContent = (c.d>0?'📈 +':c.d<0?'📉 −':'⏳ ')+(c.d===0?'لا تغيير':Math.abs(c.d)+' نقطة');
+  $('f-next').textContent = (idx === SCENARIOS.length-1) ? 'اكشف نتيجتك النهائية 💪' : 'الموقف التالي ←';
+  show('feedback');
+  renderWealth(before);
+}
+function nextScenario(){
+  idx++;
+  if(idx < SCENARIOS.length){ renderScenario(); show('game'); }
+  else showResults();
+}
+function rankOf(w){
+  if(w>=95) return {r:"💪 محاربٌ ماليٌّ منضبط", n:"تتقن خطوات رامزي: صندوق الطوارئ، وكرة الثلج، والميزانية، والاستثمار. عِش كما لا يعيش أحد — وستعيش غداً كما لا يستطيع أحد."};
+  if(w>=60) return {r:"🪜 تتسلّق الخطوات بثبات", n:"معظم قراراتك تبني الحرّية. راجع ما تعثّرتَ فيه أدناه ورسّخه."};
+  if(w>=25) return {r:"🌱 بدأتَ رحلة التحوّل", n:"وضعتَ أولى خطوات الخروج من الديون. أعد قراءة الخطوات ثم عُد."};
+  return {r:"💳 ما زلتَ في الدوّامة", n:"لا بأس — الوعي أوّل خطوة. ابدأ بالخطوة الأولى: صندوق طوارئ مبدئي، ثم أغلق صنبور الديون."};
+}
+function showResults(){
+  $('ledger').style.display = 'none';
+  const rk = rankOf(wealth);
+  const amountEl = $('r-amount');
+  amountEl.classList.toggle('neg', wealth<0);
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n;
+  $('r-principles').innerHTML = SCENARIOS.map((s,i)=>
+    `<li><span class="p-mark ${mastered[i]?'yes':'no'}">${mastered[i]?'✓':'✗'}</span><span>${s.short}</span></li>`).join('');
+  show('results');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ amountEl.textContent = fmt(wealth); return; }
+  const dur = 1400, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    amountEl.textContent = fmt(Math.round(wealth*e));
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function restart(){ $('ledger').style.display = 'none'; show('intro'); }
+</script>
+</body>
+</html>

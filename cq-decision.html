@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>انتقل بين الرباعية النقدية — لعبة القرارات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#161A2E; --lapis-deep:#0D0F1C; --lapis-panel:#262C4C;
+    --gold:#D9A23B; --gold-bright:#F0C36B; --sand:#ECEBF5; --sand-dim:#AAA9C2;
+    --ember:#D2674E; --reed:#5FB389; --indigo:#5B62C7; --indigo-deep:#43499C; --indigo-bright:#8B90E0;
+    --shadow:0 12px 32px rgba(4,5,14,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:'Tajawal',sans-serif;background:radial-gradient(1200px 600px at 50% -10%, #2E3470 0%, transparent 60%),linear-gradient(180deg, var(--lapis-night) 0%, #08091A 100%);color:var(--sand);min-height:100vh;line-height:1.7}
+  body::after{content:"";position:fixed;inset:auto 0 0 0;height:3px;z-index:5;background:linear-gradient(90deg, transparent 0, var(--indigo) 30%, var(--gold-bright) 50%, var(--indigo) 70%, transparent 100%);box-shadow:0 -4px 16px rgba(91,98,199,.35);opacity:.9}
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+  .ledger{position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:14px 18px 12px;background:linear-gradient(180deg, rgba(22,26,46,.97) 70%, rgba(22,26,46,.85));border-bottom:1px solid rgba(91,98,199,.45);backdrop-filter:blur(6px)}
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .ledger-label{font-size:.78rem;color:var(--sand-dim);font-weight:500}
+  .ledger-amount{font-family:'Cairo',sans-serif;font-weight:800;font-size:1.4rem;color:var(--gold-bright);letter-spacing:.3px;white-space:nowrap}
+  .ledger-amount small{font-size:.82rem;color:var(--sand-dim);font-family:'Tajawal',sans-serif;font-weight:500;margin-right:4px}
+  .ledger-amount.neg{color:var(--ember)}
+  .dots{display:flex;gap:6px;margin-top:8px;justify-content:center}
+  .dot{width:26px;height:4px;border-radius:99px;background:rgba(236,235,245,.16);transition:background .4s}
+  .dot.on{background:var(--indigo)}
+  .dot.now{background:var(--indigo-bright);box-shadow:0 0 8px rgba(139,144,224,.8)}
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;color:var(--indigo-bright);border:1px solid rgba(91,98,199,.55);border-radius:99px;padding:4px 14px;margin-bottom:14px;letter-spacing:.3px;background:rgba(91,98,199,.1)}
+  h1{font-family:'Cairo',sans-serif;font-size:2.2rem;font-weight:900;line-height:1.3;color:var(--gold-bright);margin-bottom:6px}
+  h2.situation{font-family:'Tajawal',sans-serif;font-size:1.4rem;line-height:1.75;color:var(--sand);font-weight:700;margin-bottom:22px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+  .card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(91,98,199,.32);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow)}
+  .choice{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;background:rgba(13,15,28,.6);border:1px solid rgba(236,235,245,.16);border-radius:14px;padding:15px 16px;margin-bottom:12px;color:var(--sand);font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.65;cursor:pointer;transition:border-color .2s, background .2s, transform .15s}
+  .choice:hover,.choice:focus-visible{border-color:var(--indigo);background:rgba(91,98,199,.12);transform:translateY(-1px)}
+  .choice:focus-visible{outline:2px solid var(--indigo-bright);outline-offset:2px}
+  .badge{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(91,98,199,.18);border:1px solid rgba(91,98,199,.55);color:var(--indigo-bright);font-weight:800;font-size:.95rem;margin-top:2px}
+  .verdict{border-radius:14px;padding:18px;margin-bottom:16px;border:1px solid}
+  .verdict.best{background:rgba(95,179,137,.14);border-color:rgba(95,179,137,.6)}
+  .verdict.ok{background:rgba(217,162,59,.12);border-color:rgba(217,162,59,.55)}
+  .verdict.bad{background:rgba(210,103,78,.14);border-color:rgba(210,103,78,.6)}
+  .verdict-title{font-family:'Cairo',sans-serif;font-size:1.22rem;font-weight:800;margin-bottom:8px}
+  .verdict.best .verdict-title{color:#8FE0B6}
+  .verdict.ok .verdict-title{color:var(--gold-bright)}
+  .verdict.bad .verdict-title{color:#F0987C}
+  .verdict p{font-size:.98rem}
+  .timeline{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+  .t-row{display:flex;gap:12px;align-items:flex-start;background:rgba(13,15,28,.55);border-radius:12px;padding:12px 14px;border:1px solid rgba(236,235,245,.12)}
+  .t-when{flex:0 0 auto;font-weight:800;color:var(--indigo-bright);font-size:.85rem;border-left:1px solid rgba(91,98,199,.4);padding-left:12px;min-width:74px}
+  .t-what{font-size:.95rem;color:var(--sand)}
+  .delta{display:inline-flex;align-items:center;gap:8px;font-family:'Cairo',sans-serif;font-weight:800;font-size:1.3rem;border-radius:12px;padding:8px 16px;margin-bottom:18px}
+  .delta.up{background:rgba(95,179,137,.16);color:#8FE0B6;border:1px solid rgba(95,179,137,.5)}
+  .delta.down{background:rgba(210,103,78,.16);color:#F0987C;border:1px solid rgba(210,103,78,.5)}
+  .delta.flat{background:rgba(236,235,245,.08);color:var(--sand-dim);border:1px solid rgba(236,235,245,.22)}
+  .btn{display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;color:#161A2E;background:linear-gradient(180deg,var(--indigo-bright),var(--indigo-deep));border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(67,73,156,.4)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(67,73,156,.5)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(217,162,59,.55);box-shadow:none;margin-top:10px}
+  .final-amount{font-family:'Cairo',sans-serif;font-size:3rem;font-weight:900;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
+  .final-amount.neg{color:var(--ember)}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{text-align:center;font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800;color:var(--sand);margin-bottom:6px}
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:22px}
+  .principles{list-style:none;margin-bottom:22px}
+  .principles li{display:flex;gap:10px;align-items:center;padding:10px 14px;margin-bottom:8px;background:rgba(13,15,28,.55);border-radius:12px;border:1px solid rgba(236,235,245,.12);font-size:.95rem}
+  .p-mark{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+  .p-mark.yes{background:rgba(95,179,137,.2);color:#8FE0B6;border:1px solid rgba(95,179,137,.6)}
+  .p-mark.no{background:rgba(210,103,78,.2);color:#F0987C;border:1px solid rgba(210,103,78,.6)}
+  .quote{font-family:'Cairo',sans-serif;font-size:1.16rem;font-weight:700;line-height:1.85;text-align:center;color:var(--gold-bright);border-top:1px solid rgba(217,162,59,.35);border-bottom:1px solid rgba(217,162,59,.35);padding:18px 6px;margin-bottom:22px}
+  .quote span{display:block;font-family:'Tajawal',sans-serif;font-size:.85rem;font-weight:500;color:var(--sand-dim);margin-top:8px}
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--indigo);display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:radial-gradient(circle at 35% 30%, rgba(91,98,199,.3), rgba(217,162,59,.05));box-shadow:0 0 30px rgba(91,98,199,.3)}
+  .intro-list{margin:0 0 26px;padding:0;list-style:none}
+  .intro-list li{display:block;position:relative;padding-right:22px;color:var(--sand);font-size:.98rem;margin-bottom:10px}
+  .intro-list li::before{content:"◆";color:var(--indigo);font-size:.7rem;position:absolute;right:0;top:.5em}
+  @media (max-width:420px){h1{font-size:1.85rem}h2.situation{font-size:1.25rem}.final-amount{font-size:2.4rem}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div>
+        <div class="ledger-label">رصيد الانتقال نحو الربع I</div>
+        <div class="ledger-amount" id="wealth">0 <small>نقطة</small></div>
+      </div>
+      <div style="font-size:1.6rem">🧭</div>
+    </div>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <section class="screen active" id="intro">
+    <div class="intro-seal">🧭</div>
+    <div style="text-align:center">
+      <div class="eyebrow">لعبة قرارات · كتاب «الرباعية النقدية»</div>
+      <h1>انتقل بين الرباعية النقدية</h1>
+      <p class="sub">موظّفٌ، مستقلّ، صاحب نظامٍ، أم مستثمر؟ كل ربعٍ له طريقٌ مختلفٌ نحو الثروة.</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>ستواجه <b>6 مواقف</b> على مبادئ روبرت كيوساكي في «الرباعية النقدية».</li>
+        <li>كل قرارٍ يرفع أو يخفض <b>رصيد الانتقال نحو الربع I</b> لديك.</li>
+        <li>المبدأ: <b>E (موظّف)، S (مستقلّ)، B (صاحب نظام)، I (مستثمر)</b> — الانتقال من اليسار إلى اليمين يحرّر وقتك.</li>
+        <li>اجمع أعلى رصيدٍ ممكن… حتى تنتقل من بيع الوقت إلى بناء الأنظمة.</li>
+      </ul>
+      <button class="btn" onclick="startGame()">ابدأ الانتقال ▸</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="eyebrow" id="g-eyebrow"></div>
+    <h2 class="situation" id="g-situation"></h2>
+    <div id="g-choices"></div>
+  </section>
+
+  <section class="screen" id="feedback">
+    <div class="card">
+      <div class="verdict" id="f-verdict">
+        <div class="verdict-title" id="f-title"></div>
+        <p id="f-text"></p>
+      </div>
+      <div class="timeline">
+        <div class="t-row"><div class="t-when">بعد سنة</div><div class="t-what" id="f-y1"></div></div>
+        <div class="t-row"><div class="t-when">بعد 5 سنوات</div><div class="t-what" id="f-y5"></div></div>
+      </div>
+      <div style="text-align:center"><span class="delta" id="f-delta"></span></div>
+      <button class="btn" id="f-next" onclick="nextScenario()">متابعة ←</button>
+    </div>
+  </section>
+
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow">اكتملت الجلسة</div></div>
+    <div class="card">
+      <div class="final-label">رصيد الانتقال نحو الربع I</div>
+      <div class="final-amount" id="r-amount">0</div>
+      <div class="final-label">نقطة &nbsp;·&nbsp; من أصل 116</div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <ul class="principles" id="r-principles"></ul>
+      <div class="quote">«ليس مهمّاً كم تكسب من المال، بل من أي ربعٍ يأتي»<span>— روبرت كيوساكي</span></div>
+      <button class="btn" onclick="restart()">أعد المحاولة 🔄</button>
+      <button class="btn ghost" onclick="restart()">اقرأ الملخص مرة أخرى 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const SCENARIOS = [
+  {
+    cure:"المبدأ · الفرق بين بيع الوقت وبناء النظام",
+    short:"الربعان E وS يبيعان الوقت، والربعان B وI يبنيان أنظمةً ودخلاً",
+    situation:"تحصل على ترقيةٍ في وظيفتك (ربع E) برفع راتبٍ كبير، لكنها تتطلّب ساعاتٍ أطول. ما ردّ فعلك على المدى البعيد؟",
+    choices:[
+      {t:"أقبل الترقية مؤقّتاً، لكنني أستخدم الدخل الإضافي لبناء نظامٍ أو استثمارٍ في الربعين B أو I بالتوازي", q:"best", d:20,
+       fb:"كيوساكي يوضح أن دخل الربع E محدودٌ بساعات العمل دائماً؛ الذكاء المالي هو استخدام هذا الدخل لبناء أصولٍ في الربعين B أو I.",
+       y1:"دخلٌ أعلى يُستثمَر في نظامٍ موازٍ", y5:"أصلٌ في الربع B أو I بدأ يتشكّل"},
+      {t:"أقبل الترقية وأزيد إنفاقي بما يوازي الراتب الجديد دون أي خطّةٍ للانتقال لربعٍ آخر", q:"ok", d:5,
+       fb:"البقاء في الربع E مع زيادة الإنفاق يُبقيك في سباقٍ مستمرٍّ مع الوقت دون أي تقدّمٍ نحو الحرّية المالية.",
+       y1:"نمط حياةٍ أرفع لكن سباقٌ لم يتغيّر", y5:"اعتمادٌ مستمرٌّ على بيع الوقت بساعاتٍ أطول"},
+      {t:"أرفض الترقية كلياً خوفاً من الساعات الإضافية دون أي خطّةٍ بديلة للنموّ المالي", q:"bad", d:-8,
+       fb:"الرفض بلا أي خطّةٍ بديلة يُبقيك في نقطتك الحالية دون أي تقدّمٍ في أي اتجاه.",
+       y1:"لا تقدّم في الدخل أو الأصول", y5:"وضعٌ ماليٌّ ثابتٌ دون نموّ"}
+    ]
+  },
+  {
+    cure:"المبدأ · الفرق بين الربع S والربع B",
+    short:"العمل المستقلّ (S) لا يزال يبيع الوقت؛ النظام (B) يعمل دون حضورك",
+    situation:"أنت مستقلٌّ (فريلانسر) ناجحٌ في مجالك، لكن دخلك يتوقّف فوراً إن توقّفتَ عن العمل بنفسك.",
+    choices:[
+      {t:"أبدأ ببناء نظامٍ (فريقٍ، عملياتٍ، منتجٍ قابلٍ للتكرار) يحوّل عملي المستقلّ لمشروعٍ يعمل جزئياً دوني", q:"best", d:19,
+       fb:"كيوساكي يميّز بوضوح بين الربع S (حيث «أنت النظام») والربع B (حيث «تملك النظام»)؛ الانتقال يحتاج بناء ما يعمل دون حضورك المباشر.",
+       y1:"بداية نظامٍ يستقلّ تدريجياً عن وجودك", y5:"دخلٌ يستمر جزئياً حتى دون عملك المباشر"},
+      {t:"أستمر كمستقلٍّ ناجح وأزيد أسعاري لتعويض الوقت دون أي محاولة بناء نظام", q:"ok", d:5,
+       fb:"زيادة الأسعار تحسّن الدخل مؤقّتاً، لكنها تبقيك معتمداً كلياً على وقتك وصحّتك الشخصية إلى الأبد.",
+       y1:"دخلٌ أفضل لكن اعتمادٌ كاملٌ مستمر", y5:"سقفٌ زمنيٌّ لم يتغيّر رغم تحسّن السعر"},
+      {t:"أرفض أي تفكيرٍ في بناء نظامٍ لأن «العمل المستقلّ يمنحني حرّيةً كافية»", q:"bad", d:-7,
+       fb:"الحرّية الظاهرية في العمل المستقلّ مشروطةٌ باستمرار العمل المباشر؛ توقّفك يعني توقّف الدخل فوراً.",
+       y1:"اعتمادٌ كاملٌ مستمرٌّ على الوقت الشخصي", y5:"لا تقدّم نحو دخلٍ مستقلٍّ عن الحضور المباشر"}
+    ]
+  },
+  {
+    cure:"المبدأ · الذكاء المالي يحدّد الربع لا حجم الدخل",
+    short:"دخلٌ كبيرٌ في الربع E لا يعني تلقائياً ذكاءً مالياً متقدّماً",
+    situation:"زميلٌ لك يحصل على راتبٍ مرتفعٍ جداً في وظيفته (ربع E) ويرى أنه «نجح مالياً بالفعل».",
+    choices:[
+      {t:"أوضّح أن الراتب المرتفع وحده لا يعني الذكاء المالي؛ السؤال الحقيقي هو ماذا يفعل بهذا الدخل من أصولٍ أو أنظمة", q:"best", d:18,
+       fb:"كيوساكي يؤكّد أن الذكاء المالي ليس حجم الدخل، بل ما تحوّله إليه: أصولٌ تنتج دخلاً، أو استهلاكٌ يتبخّر فوراً.",
+       y1:"وعيٌ أوضح بمعايير النجاح المالي الحقيقي", y5:"تطبيقٌ شخصيٌّ لهذا المبدأ على قراراتك"},
+      {t:"أوافقه الرأي وأرى أن الراتب المرتفع وحده كافٍ للنجاح المالي دون أي اعتبارٍ آخر", q:"ok", d:5,
+       fb:"هذا الافتراض يتجاهل أن الدخل المرتفع في الربع E يبقى محدوداً بساعات العمل ومعرّضاً لانقطاعه فجأة.",
+       y1:"رضا مؤقّتٌ عن الوضع الحالي", y5:"عدم تطوّرٍ نحو أربعةٍ أكثر استقلالية"},
+      {t:"أحسد زميلي وأركّز فقط على السعي لراتبٍ أعلى في وظيفتي الحالية كهدفٍ نهائي", q:"bad", d:-7,
+       fb:"التركيز الحصري على رفع الراتب في الربع E دون أي تفكيرٍ في الأرباع الأخرى يُبقيك في السباق ذاته إلى الأبد.",
+       y1:"سعيٌ مستمرٌّ لراتبٍ أعلى فقط", y5:"لا تقدّم نحو أصولٍ أو أنظمةٍ مستقلّة"}
+    ]
+  },
+  {
+    cure:"المبدأ · الاستثمار التدريجي نحو الربع I",
+    short:"الربع I يتطلّب تعلّماً وبدايةً صغيرة قبل الإتقان",
+    situation:"تملك مدّخراتٍ صغيرة وتفكّر في الاستثمار لأول مرّة، لكنك تشعر أن «الاستثمار للأغنياء فقط».",
+    choices:[
+      {t:"أبدأ بالتعلّم والاستثمار بمبلغٍ صغير الآن، فالربع I يُبنى بالخبرة التدريجية لا بالانتظار حتى يصبح المبلغ كبيراً", q:"best", d:19,
+       fb:"كيوساكي يشجّع البدء الفعلي مهما كان المبلغ صغيراً؛ الخبرة والمعرفة المتراكمة في الربع I أهمّ من حجم رأس المال الأولي.",
+       y1:"خبرةٌ استثمارية حقيقية بدأت تتكوّن", y5:"معرفةٌ ورأس مالٍ متناميان معاً"},
+      {t:"أنتظر حتى يكبر مدّخراتي بشكلٍ كبير قبل أن أبدأ أي استثمار", q:"ok", d:5,
+       fb:"الانتظار يؤجّل بناء الخبرة والفائدة المركّبة لسنواتٍ كان يمكن استثمارها بمبالغ صغيرة.",
+       y1:"لا خبرة استثمارية متراكمة بعد", y5:"بدايةٌ متأخّرة مقارنةً بالبدء الفوري"},
+      {t:"أرى أن الربع I «ليس لي» وأتجاهل أي فكرة استثمارٍ نهائياً", q:"bad", d:-8,
+       fb:"هذا الاعتقاد يحبس الشخص في الربعين E أو S إلى الأبد دون أي محاولة بناء دخلٍ من أصولٍ مستثمَرة.",
+       y1:"لا تقدّم نحو الربع I إطلاقاً", y5:"اعتمادٌ كاملٌ مستمرٌّ على دخل العمل المباشر"}
+    ]
+  },
+  {
+    cure:"المبدأ · بناء نظامٍ قابلٍ للتكرار في الربع B",
+    short:"الفرق الجوهري بين امتلاك وظيفةٍ وامتلاك نظامٍ تجاري",
+    situation:"مشروعك الصغير ينمو، وتدرك أن نجاحك الحالي يعتمد بالكامل على وجودك وقراراتك اليومية المباشرة.",
+    choices:[
+      {t:"أبدأ بتوثيق العمليات وتفويض المهام تدريجياً لأبني نظاماً يعمل بكفاءةٍ حتى مع تقليل تورّطي المباشر", q:"best", d:20,
+       fb:"الربع B الحقيقي عند كيوساكي يعني امتلاك نظامٍ يعمل بمعزلٍ عن المالك، لا وظيفةً يديرها المالك بنفسه كل يومٍ.",
+       y1:"نظامٌ بدأ يستقلّ عن التورّط اليومي المباشر", y5:"مشروعٌ ينتج دخلاً مع تورّطٍ مباشرٍ أقلّ"},
+      {t:"أستمر في إدارة كل التفاصيل بنفسي معتقداً أن «هذا ما يضمن الجودة»", q:"ok", d:5,
+       fb:"الاحتفاظ بكل التفاصيل تحت إدارتك المباشرة يحوّل المشروع لوظيفةٍ معقّدة بدل نظامٍ مستقلٍّ حقيقي.",
+       y1:"جودةٌ مستقرّة لكن اعتمادٌ كاملٌ على المالك", y5:"سقفٌ في النموّ بسبب اعتماد كل شيءٍ على فردٍ واحد"},
+      {t:"أوظّف المزيد من الناس بسرعة دون أي نظامٍ واضح يوجّه عملهم", q:"bad", d:-8,
+       fb:"التوسّع في التوظيف دون نظامٍ واضح يضخّم الفوضى بدل أن يحرّر المالك من العبء اليومي.",
+       y1:"فوضى تنظيميةٌ متزايدة مع نموّ الفريق", y5:"مشكلاتٌ أكبر دون أي تحرّرٍ فعلي للمالك"}
+    ]
+  },
+  {
+    cure:"المبدأ · الهدف النهائي: التنقّل الحرّ بين الأرباع",
+    short:"الذكاء المالي الحقيقي يمنحك حرّية اختيار الربع الذي تعمل منه",
+    situation:"بعد سنواتٍ من التعلّم والاستثمار، تجد نفسك قادراً على العمل من أي ربعٍ تختاره، لا مضطرّاً لأحدها.",
+    choices:[
+      {t:"أستخدم هذه الحرّية لاختيار الربع أو الأرباع التي تناسب قيمي وأهدافي الحالية، لا لاضطرارٍ مالي", q:"best", d:18,
+       fb:"الهدف النهائي عند كيوساكي ليس بالضرورة الانتقال الكامل لربعٍ واحد، بل بناء حرّية الاختيار بين الأرباع دون اضطرارٍ مالي.",
+       y1:"حرّيةٌ حقيقية في اختيار طريقة العمل", y5:"حياةٌ مصمَّمةٌ حسب القيم لا الضرورة المالية فقط"},
+      {t:"أستمر في نفس النمط القديم رغم توفّر الحرّية الجديدة دون أي تغييرٍ فعلي", q:"ok", d:5,
+       fb:"عدم استخدام الحرّية المكتسَبة يفوّت الفائدة الحقيقية من كل سنوات التعلّم والبناء السابقة.",
+       y1:"وضعٌ لم يتغيّر رغم الحرّية الجديدة المتاحة", y5:"فرصةٌ مفوَّتة للاستفادة من الجهد المبذول"},
+      {t:"أتخلّى عن كل الانضباط المالي السابق فجأة معتقداً أنني «انتهيت من الحاجة لأي جهدٍ إضافي»", q:"bad", d:-7,
+       fb:"التخلّي المتسرّع عن الانضباط قد يهدّد الاستقرار المُحقَّق بصعوبةٍ عبر سنوات من البناء.",
+       y1:"خطر تراجعٍ في الأصول المُحقَّقة", y5:"حاجةٌ محتملة للعودة لجهدٍ أكبر لاحقاً"}
+    ]
+  }
+];
+
+const VERDICTS = {
+  best:{title:"🧭 انتقالٌ ذكي — هكذا يفكّر كيوساكي", cls:"best"},
+  ok:{title:"⚖️ مقبول… لكنك لا تزال في نفس الربع", cls:"ok"},
+  bad:{title:"🌀 قرارٌ يُبقيك حبيس الربع القديم", cls:"bad"}
+};
+
+let idx = 0, wealth = 0, mastered = [];
+const $ = id => document.getElementById(id);
+
+function fmt(n){
+  const s = Math.abs(n).toLocaleString('en-US').replace(/,/g,'٬');
+  return (n<0?'−':'')+s;
+}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function renderDots(){
+  $('dots').innerHTML = SCENARIOS.map((_,i)=>`<div class="dot ${i<idx?'on':''} ${i===idx?'now':''}"></div>`).join('');
+}
+function renderWealth(animateFrom){
+  const el = $('wealth');
+  el.classList.toggle('neg', wealth<0);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(animateFrom===undefined || reduce){ el.innerHTML = fmt(wealth)+' <small>نقطة</small>'; return; }
+  const start = animateFrom, diff = wealth-start, dur = 900, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    el.innerHTML = fmt(Math.round(start+diff*e))+' <small>نقطة</small>';
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function startGame(){
+  idx = 0; wealth = 0; mastered = [];
+  $('ledger').style.display = 'block';
+  renderWealth(); renderDots(); renderScenario(); show('game');
+}
+function renderScenario(){
+  const s = SCENARIOS[idx];
+  $('g-eyebrow').textContent = `الموقف ${idx+1} من ${SCENARIOS.length} · ${s.cure}`;
+  $('g-situation').textContent = s.situation;
+  const letters = ['أ','ب','ج'];
+  $('g-choices').innerHTML = s.choices.map((c,i)=>
+    `<button class="choice" onclick="choose(${i})"><span class="badge">${letters[i]}</span><span>${c.t}</span></button>`).join('');
+  renderDots();
+}
+function choose(ci){
+  const s = SCENARIOS[idx], c = s.choices[ci];
+  const before = wealth;
+  wealth += c.d;
+  mastered.push(c.q === 'best');
+  const v = VERDICTS[c.q];
+  $('f-verdict').className = 'verdict '+v.cls;
+  $('f-title').textContent = v.title;
+  $('f-text').textContent = c.fb;
+  $('f-y1').textContent = c.y1;
+  $('f-y5').textContent = c.y5;
+  const dEl = $('f-delta');
+  dEl.className = 'delta '+(c.d>0?'up':c.d<0?'down':'flat');
+  dEl.textContent = (c.d>0?'📈 +':c.d<0?'📉 −':'⏳ ')+(c.d===0?'لا تغيير':Math.abs(c.d)+' نقطة');
+  $('f-next').textContent = (idx === SCENARIOS.length-1) ? 'اكشف نتيجتك النهائية 🧭' : 'الموقف التالي ←';
+  show('feedback');
+  renderWealth(before);
+}
+function nextScenario(){
+  idx++;
+  if(idx < SCENARIOS.length){ renderScenario(); show('game'); }
+  else showResults();
+}
+function rankOf(w){
+  if(w>=95) return {r:"🧭 تتنقّل بين الأرباع بحرّيةٍ تامة", n:"تطبّق مبادئ كيوساكي بإتقان: الفرق بين E وS وB وI، والذكاء المالي، وبناء الأنظمة. طبّقها على حياتك الحقيقية الآن."};
+  if(w>=60) return {r:"🌉 انتقالك بين الأرباع في طور التقدّم", n:"تمتلك معظم المبادئ. راجع ما أخطأت فيه أدناه ورسّخه."};
+  if(w>=25) return {r:"⏳ بدأتَ تفهم الفرق بين الأرباع", n:"وضعتَ أولى لبنات الانتقال. أعد قراءة الفصول ثم عُد."};
+  return {r:"🌀 لا تزال حبيس بيع الوقت", n:"لا بأس — الوعي أول خطوة. ابدأ بسؤالٍ واحد: «من أي ربعٍ يأتي دخلي الحالي؟»"};
+}
+function showResults(){
+  $('ledger').style.display = 'none';
+  const rk = rankOf(wealth);
+  const amountEl = $('r-amount');
+  amountEl.classList.toggle('neg', wealth<0);
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n;
+  $('r-principles').innerHTML = SCENARIOS.map((s,i)=>
+    `<li><span class="p-mark ${mastered[i]?'yes':'no'}">${mastered[i]?'✓':'✗'}</span><span>${s.short}</span></li>`).join('');
+  show('results');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ amountEl.textContent = fmt(wealth); return; }
+  const dur = 1400, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    amountEl.textContent = fmt(Math.round(wealth*e));
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function restart(){ $('ledger').style.display = 'none'; show('intro'); }
+</script>
+</body>
+</html>

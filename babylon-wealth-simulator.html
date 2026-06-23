@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>محاكي ثروة بابل — سنة مع قاعدة العُشر</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#0E1E38; --lapis-deep:#16294A; --lapis-panel:#1B3158;
+    --gold:#D9A93F; --gold-bright:#F0C75E; --sand:#F2E3BC; --sand-dim:#C9BC9C;
+    --ember:#C96F4A; --reed:#7FA86B; --shadow:0 12px 32px rgba(4,10,22,.55);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:'Tajawal',sans-serif;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #1E3A66 0%, transparent 60%),
+      linear-gradient(180deg, var(--lapis-night) 0%, #0A1628 100%);
+    color:var(--sand); min-height:100vh; line-height:1.7;
+  }
+  body::after{
+    content:""; position:fixed; inset:auto 0 0 0; height:14px; z-index:5;
+    background:repeating-linear-gradient(90deg, var(--gold) 0 34px, #B8892F 34px 36px, #20406F 36px 70px, #16294A 70px 72px);
+    box-shadow:0 -6px 18px rgba(0,0,0,.45); opacity:.85;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+
+  .ledger{
+    position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:12px 18px 10px;
+    background:linear-gradient(180deg, rgba(14,30,56,.97) 70%, rgba(14,30,56,.85));
+    border-bottom:1px solid rgba(217,169,63,.45);backdrop-filter:blur(6px);
+  }
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;justify-content:space-between;gap:10px}
+  .stat{text-align:center;flex:1}
+  .stat-label{font-size:.7rem;color:var(--sand-dim);font-weight:500}
+  .stat-val{font-family:'Amiri',serif;font-weight:700;font-size:1.2rem;color:var(--gold-bright);white-space:nowrap}
+  .stat-val.neg{color:var(--ember)}
+  .stat-val.small{font-size:1.05rem;color:var(--sand)}
+  .months{display:flex;gap:4px;margin-top:9px;justify-content:center}
+  .m-dot{width:17px;height:4px;border-radius:99px;background:rgba(242,227,188,.18);transition:background .4s}
+  .m-dot.on{background:var(--gold)}
+  .m-dot.now{background:var(--gold-bright);box-shadow:0 0 8px rgba(240,199,94,.7)}
+  .drain-note{font-size:.72rem;color:var(--ember);text-align:center;margin-top:5px;font-weight:700}
+
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  .eyebrow{
+    display:inline-block;font-size:.78rem;font-weight:700;color:var(--gold);
+    border:1px solid rgba(217,169,63,.55);border-radius:99px;padding:4px 14px;
+    margin-bottom:14px;background:rgba(217,169,63,.08);
+  }
+  h1{font-family:'Amiri',serif;font-size:2.2rem;line-height:1.35;color:var(--gold-bright);margin-bottom:6px}
+  h2.situation{font-family:'Amiri',serif;font-size:1.45rem;line-height:1.75;color:var(--sand);font-weight:700;margin-bottom:8px}
+  .flavor{color:var(--sand-dim);font-size:.95rem;margin-bottom:20px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+
+  .card{
+    background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));
+    border:1px solid rgba(217,169,63,.35);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow);
+  }
+  .money-line{
+    display:flex;justify-content:space-between;background:rgba(14,30,56,.55);
+    border:1px solid rgba(242,227,188,.18);border-radius:12px;padding:10px 14px;
+    margin-bottom:8px;font-size:.92rem;
+  }
+  .money-line b{color:var(--gold-bright);font-family:'Amiri',serif;font-size:1.05rem}
+  .money-line.out b{color:var(--ember)}
+  .money-line.net{border-color:rgba(217,169,63,.5)}
+  .money-box{margin-bottom:18px}
+
+  .choice{
+    display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;
+    background:rgba(14,30,56,.55);border:1px solid rgba(242,227,188,.22);
+    border-radius:14px;padding:15px 16px;margin-bottom:12px;color:var(--sand);
+    font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.65;cursor:pointer;
+    transition:border-color .2s, background .2s, transform .15s;
+  }
+  .choice:hover,.choice:focus-visible{border-color:var(--gold);background:rgba(217,169,63,.10);transform:translateY(-1px)}
+  .choice:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
+  .badge{
+    flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;
+    justify-content:center;background:rgba(217,169,63,.16);border:1px solid rgba(217,169,63,.5);
+    color:var(--gold-bright);font-weight:800;font-size:.95rem;margin-top:2px;
+  }
+
+  .verdict{border-radius:14px;padding:18px;margin-bottom:16px;border:1px solid}
+  .verdict.best{background:rgba(127,168,107,.13);border-color:rgba(127,168,107,.6)}
+  .verdict.ok{background:rgba(217,169,63,.12);border-color:rgba(217,169,63,.55)}
+  .verdict.bad{background:rgba(201,111,74,.13);border-color:rgba(201,111,74,.6)}
+  .verdict-title{font-family:'Amiri',serif;font-size:1.3rem;font-weight:700;margin-bottom:8px}
+  .verdict.best .verdict-title{color:#A8CF94}
+  .verdict.ok .verdict-title{color:var(--gold-bright)}
+  .verdict.bad .verdict-title{color:#E8997A}
+  .verdict p{font-size:.98rem}
+  .fund-move{
+    display:flex;flex-direction:column;gap:8px;margin-bottom:18px;
+  }
+  .fund-move .row{display:flex;justify-content:space-between;background:rgba(14,30,56,.5);
+    border:1px solid rgba(242,227,188,.14);border-radius:12px;padding:10px 14px;font-size:.92rem}
+  .fund-move .row b{font-family:'Amiri',serif}
+  .pos{color:#A8CF94}.negc{color:#E8997A}
+
+  .btn{
+    display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;
+    font-weight:800;font-size:1.1rem;color:#1A1304;
+    background:linear-gradient(180deg,var(--gold-bright),var(--gold));
+    border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;
+    box-shadow:0 6px 18px rgba(217,169,63,.3);
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(217,169,63,.4)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(217,169,63,.55);box-shadow:none;margin-top:10px}
+
+  .final-amount{font-family:'Amiri',serif;font-size:3rem;font-weight:700;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
+  .final-amount.neg{color:var(--ember)}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{text-align:center;font-family:'Amiri',serif;font-size:1.7rem;font-weight:700;color:var(--sand);margin-bottom:6px}
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:22px}
+  .kpis{display:flex;gap:10px;margin-bottom:22px}
+  .kpi{flex:1;text-align:center;background:rgba(14,30,56,.5);border:1px solid rgba(242,227,188,.16);border-radius:12px;padding:12px 8px}
+  .kpi b{display:block;font-family:'Amiri',serif;font-size:1.4rem;color:var(--gold-bright)}
+  .kpi span{font-size:.75rem;color:var(--sand-dim)}
+  .quote{
+    font-family:'Amiri',serif;font-size:1.22rem;line-height:1.9;text-align:center;color:var(--gold-bright);
+    border-top:1px solid rgba(217,169,63,.35);border-bottom:1px solid rgba(217,169,63,.35);
+    padding:18px 6px;margin-bottom:22px;
+  }
+  .quote span{display:block;font-family:'Tajawal',sans-serif;font-size:.85rem;color:var(--sand-dim);margin-top:8px}
+
+  .intro-seal{
+    width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--gold);
+    display:flex;align-items:center;justify-content:center;font-size:2.2rem;
+    background:radial-gradient(circle at 35% 30%, rgba(240,199,94,.25), rgba(217,169,63,.06));
+    box-shadow:0 0 30px rgba(217,169,63,.25);
+  }
+  .intro-list{margin:0 0 26px;list-style:none}
+  .intro-list li{display:flex;gap:10px;margin-bottom:10px;color:var(--sand);font-size:.98rem}
+  .intro-list li::before{content:"◆";color:var(--gold);font-size:.7rem;margin-top:7px}
+
+  @media (max-width:420px){
+    h1{font-size:1.85rem} h2.situation{font-size:1.28rem}
+    .final-amount{font-size:2.4rem} .stat-val{font-size:1.05rem}
+  }
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+  /* إصلاح: نص قائمة المقدّمة يتدفّق ككتلةٍ طبيعية مع إبقاء الكلمات الغليظة في مواضعها بدل تقطيع السطر */
+  .intro-list li{display:block;position:relative;padding-right:22px;gap:0}
+  .intro-list li::before{position:absolute;right:0;top:.5em;margin-top:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- لوح المحاكاة -->
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div class="stat"><div class="stat-label">الشهر</div><div class="stat-val small" id="s-month">1 / 12</div></div>
+      <div class="stat"><div class="stat-label">صندوق أرقاد 🪙</div><div class="stat-val" id="s-fund">0</div></div>
+      <div class="stat"><div class="stat-label">الراتب</div><div class="stat-val small" id="s-salary">5٬000</div></div>
+    </div>
+    <div class="months" id="months"></div>
+    <div class="drain-note" id="drain-note" style="display:none"></div>
+  </div>
+
+  <!-- البداية -->
+  <section class="screen active" id="intro">
+    <div class="intro-seal">⚱️</div>
+    <div style="text-align:center">
+      <div class="eyebrow">محاكاة مالية · كتاب «أغنى رجل في بابل»</div>
+      <h1>سنة في بابل</h1>
+      <p class="sub">12 شهراً، راتبٌ واحد، وقاعدةٌ ذهبية. هل تصمد؟</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>راتبك <b>5,000 درهم</b> شهرياً، ونفقاتك الضرورية <b>3,500</b>.</li>
+        <li>قرّر كل شهر ماذا تفعل بالفائض — وستفاجئك <b>أحداث غير متوقعة</b>.</li>
+        <li>ما تضعه في <b>صندوق أرقاد</b> ينمو بعائد استثماري شهري.</li>
+        <li>الهدف: أكبر صندوق ممكن مع الالتزام بـ<b>قاعدة العُشر</b> (ادخار 10% على الأقل كل شهر).</li>
+      </ul>
+      <button class="btn" onclick="startGame()">ابدأ السنة 🌙</button>
+    </div>
+  </section>
+
+  <!-- الشهر -->
+  <section class="screen" id="game">
+    <div class="eyebrow" id="g-eyebrow"></div>
+    <h2 class="situation" id="g-title"></h2>
+    <p class="flavor" id="g-flavor"></p>
+    <div class="money-box" id="g-money"></div>
+    <div id="g-choices"></div>
+  </section>
+
+  <!-- نتيجة الشهر -->
+  <section class="screen" id="feedback">
+    <div class="card">
+      <div class="verdict" id="f-verdict">
+        <div class="verdict-title" id="f-title"></div>
+        <p id="f-text"></p>
+      </div>
+      <div class="fund-move" id="f-moves"></div>
+      <button class="btn" id="f-next" onclick="nextMonth()">الشهر التالي 🌙</button>
+    </div>
+  </section>
+
+  <!-- النهاية -->
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow">انتهت السنة البابلية</div></div>
+    <div class="card">
+      <div class="final-label">صندوق أرقاد بعد 12 شهراً</div>
+      <div class="final-amount" id="r-amount">0</div>
+      <div class="final-label">درهم</div>
+      <div class="kpis">
+        <div class="kpi"><b id="r-rule">0/12</b><span>أشهر التزمت فيها بقاعدة العُشر</span></div>
+        <div class="kpi"><b id="r-yield">0</b><span>درهم ولّدها صندوقك وحده (عوائد)</span></div>
+      </div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <div class="quote">«الثروة كالشجرة، تنمو من بذرةٍ صغيرة… وأول درهمٍ تدّخره هو البذرة»<span>— أرقاد، أغنى رجل في بابل</span></div>
+      <button class="btn" onclick="restart()">أعد السنة 🔄</button>
+      <button class="btn ghost" onclick="restart()">عُد إلى الملخص 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const NECESSITIES = 3500;
+const FLAVORS = {
+  1:"الشهر الأول من التزامك الجديد. البداية دائماً هي الأصعب…",
+  2:"الروتين بدأ يستقر. الإغراءات أيضاً!",
+  4:"منتصف فصل هادئ. لا أحداث… فقط أنت وانضباطك.",
+  6:"نصف السنة مرّ. أرقاد يراقب من بعيد.",
+  8:"الصيف والمناسبات… المصاريف تحوم حولك.",
+  10:"اقتربت نهاية السنة. كل درهم الآن يحسب.",
+  12:"الشهر الأخير! اختم سنتك كما يختم الحكماء."
+};
+
+let st = null;
+
+const $ = id => document.getElementById(id);
+const fmt = n => (n<0?'−':'')+Math.abs(n).toLocaleString('en-US').replace(/,/g,'٬');
+
+function freshState(){
+  return {month:1, fund:0, salary:5000, drain:0, drainLabel:[], rule:0, deposits:0,
+          austerity:0, burnNext:false, raised:false};
+}
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderLedger(){
+  $('s-month').textContent = st.month+' / 12';
+  const f = $('s-fund'); f.textContent = fmt(st.fund); f.classList.toggle('neg', st.fund<0);
+  $('s-salary').textContent = fmt(st.salary);
+  $('months').innerHTML = Array.from({length:12},(_,i)=>
+    `<div class="m-dot ${i<st.month-1?'on':''} ${i===st.month-1?'now':''}"></div>`).join('');
+  const dn = $('drain-note');
+  if(st.drain>0){ dn.style.display='block'; dn.textContent = `⛓️ أقساط شهرية تلاحقك: −${fmt(st.drain)} درهم (${st.drainLabel.join(' + ')})`; }
+  else dn.style.display='none';
+}
+
+function surplus(){ return st.salary - NECESSITIES - st.drain; }
+function tenth(){ return Math.round(st.salary*0.10); }
+
+function startGame(){
+  st = freshState();
+  $('ledger').style.display='block';
+  renderLedger(); renderMonth(); show('game');
+}
+
+/* ====== بناء شهر ====== */
+function renderMonth(){
+  renderLedger();
+  const m = st.month, sp = surplus(), t = tenth();
+  let title, flavor, choices, eyebrow;
+
+  if(st.burnNext && ![3,5,7,9,11].includes(m)){
+    /* انفجار التقشف */
+    st.burnNext = false;
+    eyebrow = `الشهر ${m} من 12 · تحذير أرقاد`;
+    title = "انفجار التقشف! 🛍️";
+    flavor = "بعد أشهر من الحرمان الكامل… انفجرتَ: يومان من تسوّقٍ مفتوح بلا حساب.";
+    choices = [
+      {t:`حدث ما حدث — أخصم 2,000 من صندوقي وأتعلّم الدرس`, q:"bad",
+       apply:s=>{s.fund-=2000;},
+       fb:"يحذّر أرقاد: «عش بما يقارب تسعة أعشار دخلك واستمتع بالحياة». الحرمان الشديد لا يصمد — ينفجر دائماً في وجه صاحبه. الانضباط المستدام يغلب التقشف البطولي.",
+       moves:[["انفجار استهلاكي من الصندوق", -2000]]}
+    ];
+  } else if(m===3){
+    eyebrow = `الشهر 3 من 12 · حدث مفاجئ`;
+    title = "تخفيضات الجمعة! 📱";
+    flavor = "هاتفٌ أحلم به بـ 2,500 درهم فقط. العرض ينتهي الليلة…";
+    choices = [
+      {t:"أشتريه بالتقسيط المريح: 290 درهماً شهرياً (مع الفوائد) حتى نهاية السنة", q:"bad",
+       apply:s=>{s.drain+=290; s.drainLabel.push('قسط الهاتف');},
+       fb:"اشتريتَ التزاماً يطارد فائضك كل شهر، ودفعتَ فوائد فوق الثمن. في بابل يسمونه: ثقباً جديداً في المحفظة.",
+       moves:[["قسط شهري جديد حتى نهاية السنة", -290, true]]},
+      {t:"أدفعه كاش من صندوق أرقاد — أحتاجه فعلاً لعملي، وأدّخر عُشري كالعادة", q:"ok",
+       apply:s=>{s.fund-=2500; s.fund+=tenth(); s.deposits+=tenth(); s.rule++;},
+       fb:"اشتريتَ دون فوائد ودون دين — أهون الشرّين إن كانت حاجةً حقيقية لا رغبة متنكرة. لاحظ كم تراجع صندوقك دفعةً واحدة.",
+       moves:[["شراء الهاتف كاش", -2500],["ادخار العُشر", tenth()]]},
+      {t:"أتجاهل العرض — هاتفي يعمل جيداً، وأدّخر عُشري", q:"best",
+       apply:s=>{s.fund+=tenth(); s.deposits+=tenth(); s.rule++; s.austerity=0;},
+       fb:"«لا تخلط بين الضروريات والرغبات» — العلاج الثاني. مرّ الإغراء وبقي ذهبك يعمل لديك.",
+       moves:[["ادخار العُشر", tenth()]]}
+    ];
+  } else if(m===5){
+    eyebrow = `الشهر 5 من 12 · حدث مفاجئ`;
+    title = "المشروع «المضمون» 🤝";
+    flavor = "صديقك المقرّب: «ضع 2,000 درهم في مشروعي وسأضاعفها خلال شهرين!» — وأنت لا تفهم شيئاً في مجاله.";
+    choices = [
+      {t:"أوافق فوراً — إنه صديقي ولن يخذلني", q:"bad",
+       apply:s=>{s.fund-=2000;},
+       fb:"تعثّر المشروع بعد شهرين. القانون الخامس للذهب: «الذهب يهرب ممن يضعه حيث لا يفهم، أو خلف وعود المضاعفة الخيالية».",
+       moves:[["خسارة المشروع", -2000]]},
+      {t:"أرفض بلطف، وأعرض مساعدته بخبرتي لا بمالي — وأدّخر عُشري", q:"best",
+       apply:s=>{s.fund+=tenth(); s.deposits+=tenth(); s.rule++; s.austerity=0;},
+       fb:"«احمِ ثروتك من الخسارة، واستشر العارفين» — العلاج الرابع. حافظتَ على المال والصداقة معاً.",
+       moves:[["ادخار العُشر", tenth()]]},
+      {t:"أجامله بـ 1,000 فقط… توزيعاً للمخاطر", q:"bad",
+       apply:s=>{s.fund-=1000;},
+       fb:"نصف قرارٍ سيئ يبقى سيئاً. توزيع المخاطر لا يعني رمي نصف مالك في مجالٍ مجهول.",
+       moves:[["خسارة نصف المجاملة", -1000]]}
+    ];
+  } else if(m===7){
+    eyebrow = `الشهر 7 من 12 · حدث مفاجئ`;
+    const had = st.fund>=1200;
+    title = "عطل مفاجئ! 🔧";
+    flavor = "سيارتك تعطّلت في طريق العمل: فاتورة الإصلاح 1,200 درهم، ولا مفرّ منها.";
+    choices = [
+      {t:"أدفعها من صندوق أرقاد، وأواصل ادخار عُشري هذا الشهر", q: had?"best":"ok",
+       apply:s=>{s.fund-=1200; s.fund+=tenth(); s.deposits+=tenth(); s.rule++;},
+       fb: had ? "لهذا بالضبط يبني الحكيم احتياطياً! امتصّ صندوقك الصدمة دون دينٍ ولا فوائد — العلاج الرابع عملياً."
+               : "صندوقك لم يكن كافياً، فدخلتَ في العجز. لاحظ الدرس: من يبدأ البناء مبكراً تحميه جدرانه يوم العاصفة.",
+       moves:[["إصلاح السيارة", -1200],["ادخار العُشر", tenth()]]},
+      {t:"أقترض بفائدة وأريّح صندوقي: قسط 200 درهم شهرياً حتى نهاية السنة", q:"bad",
+       apply:s=>{s.drain+=200; s.drainLabel.push('قرض الإصلاح');},
+       fb:"حميتَ الصندوق ظاهرياً، لكنك ربطتَ بساقك سلسلةً تسحب 200 درهم من كل فائضٍ قادم… مع فوائدها.",
+       moves:[["قسط شهري جديد حتى نهاية السنة", -200, true]]}
+    ];
+  } else if(m===9){
+    eyebrow = `الشهر 9 من 12 · فرصة`;
+    title = "دورة مهنية 🎓";
+    flavor = "دورة تدريبية بـ 1,000 درهم في مهارة مطلوبة، سترفع راتبك 500 درهم شهرياً ابتداءً من الشهر القادم.";
+    choices = [
+      {t:"أدفعها من صندوقي — استثمارٌ في رأس مالي البشري، وأدّخر عُشري", q:"best",
+       apply:s=>{s.fund-=1000; s.fund+=tenth(); s.deposits+=tenth(); s.rule++; s.raised=true; s.austerity=0;},
+       fb:"«كلما زادت مهارتك زاد كسبك» — العلاج السابع. من الشهر القادم: راتبك 5,500، وعُشرك يكبر معه.",
+       moves:[["رسوم الدورة", -1000],["ادخار العُشر", tenth()]]},
+      {t:"أكتفي بادخاري المعتاد — لا وقت للدراسة", q:"ok",
+       apply:s=>{s.fund+=tenth(); s.deposits+=tenth(); s.rule++;},
+       fb:"حافظتَ على النظام، لكن فاتك أعلى عائدٍ في اللعبة كلها: الاستثمار في نفسك لا ينافسه وعاء.",
+       moves:[["ادخار العُشر", tenth()]]},
+      {t:"أحتفل بالفائض كله هذا الشهر — الحياة قصيرة!", q:"bad",
+       apply:s=>{},
+       fb:"مرّ شهرٌ آخر دون أن تدفع لنفسك شيئاً… والفرصة ذهبت لغيرك.",
+       moves:[["لا ادخار هذا الشهر", 0]]}
+    ];
+  } else if(m===11){
+    eyebrow = `الشهر 11 من 12 · اختبار العزيمة`;
+    title = "سخرية زميل 😏";
+    flavor = "«ما زلت تدّخر دراهمك الصغيرة؟ نحن شباب يا رجل، المستقبل بعيد!»";
+    choices = [
+      {t:"أبتسم وأستمر — جيشي الصغير يكبر بصمت", q:"best",
+       apply:s=>{s.fund+=tenth(); s.deposits+=tenth(); s.rule++; s.austerity=0;},
+       fb:"«أمّن دخلاً لأيام شيخوختك» — العلاج السادس. كل سنة تأجيل تكلّف أضعافها لاحقاً، وأنت اخترت ألا تؤجل.",
+       moves:[["ادخار العُشر", tenth()]]},
+      {t:"كلامه منطقي… أتوقف هذا الشهر وأعيش", q:"bad",
+       apply:s=>{},
+       fb:"رأيُ من لا يملك خطةً أغلق شهراً من خطتك. أرقاد: «لا تستشر صانع الطوب في شراء الجواهر».",
+       moves:[["لا ادخار هذا الشهر", 0]]}
+    ];
+  } else {
+    /* شهر عادي */
+    eyebrow = `الشهر ${m} من 12 · شهر عادي`;
+    title = "وصل الراتب 💼";
+    flavor = FLAVORS[m] || "شهرٌ عادي في بابل.";
+    const full = sp;
+    choices = [
+      {t:`أقتطع العُشر (${fmt(t)}) لصندوق أرقاد فوراً، وأستمتع بالباقي`, q:"best",
+       apply:s=>{const d=Math.min(tenth(), surplus()); s.fund+=d; s.deposits+=d; if(d>=tenth()) s.rule++; s.austerity=0;},
+       fb: sp>=t ? "قاعدة العُشر — التزام أرقاد الذهبي: تدفع لنفسك أولاً، وتعيش بما تبقّى دون حرمان."
+                 : "أردتَ ادخار العُشر لكن أقساطك التهمت الفائض! هذا ما يفعله الدين بقدرتك على البناء.",
+       moves: sp>=t ? [["ادخار العُشر", t]] : [["كل ما استطعت ادخاره بعد الأقساط", Math.max(surplus(),0)]]},
+      {t:"أصرف الفائض كله — الشهر صعب والحياة قصيرة", q:"bad",
+       apply:s=>{s.austerity=0;},
+       fb:"مرّ شهرٌ آخر دون أن تدفع لنفسك درهماً واحداً. النفقات تتمدد دائماً لتأكل ما تجده أمامها.",
+       moves:[["لا ادخار هذا الشهر", 0]]},
+      {t:`تقشف كامل! أدّخر الفائض كله (${fmt(Math.max(full,0))})`, q:"ok",
+       apply:s=>{const d=Math.max(surplus(),0); s.fund+=d; s.deposits+=d; if(d>=tenth()) s.rule++; s.austerity++; if(s.austerity>=3){s.burnNext=true; s.austerity=0;}},
+       fb:"ادخارٌ بطولي… لكن انتبه: أرقاد يوصي بالعيش بتسعة أعشار الدخل والاستمتاع به. الحرمان الكامل نادراً ما يستمر.",
+       moves:[["ادخار الفائض كله", Math.max(full,0)]]}
+    ];
+  }
+
+  $('g-eyebrow').textContent = eyebrow;
+  $('g-title').textContent = title;
+  $('g-flavor').textContent = flavor;
+  $('g-money').innerHTML = `
+    <div class="money-line"><span>الراتب</span><b>+${fmt(st.salary)}</b></div>
+    <div class="money-line out"><span>الضروريات (سكن، أكل، نقل)</span><b>−${fmt(NECESSITIES)}</b></div>
+    ${st.drain>0?`<div class="money-line out"><span>أقساط ملاحِقة</span><b>−${fmt(st.drain)}</b></div>`:''}
+    <div class="money-line net"><span>الفائض المتاح هذا الشهر</span><b>${fmt(Math.max(surplus(),0))}</b></div>`;
+  const letters = ['أ','ب','ج'];
+  $('g-choices').innerHTML = choices.map((c,i)=>
+    `<button class="choice" onclick="choose(${i})"><span class="badge">${letters[i]}</span><span>${c.t}</span></button>`).join('');
+  st._choices = choices;
+}
+
+const V = {best:{t:"⚱️ قرارٌ حكيم",c:"best"}, ok:{t:"⚖️ مقبول… مع ملاحظة",c:"ok"}, bad:{t:"🕳️ ثقبٌ في المحفظة",c:"bad"}};
+
+function choose(i){
+  const c = st._choices[i];
+  c.apply(st);
+  /* عائد استثماري شهري 1% على الصندوق الموجب */
+  let yieldNow = 0;
+  if(st.fund>0){ yieldNow = Math.round(st.fund*0.01); st.fund += yieldNow; }
+  if(st.raised && st.salary===5000 && st.month>=9){ /* الزيادة تبدأ من الشهر التالي */ }
+
+  const v = V[c.q];
+  $('f-verdict').className = 'verdict '+v.c;
+  $('f-title').textContent = v.t;
+  $('f-text').textContent = c.fb;
+  const rows = c.moves.map(([label,amt,rec])=>{
+    const cls = amt>0?'pos':amt<0?'negc':'';
+    const val = amt===0?'—':(amt>0?'+':'−')+fmt(Math.abs(amt))+(rec?' /شهر':'');
+    return `<div class="row"><span>${label}</span><b class="${cls}">${val}</b></div>`;
+  });
+  if(yieldNow>0) rows.push(`<div class="row"><span>🌱 عائد صندوقك هذا الشهر</span><b class="pos">+${fmt(yieldNow)}</b></div>`);
+  rows.push(`<div class="row"><span>صندوق أرقاد الآن</span><b class="${st.fund<0?'negc':''}" style="color:${st.fund<0?'':'var(--gold-bright)'}">${fmt(st.fund)}</b></div>`);
+  $('f-moves').innerHTML = rows.join('');
+  $('f-next').textContent = st.month===12 ? 'اكشف حصاد سنتك 👑' : 'الشهر التالي 🌙';
+  renderLedger();
+  show('feedback');
+}
+
+function nextMonth(){
+  if(st.raised && st.salary===5000){ st.salary = 5500; }
+  st.month++;
+  if(st.month<=12){ renderMonth(); show('game'); }
+  else showResults();
+}
+
+function rankOf(f, rule){
+  if(f>=4000 && rule>=10) return {r:"👑 خازن بابل الأعظم", n:"التزامٌ شبه كامل بقاعدة العُشر وصندوقٌ ممتلئ — هكذا تُبنى الثروات الحقيقية، شهراً فوق شهر."};
+  if(f>=2800) return {r:"🏛️ تلميذ أرقاد المجتهد", n:"صندوقك محترم! راجع الأشهر التي تعثّرت فيها وأعد السنة لتلمس الفرق."};
+  if(f>=1200) return {r:"⚖️ سنةٌ متعثرة", n:"بعض القرارات ثقبت محفظتك. أعد قراءة العلاجات السبعة ثم أعد المحاولة."};
+  return {r:"🕳️ المحفظة المثقوبة", n:"سنةٌ قاسية! لا بأس — حتى أرقاد خسر ذهبه الأول. عُد إلى الملخص وابدأ سنةً جديدة."};
+}
+
+function showResults(){
+  $('ledger').style.display='none';
+  const yieldTotal = st.fund - st.deposits + 0; /* تقريب: الفارق بين الصندوق والإيداعات الصافية */
+  const rk = rankOf(st.fund, st.rule);
+  $('r-rule').textContent = st.rule+'/12';
+  $('r-yield').textContent = fmt(Math.max(yieldTotal, 0));
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n + (st.drain>0 ? " ⛓️ ملاحظة: ما زالت عليك أقساط شهرية ستلاحقك بعد نهاية اللعبة!" : "");
+  const el = $('r-amount');
+  el.classList.toggle('neg', st.fund<0);
+  show('results');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ el.textContent = fmt(st.fund); return; }
+  const dur=1400, t0=performance.now(), target=st.fund;
+  (function tick(t){
+    const p=Math.min((t-t0)/dur,1), e=1-Math.pow(1-p,3);
+    el.textContent = fmt(Math.round(target*e));
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+
+function restart(){ $('ledger').style.display='none'; show('intro'); }
+</script>
+</body>
+</html>

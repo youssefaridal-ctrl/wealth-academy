@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اعمل على نظامك لا داخله — لعبة القرارات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#101820; --lapis-deep:#0A1014; --lapis-panel:#1B2D38;
+    --gold:#D9A23B; --gold-bright:#F0C36B; --sand:#EAF0F2; --sand-dim:#9FB3BC;
+    --ember:#D2674E; --reed:#5FB389; --steel:#5586A0; --steel-deep:#3D6478; --steel-bright:#85B3C9;
+    --shadow:0 12px 32px rgba(2,6,10,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:'Tajawal',sans-serif;background:radial-gradient(1200px 600px at 50% -10%, #234052 0%, transparent 60%),linear-gradient(180deg, var(--lapis-night) 0%, #070C0F 100%);color:var(--sand);min-height:100vh;line-height:1.7}
+  body::after{content:"";position:fixed;inset:auto 0 0 0;height:3px;z-index:5;background:linear-gradient(90deg, transparent 0, var(--steel) 30%, var(--gold-bright) 50%, var(--steel) 70%, transparent 100%);box-shadow:0 -4px 16px rgba(85,134,160,.35);opacity:.9}
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+  .ledger{position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:14px 18px 12px;background:linear-gradient(180deg, rgba(16,24,32,.97) 70%, rgba(16,24,32,.85));border-bottom:1px solid rgba(85,134,160,.45);backdrop-filter:blur(6px)}
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .ledger-label{font-size:.78rem;color:var(--sand-dim);font-weight:500}
+  .ledger-amount{font-family:'Cairo',sans-serif;font-weight:800;font-size:1.4rem;color:var(--gold-bright);letter-spacing:.3px;white-space:nowrap}
+  .ledger-amount small{font-size:.82rem;color:var(--sand-dim);font-family:'Tajawal',sans-serif;font-weight:500;margin-right:4px}
+  .ledger-amount.neg{color:var(--ember)}
+  .dots{display:flex;gap:6px;margin-top:8px;justify-content:center}
+  .dot{width:26px;height:4px;border-radius:99px;background:rgba(234,240,242,.16);transition:background .4s}
+  .dot.on{background:var(--steel)}
+  .dot.now{background:var(--steel-bright);box-shadow:0 0 8px rgba(133,179,201,.8)}
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;color:var(--steel-bright);border:1px solid rgba(85,134,160,.55);border-radius:99px;padding:4px 14px;margin-bottom:14px;letter-spacing:.3px;background:rgba(85,134,160,.1)}
+  h1{font-family:'Cairo',sans-serif;font-size:2.2rem;font-weight:900;line-height:1.3;color:var(--gold-bright);margin-bottom:6px}
+  h2.situation{font-family:'Tajawal',sans-serif;font-size:1.4rem;line-height:1.75;color:var(--sand);font-weight:700;margin-bottom:22px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+  .card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(85,134,160,.32);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow)}
+  .choice{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;background:rgba(10,16,20,.6);border:1px solid rgba(234,240,242,.16);border-radius:14px;padding:15px 16px;margin-bottom:12px;color:var(--sand);font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.65;cursor:pointer;transition:border-color .2s, background .2s, transform .15s}
+  .choice:hover,.choice:focus-visible{border-color:var(--steel);background:rgba(85,134,160,.12);transform:translateY(-1px)}
+  .choice:focus-visible{outline:2px solid var(--steel-bright);outline-offset:2px}
+  .badge{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(85,134,160,.18);border:1px solid rgba(85,134,160,.55);color:var(--steel-bright);font-weight:800;font-size:.95rem;margin-top:2px}
+  .verdict{border-radius:14px;padding:18px;margin-bottom:16px;border:1px solid}
+  .verdict.best{background:rgba(95,179,137,.14);border-color:rgba(95,179,137,.6)}
+  .verdict.ok{background:rgba(217,162,59,.12);border-color:rgba(217,162,59,.55)}
+  .verdict.bad{background:rgba(210,103,78,.14);border-color:rgba(210,103,78,.6)}
+  .verdict-title{font-family:'Cairo',sans-serif;font-size:1.22rem;font-weight:800;margin-bottom:8px}
+  .verdict.best .verdict-title{color:#8FE0B6}
+  .verdict.ok .verdict-title{color:var(--gold-bright)}
+  .verdict.bad .verdict-title{color:#F0987C}
+  .verdict p{font-size:.98rem}
+  .timeline{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+  .t-row{display:flex;gap:12px;align-items:flex-start;background:rgba(10,16,20,.55);border-radius:12px;padding:12px 14px;border:1px solid rgba(234,240,242,.12)}
+  .t-when{flex:0 0 auto;font-weight:800;color:var(--steel-bright);font-size:.85rem;border-left:1px solid rgba(85,134,160,.4);padding-left:12px;min-width:74px}
+  .t-what{font-size:.95rem;color:var(--sand)}
+  .delta{display:inline-flex;align-items:center;gap:8px;font-family:'Cairo',sans-serif;font-weight:800;font-size:1.3rem;border-radius:12px;padding:8px 16px;margin-bottom:18px}
+  .delta.up{background:rgba(95,179,137,.16);color:#8FE0B6;border:1px solid rgba(95,179,137,.5)}
+  .delta.down{background:rgba(210,103,78,.16);color:#F0987C;border:1px solid rgba(210,103,78,.5)}
+  .delta.flat{background:rgba(234,240,242,.08);color:var(--sand-dim);border:1px solid rgba(234,240,242,.22)}
+  .btn{display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;color:#101820;background:linear-gradient(180deg,var(--steel-bright),var(--steel-deep));border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(61,100,120,.4)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(61,100,120,.5)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(217,162,59,.55);box-shadow:none;margin-top:10px}
+  .final-amount{font-family:'Cairo',sans-serif;font-size:3rem;font-weight:900;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
+  .final-amount.neg{color:var(--ember)}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{text-align:center;font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800;color:var(--sand);margin-bottom:6px}
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:22px}
+  .principles{list-style:none;margin-bottom:22px}
+  .principles li{display:flex;gap:10px;align-items:center;padding:10px 14px;margin-bottom:8px;background:rgba(10,16,20,.55);border-radius:12px;border:1px solid rgba(234,240,242,.12);font-size:.95rem}
+  .p-mark{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+  .p-mark.yes{background:rgba(95,179,137,.2);color:#8FE0B6;border:1px solid rgba(95,179,137,.6)}
+  .p-mark.no{background:rgba(210,103,78,.2);color:#F0987C;border:1px solid rgba(210,103,78,.6)}
+  .quote{font-family:'Cairo',sans-serif;font-size:1.16rem;font-weight:700;line-height:1.85;text-align:center;color:var(--gold-bright);border-top:1px solid rgba(217,162,59,.35);border-bottom:1px solid rgba(217,162,59,.35);padding:18px 6px;margin-bottom:22px}
+  .quote span{display:block;font-family:'Tajawal',sans-serif;font-size:.85rem;font-weight:500;color:var(--sand-dim);margin-top:8px}
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--steel);display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:radial-gradient(circle at 35% 30%, rgba(85,134,160,.3), rgba(217,162,59,.05));box-shadow:0 0 30px rgba(85,134,160,.3)}
+  .intro-list{margin:0 0 26px;padding:0;list-style:none}
+  .intro-list li{display:block;position:relative;padding-right:22px;color:var(--sand);font-size:.98rem;margin-bottom:10px}
+  .intro-list li::before{content:"◆";color:var(--steel);font-size:.7rem;position:absolute;right:0;top:.5em}
+  @media (max-width:420px){h1{font-size:1.85rem}h2.situation{font-size:1.25rem}.final-amount{font-size:2.4rem}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div>
+        <div class="ledger-label">رصيد بناء النظام</div>
+        <div class="ledger-amount" id="wealth">0 <small>نقطة</small></div>
+      </div>
+      <div style="font-size:1.6rem">⚙️</div>
+    </div>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <section class="screen active" id="intro">
+    <div class="intro-seal">⚙️</div>
+    <div style="text-align:center">
+      <div class="eyebrow">لعبة قرارات · كتاب «وهم ريادة الأعمال»</div>
+      <h1>اعمل على نظامك لا داخله</h1>
+      <p class="sub">امتلاك مشروعٍ لا يعني أن تكون موظَّفه الأهمّ فيه إلى الأبد.</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>ستواجه <b>6 مواقف</b> على مبادئ مايكل غيربر في «وهم ريادة الأعمال».</li>
+        <li>كل قرارٍ يرفع أو يخفض <b>رصيد بناء النظام</b> لديك.</li>
+        <li>المبدأ: <b>«الوهم الفنّي» يجعل الحرفيّ الماهر يفتح مشروعاً فيتحوّل لعاملٍ بأطول ساعات</b> — النظام يحرّرك من هذا الفخّ.</li>
+        <li>اجمع أعلى رصيدٍ ممكن… حتى يعمل مشروعك دونك يوماً.</li>
+      </ul>
+      <button class="btn" onclick="startGame()">ابدأ بناء النظام ▸</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="eyebrow" id="g-eyebrow"></div>
+    <h2 class="situation" id="g-situation"></h2>
+    <div id="g-choices"></div>
+  </section>
+
+  <section class="screen" id="feedback">
+    <div class="card">
+      <div class="verdict" id="f-verdict">
+        <div class="verdict-title" id="f-title"></div>
+        <p id="f-text"></p>
+      </div>
+      <div class="timeline">
+        <div class="t-row"><div class="t-when">بعد سنة</div><div class="t-what" id="f-y1"></div></div>
+        <div class="t-row"><div class="t-when">بعد 5 سنوات</div><div class="t-what" id="f-y5"></div></div>
+      </div>
+      <div style="text-align:center"><span class="delta" id="f-delta"></span></div>
+      <button class="btn" id="f-next" onclick="nextScenario()">متابعة ←</button>
+    </div>
+  </section>
+
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow">اكتملت الجلسة</div></div>
+    <div class="card">
+      <div class="final-label">رصيد بناء النظام</div>
+      <div class="final-amount" id="r-amount">0</div>
+      <div class="final-label">نقطة &nbsp;·&nbsp; من أصل 116</div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <ul class="principles" id="r-principles"></ul>
+      <div class="quote">«اعمل على مشروعك، لا داخل مشروعك»<span>— مايكل غيربر</span></div>
+      <button class="btn" onclick="restart()">أعد المحاولة 🔄</button>
+      <button class="btn ghost" onclick="restart()">اقرأ الملخص مرة أخرى 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const SCENARIOS = [
+  {
+    cure:"المبدأ · الوهم الفنّي (Technician's Trap)",
+    short:"إتقان الحرفة لا يعني إتقان إدارة مشروعٍ حولها",
+    situation:"أنت حرفيٌّ ماهرٌ في عملك (خبّاز، مصمّم، فنّي) وقرّرتَ افتتاح مشروعك الخاص. ما أول خطوةٍ تتّخذها؟",
+    choices:[
+      {t:"أدرك أن إدارة المشروع مهارةٌ مختلفةٌ عن حرفتي، وأبدأ بتعلّم الجوانب الإدارية والتنظيمية بجانب حرفتي", q:"best", d:20,
+       fb:"غيربر يسمّي هذا «الوهم الفنّي»: الافتراض الخاطئ بأن إتقان حرفةٍ يعني تلقائياً إتقان إدارة مشروعٍ تجاريٍّ حولها.",
+       y1:"أساسٌ إداريٌّ بدأ يتشكّل بجانب الحرفة", y5:"مشروعٌ ينظَّم بدل أن يعتمد على الحرفة فقط"},
+      {t:"أفتتح المشروع فوراً معتمداً فقط على مهارتي الحرفية دون أي تخطيطٍ إداري", q:"ok", d:5,
+       fb:"الاعتماد على المهارة الحرفية وحدها دون نظامٍ إداري يحوّل المالك لعاملٍ بأطول ساعات بدل رائد أعمال.",
+       y1:"عملٌ مستمرٌّ لكن بلا نظامٍ واضح", y5:"نموٌّ محدودٌ يعتمد بالكامل على وجود المالك"},
+      {t:"أتجاهل أي تفكيرٍ في الإدارة معتقداً أن «الحرفة الجيدة تكفي لنجاح أي مشروع»", q:"bad", d:-9,
+       fb:"تجاهل الجانب الإداري كلياً هو جوهر الوهم الذي يحذّر منه غيربر؛ أغلب المشاريع الصغيرة تفشل لهذا السبب بالضبط.",
+       y1:"مشكلاتٌ تنظيميةٌ تتراكم بصمت", y5:"خطر فشل المشروع أو استنزافه الكامل للمالك"}
+    ]
+  },
+  {
+    cure:"المبدأ · الأدوار الثلاثة: الحرفيّ، المدير، رائد الأعمال",
+    short:"كل مشروعٍ ناجح يحتاج توازناً بين الأدوار الثلاثة",
+    situation:"تجد نفسك تقضي كل وقتك في تنفيذ العمل الحرفي اليومي بنفسك، دون وقتٍ للتخطيط أو تطوير المشروع.",
+    choices:[
+      {t:"أعيد توزيع وقتي لأخصّص جزءاً منه لدور «المدير» (تنظيم العمليات) ودور «رائد الأعمال» (الرؤية المستقبلية)", q:"best", d:19,
+       fb:"غيربر يصف ثلاثة أدوارٍ ضرورية في كل مشروعٍ: الحرفيّ الذي يُنتج، والمدير الذي ينظّم، ورائد الأعمال الذي يتصوّر المستقبل؛ إهمال أيٍّ منها يخلّ التوازن.",
+       y1:"توازنٌ بدأ يظهر بين الأدوار الثلاثة", y5:"مشروعٌ ينمو بدل أن يبقى محصوراً بالتنفيذ اليومي"},
+      {t:"أستمر في التركيز الكامل على التنفيذ الحرفي وأؤجّل التخطيط «لوقتٍ أهدأ»", q:"ok", d:5,
+       fb:"التأجيل المستمر للتخطيط يعني أن المشروع يبقى محصوراً بقدرة المالك الزمنية المحدودة دون أي نموٍّ هيكلي.",
+       y1:"عملٌ مستمرٌّ بلا تطوّرٍ هيكلي", y5:"سقفٌ ثابتٌ للنموّ بسبب غياب التخطيط"},
+      {t:"أوظّف المزيد من الحرفيين لزيادة الإنتاج دون أي نظامٍ إداريٍّ يجمعهم", q:"bad", d:-8,
+       fb:"زيادة عدد العاملين دون نظامٍ إداريٍّ واضح يضخّم الفوضى بدل حلّها، ويزيد العبء على المالك بدل تخفيفه.",
+       y1:"فوضى تنظيمية متزايدة مع نموّ الفريق", y5:"مشكلاتٌ أكبر بسبب غياب الهيكل الإداري"}
+    ]
+  },
+  {
+    cure:"المبدأ · بناء أنظمةٍ قابلةٍ للتكرار",
+    short:"الأنظمة المُوثَّقة تسمح بتشغيل المشروع دون اعتمادٍ كاملٍ على شخصٍ واحد",
+    situation:"موظّفٌ متمكّن من المهام الأساسية يفكّر في الاستقالة، وتدرك أن العمليات الأساسية موجودة في رأسه فقط دون توثيق.",
+    choices:[
+      {t:"أوثّق العمليات الأساسية في نظامٍ واضح (دليل تشغيل) يمكن لأي موظّفٍ جديد اتّباعه", q:"best", d:20,
+       fb:"غيربر يؤكّد أن الأنظمة المُوثَّقة هي ما يجعل المشروع قابلاً للتكرار والتوسّع دون اعتمادٍ كاملٍ على فردٍ واحد، حتى لو كان موهوباً جداً.",
+       y1:"عملياتٌ موثَّقة تحمي استمرارية المشروع", y5:"مشروعٌ قابلٌ للتوسّع دون أزماتٍ كل مرّةٍ يترك موظّفٌ المنصب"},
+      {t:"أحاول الاحتفاظ بالموظّف بأي ثمنٍ دون توثيق ما يعرفه لمنصبه", q:"ok", d:5,
+       fb:"حتى مع الاحتفاظ بالموظّف، يبقى المشروع معرّضاً للخطر إن غادر مستقبلاً دون أي توثيقٍ للمعرفة.",
+       y1:"استقرارٌ مؤقّتٌ هشّ", y5:"خطرٌ مؤجَّلٌ لا محذوف"},
+      {t:"لا أفعل شيئاً وأترك الأمر «يُحلّ من نفسه» إن استقال الموظّف فعلاً", q:"bad", d:-9,
+       fb:"غياب أي توثيقٍ يعني أزمةً تشغيلية فعلية عند مغادرة أي موظّفٍ يحمل معرفةً غير مُسجَّلة.",
+       y1:"فجوةٌ تشغيلية محتملة قريبة", y5:"خسائر ماليةٌ وزمنية بسبب غياب التوثيق"}
+    ]
+  },
+  {
+    cure:"المبدأ · رؤيةٌ واضحة قبل النموّ",
+    short:"النموّ بلا رؤيةٍ واضحة يضخّم الفوضى لا النجاح",
+    situation:"مشروعك ينمو سريعاً وتُعرض عليك فرصة توسّعٍ كبيرة، لكنك لم تحدّد بعد رؤيةً واضحة لما تريد أن يصبح عليه المشروع.",
+    choices:[
+      {t:"أتوقّف لصياغة رؤيةٍ واضحة لمستقبل المشروع قبل قبول التوسّع، حتى لو تأخّر القرار قليلاً", q:"best", d:18,
+       fb:"غيربر يحذّر من النموّ السريع بلا رؤيةٍ واضحة؛ التوسّع دون اتجاهٍ محدّد يضخّم نفس المشكلات الهيكلية القائمة بدل حلّها.",
+       y1:"رؤيةٌ واضحة توجّه قرارات التوسّع", y5:"نموٌّ منظَّمٌ يخدم اتجاهاً محدّداً"},
+      {t:"أقبل التوسّع فوراً دون أي رؤيةٍ واضحة لأن «الفرصة لا تنتظر»", q:"ok", d:5,
+       fb:"قبول الفرص دون رؤيةٍ واضحة قد يحقّق نمواً سريعاً في حجم العمل، لكنه يضخّم الفوضى الهيكلية الكامنة.",
+       y1:"نموٌّ سريعٌ في الحجم دون اتجاهٍ واضح", y5:"مشكلاتٌ هيكليةٌ تضخّمت مع النموّ"},
+      {t:"أرفض كل فرص التوسّع تماماً خوفاً من أي تغييرٍ دون التفكير في صياغة رؤية", q:"bad", d:-7,
+       fb:"الرفض الكامل بلا أي محاولةٍ لصياغة رؤية يجمّد المشروع عند نقطته الحالية دون أي تقدّمٍ مدروس.",
+       y1:"ركودٌ كاملٌ في المشروع", y5:"فرصٌ ضائعة دون أي تعويضٍ بالتخطيط"}
+    ]
+  },
+  {
+    cure:"المبدأ · المشروع كمنتجٍ بذاته",
+    short:"المشروع نفسه يجب أن يُصمَّم كمنتجٍ قابلٍ للتطوير والبيع",
+    situation:"تفكّر فيما إذا كان مشروعك مصمَّماً بحيث يمكن أن يستمرّ أو يُباع دون اعتمادٍ كاملٍ على وجودك الشخصي.",
+    choices:[
+      {t:"أصمّم المشروع كمنتجٍ بذاته: أنظمةٌ، وعلاماتٌ تجارية، وعملياتٌ، تجعله يستمرّ ويُقيَّم بمعزلٍ عن شخصي", q:"best", d:19,
+       fb:"غيربر يصف المشروع المثالي كمنتجٍ قابلٍ للتكرار والبيع، حيث القيمة في النظام نفسه لا في شخص المالك وحده.",
+       y1:"مشروعٌ يبني قيمةً مستقلّة عن شخص المالك", y5:"إمكانية بيعٍ أو توسّعٍ حقيقية بفضل النظام المُصمَّم"},
+      {t:"أركّز فقط على الأداء اليومي دون التفكير في القيمة المستقلّة للمشروع كمنتج", q:"ok", d:5,
+       fb:"الأداء اليومي الجيد مهمٌّ، لكن غياب التفكير في «المشروع كمنتج» يحدّ من قيمته المستقبلية القابلة للبيع أو التوسّع.",
+       y1:"أداءٌ جيدٌ يومياً لكن قيمةٌ محدودة للمشروع نفسه", y5:"صعوبةٌ محتملة في بيع المشروع أو توسيعه لاحقاً"},
+      {t:"أرى أن المشروع «أنا شخصياً» ولا يمكن أن يستمرّ دون وجودي المباشر دائماً", q:"bad", d:-8,
+       fb:"هذا الاعتقاد يحوّل المشروع لوظيفةٍ شخصية مقيّدة بالمالك إلى الأبد، عكس رؤية غيربر لمشروعٍ مستقلٍّ كمنتج.",
+       y1:"اعتمادٌ كاملٌ مستمرٌّ على وجود المالك", y5:"قيمةٌ شبه معدومة للمشروع دون شخص المالك"}
+    ]
+  },
+  {
+    cure:"المبدأ · التحوّل التدريجي من العامل إلى رائد الأعمال",
+    short:"التحرّر من العمل اليومي يأتي عبر مراحلٍ مدروسة لا قفزةً واحدة",
+    situation:"بعد سنواتٍ من العمل المضاعَف، تشعر بالإرهاق وتريد تقليل تورّطك المباشر في العمليات اليومية.",
+    choices:[
+      {t:"أخطّط لتفويضٍ تدريجي للمهام عبر أنظمةٍ وتدريب فريقٍ موثوق، خطوةً بخطوة", q:"best", d:20,
+       fb:"التحرّر التدريجي المدروس عبر بناء أنظمةٍ وتفويضٍ منظَّم هو الطريق الذي يصفه غيربر للتحوّل من «عاملٍ يملك وظيفة» إلى «رائد أعمالٍ يملك مشروعاً».",
+       y1:"تفويضٌ تدريجيٌّ يخفّف العبء المباشر", y5:"مشروعٌ يعمل بكفاءةٍ مع تورّطٍ مباشرٍ أقلّ من المالك"},
+      {t:"أحاول التفويض الكامل فجأة دون أي أنظمةٍ أو تدريبٍ مسبق للفريق", q:"ok", d:5,
+       fb:"التفويض المفاجئ بلا أنظمةٍ واضحة يخلق فجواتٍ تشغيلية وأخطاءً قد تضرّ بجودة العمل وثقة العملاء.",
+       y1:"فجواتٌ تشغيليةٌ بسبب التفويض المتسرّع", y5:"مشكلاتٌ جودةٍ محتملة تحتاج تصحيحاً"},
+      {t:"أستمر في تحمّل كل العبء بنفسي دون أي خطّةٍ للتفويض رغم الإرهاق المتزايد", q:"bad", d:-8,
+       fb:"الاستمرار في حمل كل العبء بنفسي دون أي خطّةٍ يقود غالباً للإرهاق الكامل أو تراجع جودة العمل بمرور الوقت.",
+       y1:"إرهاقٌ متزايدٌ دون أي تخفيف", y5:"خطر استنزافٍ كامل للمالك وتأثيرٍ سلبي على المشروع"}
+    ]
+  }
+];
+
+const VERDICTS = {
+  best:{title:"⚙️ نظامٌ مُصمَّمٌ بحكمة — هكذا يفكّر غيربر", cls:"best"},
+  ok:{title:"⚖️ مقبول… لكن النظام غير مكتمل", cls:"ok"},
+  bad:{title:"🌀 وهمٌ فنّيٌّ يستنزف المالك", cls:"bad"}
+};
+
+let idx = 0, wealth = 0, mastered = [];
+const $ = id => document.getElementById(id);
+
+function fmt(n){
+  const s = Math.abs(n).toLocaleString('en-US').replace(/,/g,'٬');
+  return (n<0?'−':'')+s;
+}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function renderDots(){
+  $('dots').innerHTML = SCENARIOS.map((_,i)=>`<div class="dot ${i<idx?'on':''} ${i===idx?'now':''}"></div>`).join('');
+}
+function renderWealth(animateFrom){
+  const el = $('wealth');
+  el.classList.toggle('neg', wealth<0);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(animateFrom===undefined || reduce){ el.innerHTML = fmt(wealth)+' <small>نقطة</small>'; return; }
+  const start = animateFrom, diff = wealth-start, dur = 900, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    el.innerHTML = fmt(Math.round(start+diff*e))+' <small>نقطة</small>';
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function startGame(){
+  idx = 0; wealth = 0; mastered = [];
+  $('ledger').style.display = 'block';
+  renderWealth(); renderDots(); renderScenario(); show('game');
+}
+function renderScenario(){
+  const s = SCENARIOS[idx];
+  $('g-eyebrow').textContent = `الموقف ${idx+1} من ${SCENARIOS.length} · ${s.cure}`;
+  $('g-situation').textContent = s.situation;
+  const letters = ['أ','ب','ج'];
+  $('g-choices').innerHTML = s.choices.map((c,i)=>
+    `<button class="choice" onclick="choose(${i})"><span class="badge">${letters[i]}</span><span>${c.t}</span></button>`).join('');
+  renderDots();
+}
+function choose(ci){
+  const s = SCENARIOS[idx], c = s.choices[ci];
+  const before = wealth;
+  wealth += c.d;
+  mastered.push(c.q === 'best');
+  const v = VERDICTS[c.q];
+  $('f-verdict').className = 'verdict '+v.cls;
+  $('f-title').textContent = v.title;
+  $('f-text').textContent = c.fb;
+  $('f-y1').textContent = c.y1;
+  $('f-y5').textContent = c.y5;
+  const dEl = $('f-delta');
+  dEl.className = 'delta '+(c.d>0?'up':c.d<0?'down':'flat');
+  dEl.textContent = (c.d>0?'📈 +':c.d<0?'📉 −':'⏳ ')+(c.d===0?'لا تغيير':Math.abs(c.d)+' نقطة');
+  $('f-next').textContent = (idx === SCENARIOS.length-1) ? 'اكشف نتيجتك النهائية ⚙️' : 'الموقف التالي ←';
+  show('feedback');
+  renderWealth(before);
+}
+function nextScenario(){
+  idx++;
+  if(idx < SCENARIOS.length){ renderScenario(); show('game'); }
+  else showResults();
+}
+function rankOf(w){
+  if(w>=95) return {r:"⚙️ تبني نظاماً يعمل دونك بإتقان", n:"تطبّق مبادئ غيربر بالكامل: الأدوار الثلاثة، والأنظمة المُوثَّقة، والرؤية الواضحة. طبّقها على مشروعك الحقيقي الآن."};
+  if(w>=60) return {r:"🔧 نظامك في طور البناء الجيد", n:"تمتلك معظم المبادئ. راجع ما أخطأت فيه أدناه ورسّخه."};
+  if(w>=25) return {r:"⏳ بدأتَ تتجاوز الوهم الفنّي", n:"وضعتَ أولى لبنات النظام. أعد قراءة الفصول ثم عُد."};
+  return {r:"🌀 لا تزال أسير الوهم الفنّي", n:"لا بأس — الوعي أول خطوة. ابدأ بسؤالٍ واحد: «هل أعمل على مشروعي أم داخله فقط؟»"};
+}
+function showResults(){
+  $('ledger').style.display = 'none';
+  const rk = rankOf(wealth);
+  const amountEl = $('r-amount');
+  amountEl.classList.toggle('neg', wealth<0);
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n;
+  $('r-principles').innerHTML = SCENARIOS.map((s,i)=>
+    `<li><span class="p-mark ${mastered[i]?'yes':'no'}">${mastered[i]?'✓':'✗'}</span><span>${s.short}</span></li>`).join('');
+  show('results');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ amountEl.textContent = fmt(wealth); return; }
+  const dur = 1400, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    amountEl.textContent = fmt(Math.round(wealth*e));
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function restart(){ $('ledger').style.display = 'none'; show('intro'); }
+</script>
+</body>
+</html>

@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اختبار بابل — هل تملك حكمة أرقاد؟</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#0E1E38;
+    --lapis-deep:#16294A;
+    --lapis-panel:#1B3158;
+    --gold:#D9A93F;
+    --gold-bright:#F0C75E;
+    --sand:#F2E3BC;
+    --sand-dim:#C9BC9C;
+    --ember:#C96F4A;
+    --reed:#7FA86B;
+    --shadow:0 12px 32px rgba(4,10,22,.55);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:'Tajawal',sans-serif;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #1E3A66 0%, transparent 60%),
+      linear-gradient(180deg, var(--lapis-night) 0%, #0A1628 100%);
+    color:var(--sand);
+    min-height:100vh;
+    line-height:1.7;
+  }
+  /* شريط الطوب المزجّج أسفل الصفحة — توقيع بوابة عشتار */
+  body::after{
+    content:"";
+    position:fixed; inset:auto 0 0 0; height:14px; z-index:5;
+    background:
+      repeating-linear-gradient(90deg,
+        var(--gold) 0 34px, #B8892F 34px 36px,
+        #20406F 36px 70px, #16294A 70px 72px);
+    box-shadow:0 -6px 18px rgba(0,0,0,.45);
+    opacity:.85;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+
+  /* ====== لوح الثروة (السجل الذهبي) ====== */
+  .ledger{
+    position:sticky;top:0;z-index:10;
+    margin:0 -18px 18px;
+    padding:14px 18px 12px;
+    background:linear-gradient(180deg, rgba(14,30,56,.97) 70%, rgba(14,30,56,.85));
+    border-bottom:1px solid rgba(217,169,63,.45);
+    backdrop-filter:blur(6px);
+  }
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .ledger-label{font-size:.78rem;color:var(--sand-dim);font-weight:500}
+  .ledger-amount{
+    font-family:'Amiri',serif;font-weight:700;font-size:1.45rem;color:var(--gold-bright);
+    letter-spacing:.5px;white-space:nowrap;
+  }
+  .ledger-amount small{font-size:.85rem;color:var(--sand-dim);font-family:'Tajawal',sans-serif;font-weight:500;margin-right:4px}
+  .ledger-amount.neg{color:var(--ember)}
+  .dots{display:flex;gap:6px;margin-top:8px;justify-content:center}
+  .dot{width:26px;height:4px;border-radius:99px;background:rgba(242,227,188,.18);transition:background .4s}
+  .dot.on{background:var(--gold)}
+  .dot.now{background:var(--gold-bright);box-shadow:0 0 8px rgba(240,199,94,.7)}
+
+  /* ====== بطاقات الشاشات ====== */
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  .eyebrow{
+    display:inline-block;font-size:.78rem;font-weight:700;color:var(--gold);
+    border:1px solid rgba(217,169,63,.55);border-radius:99px;
+    padding:4px 14px;margin-bottom:14px;letter-spacing:.3px;
+    background:rgba(217,169,63,.08);
+  }
+  h1{font-family:'Amiri',serif;font-size:2.3rem;line-height:1.35;color:var(--gold-bright);margin-bottom:6px}
+  h2.situation{font-family:'Amiri',serif;font-size:1.5rem;line-height:1.75;color:var(--sand);font-weight:700;margin-bottom:22px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+
+  .card{
+    background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));
+    border:1px solid rgba(217,169,63,.35);
+    border-radius:18px;padding:26px 22px;box-shadow:var(--shadow);
+  }
+
+  /* ====== أزرار الاختيارات ====== */
+  .choice{
+    display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;
+    background:rgba(14,30,56,.55);
+    border:1px solid rgba(242,227,188,.22);
+    border-radius:14px;padding:15px 16px;margin-bottom:12px;
+    color:var(--sand);font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.65;
+    cursor:pointer;transition:border-color .2s, background .2s, transform .15s;
+  }
+  .choice:hover,.choice:focus-visible{border-color:var(--gold);background:rgba(217,169,63,.10);transform:translateY(-1px)}
+  .choice:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
+  .badge{
+    flex:0 0 auto;width:30px;height:30px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(217,169,63,.16);border:1px solid rgba(217,169,63,.5);
+    color:var(--gold-bright);font-weight:800;font-size:.95rem;margin-top:2px;
+  }
+
+  /* ====== لوحة النتيجة الفورية ====== */
+  .verdict{border-radius:14px;padding:18px;margin-bottom:16px;border:1px solid}
+  .verdict.best{background:rgba(127,168,107,.13);border-color:rgba(127,168,107,.6)}
+  .verdict.ok{background:rgba(217,169,63,.12);border-color:rgba(217,169,63,.55)}
+  .verdict.bad{background:rgba(201,111,74,.13);border-color:rgba(201,111,74,.6)}
+  .verdict-title{font-family:'Amiri',serif;font-size:1.3rem;font-weight:700;margin-bottom:8px}
+  .verdict.best .verdict-title{color:#A8CF94}
+  .verdict.ok .verdict-title{color:var(--gold-bright)}
+  .verdict.bad .verdict-title{color:#E8997A}
+  .verdict p{font-size:.98rem}
+
+  .timeline{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+  .t-row{display:flex;gap:12px;align-items:flex-start;background:rgba(14,30,56,.5);border-radius:12px;padding:12px 14px;border:1px solid rgba(242,227,188,.14)}
+  .t-when{flex:0 0 auto;font-weight:800;color:var(--gold);font-size:.85rem;border-left:1px solid rgba(217,169,63,.4);padding-left:12px;min-width:74px}
+  .t-what{font-size:.95rem;color:var(--sand)}
+
+  .delta{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:'Amiri',serif;font-weight:700;font-size:1.35rem;
+    border-radius:12px;padding:8px 16px;margin-bottom:18px;
+  }
+  .delta.up{background:rgba(127,168,107,.15);color:#A8CF94;border:1px solid rgba(127,168,107,.5)}
+  .delta.down{background:rgba(201,111,74,.15);color:#E8997A;border:1px solid rgba(201,111,74,.5)}
+  .delta.flat{background:rgba(242,227,188,.08);color:var(--sand-dim);border:1px solid rgba(242,227,188,.25)}
+
+  /* ====== الأزرار الرئيسية ====== */
+  .btn{
+    display:block;width:100%;border:none;cursor:pointer;
+    font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;
+    color:#1A1304;background:linear-gradient(180deg,var(--gold-bright),var(--gold));
+    border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;
+    box-shadow:0 6px 18px rgba(217,169,63,.3);
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(217,169,63,.4)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(217,169,63,.55);box-shadow:none;margin-top:10px}
+
+  /* ====== النتائج النهائية ====== */
+  .final-amount{
+    font-family:'Amiri',serif;font-size:3rem;font-weight:700;
+    color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px;
+  }
+  .final-amount.neg{color:var(--ember)}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{
+    text-align:center;font-family:'Amiri',serif;font-size:1.7rem;font-weight:700;
+    color:var(--sand);margin-bottom:6px;
+  }
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:22px}
+  .principles{list-style:none;margin-bottom:22px}
+  .principles li{
+    display:flex;gap:10px;align-items:center;padding:10px 14px;margin-bottom:8px;
+    background:rgba(14,30,56,.5);border-radius:12px;border:1px solid rgba(242,227,188,.14);
+    font-size:.95rem;
+  }
+  .p-mark{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+  .p-mark.yes{background:rgba(127,168,107,.2);color:#A8CF94;border:1px solid rgba(127,168,107,.6)}
+  .p-mark.no{background:rgba(201,111,74,.2);color:#E8997A;border:1px solid rgba(201,111,74,.6)}
+  .quote{
+    font-family:'Amiri',serif;font-size:1.25rem;line-height:1.9;text-align:center;
+    color:var(--gold-bright);border-top:1px solid rgba(217,169,63,.35);
+    border-bottom:1px solid rgba(217,169,63,.35);padding:18px 6px;margin-bottom:22px;
+  }
+  .quote span{display:block;font-family:'Tajawal',sans-serif;font-size:.85rem;color:var(--sand-dim);margin-top:8px}
+
+  .intro-seal{
+    width:84px;height:84px;margin:26px auto 18px;border-radius:50%;
+    border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;
+    font-size:2.2rem;background:radial-gradient(circle at 35% 30%, rgba(240,199,94,.25), rgba(217,169,63,.06));
+    box-shadow:0 0 30px rgba(217,169,63,.25);
+  }
+  .intro-list{margin:0 0 26px;padding:0;list-style:none}
+  .intro-list li{display:flex;gap:10px;margin-bottom:10px;color:var(--sand);font-size:.98rem}
+  .intro-list li::before{content:"◆";color:var(--gold);font-size:.7rem;margin-top:7px}
+
+  @media (max-width:420px){
+    h1{font-size:1.9rem}
+    h2.situation{font-size:1.3rem}
+    .final-amount{font-size:2.4rem}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none!important;transition:none!important}
+  }
+  /* إصلاح: نص قائمة المقدّمة يتدفّق ككتلةٍ طبيعية مع إبقاء الكلمات الغليظة في مواضعها بدل تقطيع السطر */
+  .intro-list li{display:block;position:relative;padding-right:22px;gap:0}
+  .intro-list li::before{position:absolute;right:0;top:.5em;margin-top:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- لوح الثروة -->
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div>
+        <div class="ledger-label">ثروتك المتوقعة بعد 5 سنوات</div>
+        <div class="ledger-amount" id="wealth">0 <small>درهم</small></div>
+      </div>
+      <div style="font-size:1.6rem">🪙</div>
+    </div>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <!-- شاشة البداية -->
+  <section class="screen active" id="intro">
+    <div class="intro-seal">𒀭</div>
+    <div style="text-align:center">
+      <div class="eyebrow">لعبة قرارات · كتاب «أغنى رجل في بابل»</div>
+      <h1>اختبار بابل</h1>
+      <p class="sub">هل تملك حكمة أرقاد، أغنى رجل في المدينة؟</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>ستواجه <b>6 مواقف</b> من حياتك المالية الواقعية.</li>
+        <li>كل قرار تتخذه يغيّر <b>ثروتك المتوقعة بعد 5 سنوات</b>.</li>
+        <li>كل موقف يختبر علاجاً من <b>علاجات المحفظة السبعة</b> في الكتاب.</li>
+        <li>راتبك الافتراضي: <b>5,000 درهم</b> شهرياً. لنرَ كيف تتصرف!</li>
+      </ul>
+      <button class="btn" onclick="startGame()">ابدأ الرحلة 🏛️</button>
+    </div>
+  </section>
+
+  <!-- شاشة الموقف -->
+  <section class="screen" id="game">
+    <div class="eyebrow" id="g-eyebrow"></div>
+    <h2 class="situation" id="g-situation"></h2>
+    <div id="g-choices"></div>
+  </section>
+
+  <!-- شاشة النتيجة الفورية -->
+  <section class="screen" id="feedback">
+    <div class="card">
+      <div class="verdict" id="f-verdict">
+        <div class="verdict-title" id="f-title"></div>
+        <p id="f-text"></p>
+      </div>
+      <div class="timeline">
+        <div class="t-row"><div class="t-when">بعد سنة</div><div class="t-what" id="f-y1"></div></div>
+        <div class="t-row"><div class="t-when">بعد 5 سنوات</div><div class="t-what" id="f-y5"></div></div>
+      </div>
+      <div style="text-align:center"><span class="delta" id="f-delta"></span></div>
+      <button class="btn" id="f-next" onclick="nextScenario()">متابعة ←</button>
+    </div>
+  </section>
+
+  <!-- شاشة النتائج -->
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow">انتهت الرحلة</div></div>
+    <div class="card">
+      <div class="final-label">ثروتك المتوقعة بعد 5 سنوات</div>
+      <div class="final-amount" id="r-amount">0</div>
+      <div class="final-label">درهم</div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <ul class="principles" id="r-principles"></ul>
+      <div class="quote">«جزءٌ من كل ما تكسبه هو ملكٌ لك وحدك… فاحتفظ به»<span>— أرقاد، أغنى رجل في بابل</span></div>
+      <button class="btn" onclick="restart()">أعد المحاولة 🔄</button>
+      <button class="btn ghost" onclick="restart()">اقرأ الملخص مرة أخرى 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const SCENARIOS = [
+  {
+    cure:"العلاج الأول · ادفع لنفسك أولاً",
+    short:"ادفع لنفسك أولاً (ادخر 10%)",
+    situation:"بداية الشهر، وصل راتبك: 5,000 درهم. أمامك الفواتير والإيجار وقائمة رغبات طويلة. ما أول قرار تتخذه؟",
+    choices:[
+      {t:"أقتطع 500 درهم فوراً في حساب منفصل، ثم أعيش بالباقي", q:"best", d:38000,
+       fb:"هذا جوهر العلاج الأول: «من كل عشرة دراهم تكسبها، احتفظ بدرهمٍ لنفسك». أنت تدفع لنفسك قبل الجميع — حتى قبل صاحب البقالة.",
+       y1:"+6,000 درهم تجمّعت دون أن تشعر بفرق كبير في حياتك", y5:"+38,000 درهم — بذرة ثروتك الأولى"},
+      {t:"أسدد كل الالتزامات أولاً، وما تبقى آخر الشهر أدخره", q:"ok", d:4000,
+       fb:"الفخ الكلاسيكي! «ما تبقى» يساوي صفراً في الغالب، لأن المصاريف تتمدد لتلتهم كل ما تجده أمامها.",
+       y1:"ادخرت 700 درهم فقط خلال سنة كاملة", y5:"+4,000 درهم بالكاد"},
+      {t:"أشتري الهاتف الجديد بالتقسيط — أستحق مكافأة!", q:"bad", d:-3000,
+       fb:"اشتريت التزاماً جديداً بفوائد. في بابل يسمّون هذا: ثقباً جديداً في المحفظة.",
+       y1:"قسط شهري يلتهم 400 درهم + فوائد", y5:"−3,000 درهم ذهبت أقساطاً وفوائد"}
+    ]
+  },
+  {
+    cure:"العلاج الثاني · تحكّم في نفقاتك",
+    short:"التحكم في النفقات (الضروري قبل الرغبات)",
+    situation:"بعد 3 أشهر تكتشف أن المال يتبخر: لا تعرف أين يذهب نصف راتبك! ماذا تفعل؟",
+    choices:[
+      {t:"أسجّل كل درهم أصرفه لمدة أسبوعين، ثم أفصل الضروريات عن الرغبات", q:"best", d:27000,
+       fb:"«لا تخلط بين نفقاتك الضرورية ورغباتك». التسجيل يكشف التسريبات الخفية: القهوة اليومية، الاشتراكات المنسية، التوصيل…",
+       y1:"اكتشفت 450 درهماً تتسرب شهرياً بلا فائدة وأعدت توجيهها", y5:"+27,000 درهم من مصاريف كانت ضائعة"},
+      {t:"المشكلة في الراتب الصغير، وليست في مصاريفي", q:"bad", d:0,
+       fb:"يقول أرقاد: مهما زاد الدخل، تزداد «النفقات الضرورية» لتساويه ما لم تتحكم بها. زيادة الراتب وحدها لن تنقذك.",
+       y1:"حصلت على زيادة 500 درهم… واختفت هي الأخرى!", y5:"0 درهم — نفس الدوامة براتب أكبر"},
+      {t:"أقترض من صديق لتغطية آخر الشهر", q:"bad", d:-7000,
+       fb:"عالجت العرَض بمرضٍ أكبر. الدين لتمويل الاستهلاك هو أسرع طريق إلى محفظة مثقوبة.",
+       y1:"ديون متراكمة وعلاقة متوترة مع صديقك", y5:"−7,000 درهم بين ديون وفوائدها"}
+    ]
+  },
+  {
+    cure:"العلاج الثالث · اجعل مالك يتكاثر",
+    short:"تشغيل المال (جيش الذهب)",
+    situation:"وفّرت 10,000 درهم كاملة. تنظر إليها بفخر… لكن ما الخطوة التالية؟",
+    choices:[
+      {t:"أتركها في الحساب الجاري — الأمان أولاً", q:"ok", d:-1500,
+       fb:"المال الراكد جنديٌ نائم. التضخم يأكل قوته الشرائية سنة بعد سنة. الأمان الزائف خسارةٌ بطيئة.",
+       y1:"−300 درهم من قوتها الشرائية", y5:"−1,500 درهم خسارة صامتة"},
+      {t:"أستثمرها في وعاء يدرّ عائداً منتظماً وأفهم جيداً كيف يعمل", q:"best", d:21000,
+       fb:"«اجعل كل درهم يعمل عندك كعبدٍ يجلب لك المزيد». هذا ما يسميه أرقاد: جيش الذهب — المال يلد مالاً.",
+       y1:"+700 درهم عائداً، وجيشك الصغير بدأ يتكاثر", y5:"+21,000 درهم بقوة العائد المركّب"},
+      {t:"أصرفها على إجازة فاخرة — أستحقها بعد كل هذا الادخار!", q:"bad", d:-10000,
+       fb:"قتلتَ جيشك قبل معركته الأولى. الاستمتاع مشروع، لكن من ثمار الثروة لا من بذورها.",
+       y1:"ذكريات جميلة ومحفظة فارغة", y5:"−10,000 درهم + كل العوائد الضائعة"}
+    ]
+  },
+  {
+    cure:"العلاج الرابع · احمِ ثروتك من الخسارة",
+    short:"حماية رأس المال (استشر الخبراء)",
+    situation:"صديق مقرّب يعرض عليك: «ضع 12,000 درهم في مشروعي وسأضاعفها خلال شهرين، الأمر مضمون!» — وأنت لا تفهم شيئاً في مجاله.",
+    choices:[
+      {t:"أوافق فوراً — إنه صديقي ولن يخذلني", q:"bad", d:-12000,
+       fb:"من قوانين الذهب: «الذهب يهرب ممن يستثمره في مجالٍ لا يعرفه، أو بنصيحة غير الخبراء». ثقتك بصديقك لا تعوّض جهله بالمجال.",
+       y1:"تعثّر المشروع… وخسرت المبلغ والكثير من الودّ", y5:"−12,000 درهم"},
+      {t:"أعتذر بلطف، وأستشير خبيراً في المجال قبل أي استثمار", q:"best", d:8000,
+       fb:"«استشر الحكماء ذوي الخبرة في حفظ الذهب». حماية رأس المال تسبق تنميته — هذه حكمة أرقاد الرابعة.",
+       y1:"مدخراتك سليمة، واستثمرتها لاحقاً بعد دراسة", y5:"+8,000 درهم بدل خسارة فادحة"},
+      {t:"أعطيه نصف المبلغ فقط لتوزيع المخاطر", q:"bad", d:-6000,
+       fb:"نصف قرارٍ سيئ يبقى قراراً سيئاً. توزيع المخاطر لا يعني رمي نصف مالك في مجال مجهول.",
+       y1:"خسرت النصف", y5:"−6,000 درهم"}
+    ]
+  },
+  {
+    cure:"العلاج السابع · زد قدرتك على الكسب",
+    short:"الاستثمار في الذات (رفع قيمة مهاراتك)",
+    situation:"لديك ساعتان فارغتان كل مساء بعد العمل. كيف تستغلهما؟",
+    choices:[
+      {t:"أتعلّم مهارة مطلوبة ترفع قيمتي في السوق: لغة، تصميم، برمجة، بيع…", q:"best", d:45000,
+       fb:"«كلما زادت حكمتك ومهارتك، زاد كسبك». الاستثمار في نفسك هو الأصل الوحيد الذي لا يمكن أن يُسرق منك.",
+       y1:"زاد دخلك 1,000 درهم شهرياً بفضل مهارتك الجديدة", y5:"+45,000 درهم وأبواب جديدة مفتوحة"},
+      {t:"أرتاح وأتابع المسلسلات — العمل مرهق", q:"bad", d:0,
+       fb:"الراحة ضرورية، لكن ساعتين يومياً = 700 ساعة في السنة. في مثل هذه الساعات بنى أرقاد ثروته.",
+       y1:"أنهيت 12 مسلسلاً!", y5:"0 درهم وفرصٌ ضائعة"},
+      {t:"أبحث عن عمل إضافي مسائي بنفس مهاراتي الحالية", q:"ok", d:15000,
+       fb:"اجتهادٌ يُحترم، لكنك تبيع وقتاً إضافياً بنفس السعر. رفعُ قيمة الساعة أذكى من زيادة عدد الساعات.",
+       y1:"+800 درهم شهرياً مع إرهاق شديد", y5:"+15,000 درهم لكن على حساب صحتك"}
+    ]
+  },
+  {
+    cure:"العلاج السادس · أمّن دخل مستقبلك",
+    short:"تأمين دخل المستقبل (ابدأ مبكراً)",
+    situation:"زميلك يمازحك: «لماذا كل هذا التخطيط؟ نحن شباب، والمستقبل بعيد!» — ماذا تجيب في قرارة نفسك؟",
+    choices:[
+      {t:"معه حق… سأفكر في الموضوع بعد الأربعين", q:"bad", d:0,
+       fb:"كل سنة تأجيل تكلّفك أضعافها لاحقاً. البدء المبكر هو السلاح السرّي للعائد المركّب.",
+       y1:"لا شيء تغيّر… ظاهرياً", y5:"فجوة 25,000 درهم بينك وبين من بدأ قبلك"},
+      {t:"أبدأ من اليوم ببناء أصول تدرّ دخلاً حتى عندما أتوقف عن العمل", q:"best", d:20000,
+       fb:"«أمّن دخلاً لأيام شيخوختك ولعائلتك» — العلاج السادس. الثروة الحقيقية دخلٌ يستمر عندما تتوقف أنت.",
+       y1:"خطة واضحة واستثمار شهري منتظم", y5:"+20,000 درهم وآلة دخلٍ تكبر وحدها"},
+      {t:"أشتري تأميناً وأنسى الموضوع تماماً", q:"ok", d:5000,
+       fb:"التأمين حمايةٌ ممتازة، لكنه وحده لا يبني ثروة. الصواب: الحماية والبناء معاً.",
+       y1:"مظلة أمان جيدة", y5:"+5,000 درهم حمايةً دون نموّ"}
+    ]
+  }
+];
+
+const VERDICTS = {
+  best:{title:"⚱️ قرارٌ حكيم — هكذا يفعل أرقاد", cls:"best"},
+  ok:{title:"⚖️ مقبول… لكن هناك ما هو أذكى", cls:"ok"},
+  bad:{title:"🕳️ ثقبٌ في المحفظة!", cls:"bad"}
+};
+
+let idx = 0, wealth = 0, mastered = [];
+const $ = id => document.getElementById(id);
+
+function fmt(n){
+  const s = Math.abs(n).toLocaleString('en-US').replace(/,/g,'٬');
+  return (n<0?'−':'')+s;
+}
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $(id);
+  el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function renderDots(){
+  $('dots').innerHTML = SCENARIOS.map((_,i)=>
+    `<div class="dot ${i<idx?'on':''} ${i===idx?'now':''}"></div>`).join('');
+}
+
+function renderWealth(animateFrom){
+  const el = $('wealth');
+  el.classList.toggle('neg', wealth<0);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(animateFrom===undefined || reduce){
+    el.innerHTML = fmt(wealth)+' <small>درهم</small>'; return;
+  }
+  const start = animateFrom, diff = wealth-start, dur = 900, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    el.innerHTML = fmt(Math.round(start+diff*e))+' <small>درهم</small>';
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+
+function startGame(){
+  idx = 0; wealth = 0; mastered = [];
+  $('ledger').style.display = 'block';
+  renderWealth(); renderDots(); renderScenario();
+  show('game');
+}
+
+function renderScenario(){
+  const s = SCENARIOS[idx];
+  $('g-eyebrow').textContent = `الموقف ${idx+1} من ${SCENARIOS.length} · ${s.cure}`;
+  $('g-situation').textContent = s.situation;
+  const letters = ['أ','ب','ج'];
+  $('g-choices').innerHTML = s.choices.map((c,i)=>
+    `<button class="choice" onclick="choose(${i})"><span class="badge">${letters[i]}</span><span>${c.t}</span></button>`
+  ).join('');
+  renderDots();
+}
+
+function choose(ci){
+  const s = SCENARIOS[idx], c = s.choices[ci];
+  const before = wealth;
+  wealth += c.d;
+  mastered.push(c.q === 'best');
+  const v = VERDICTS[c.q];
+  const vd = $('f-verdict');
+  vd.className = 'verdict '+v.cls;
+  $('f-title').textContent = v.title;
+  $('f-text').textContent = c.fb;
+  $('f-y1').textContent = c.y1;
+  $('f-y5').textContent = c.y5;
+  const dEl = $('f-delta');
+  dEl.className = 'delta '+(c.d>0?'up':c.d<0?'down':'flat');
+  dEl.textContent = (c.d>0?'🪙 +':c.d<0?'💸 −':'⏳ ')+(c.d===0?'لا تغيير':Math.abs(c.d).toLocaleString('en-US').replace(/,/g,'٬')+' درهم');
+  $('f-next').textContent = (idx === SCENARIOS.length-1) ? 'اكشف نتيجتك النهائية 👑' : 'الموقف التالي ←';
+  show('feedback');
+  renderWealth(before);
+}
+
+function nextScenario(){
+  idx++;
+  if(idx < SCENARIOS.length){ renderScenario(); show('game'); }
+  else showResults();
+}
+
+function rankOf(w){
+  if(w>=130000) return {r:"👑 أنت أرقاد الجديد!", n:"تملك حكمة أغنى رجل في بابل — قراراتك تبني ثروة حقيقية. حان وقت التطبيق في حياتك الفعلية."};
+  if(w>=70000)  return {r:"🏛️ تلميذ أرقاد النجيب", n:"الطريق واضح أمامك. راجع المواقف التي أخطأت فيها أدناه وأعد المحاولة."};
+  if(w>=20000)  return {r:"⚖️ في منتصف الطريق", n:"بعض قراراتك حكيمة وبعضها يثقب المحفظة. أعد قراءة العلاجات السبعة ثم عُد للتحدي."};
+  return {r:"🕳️ محفظتك مثقوبة!", n:"لا بأس — حتى أرقاد بدأ من الصفر وأخطأ كثيراً. عُد إلى الجزء الأول من الملخص وحاول مجدداً."};
+}
+
+function showResults(){
+  $('ledger').style.display = 'none';
+  const rk = rankOf(wealth);
+  const amountEl = $('r-amount');
+  amountEl.classList.toggle('neg', wealth<0);
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n;
+  $('r-principles').innerHTML = SCENARIOS.map((s,i)=>
+    `<li><span class="p-mark ${mastered[i]?'yes':'no'}">${mastered[i]?'✓':'✗'}</span><span>${s.short}</span></li>`
+  ).join('');
+  show('results');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ amountEl.textContent = fmt(wealth); return; }
+  const dur = 1400, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    amountEl.textContent = fmt(Math.round(wealth*e));
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+
+function restart(){
+  $('ledger').style.display = 'none';
+  show('intro');
+}
+</script>
+</body>
+</html>

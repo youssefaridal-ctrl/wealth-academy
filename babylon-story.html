@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>حكاية صانع النحاس — اختر مصيرك في بابل</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#0E1E38; --lapis-deep:#16294A; --lapis-panel:#1B3158;
+    --gold:#D9A93F; --gold-bright:#F0C75E; --sand:#F2E3BC; --sand-dim:#C9BC9C;
+    --ember:#C96F4A; --reed:#7FA86B; --shadow:0 12px 32px rgba(4,10,22,.55);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:'Tajawal',sans-serif;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #1E3A66 0%, transparent 60%),
+      linear-gradient(180deg, var(--lapis-night) 0%, #0A1628 100%);
+    color:var(--sand); min-height:100vh; line-height:1.7;
+  }
+  body::after{
+    content:""; position:fixed; inset:auto 0 0 0; height:14px; z-index:5;
+    background:repeating-linear-gradient(90deg, var(--gold) 0 34px, #B8892F 34px 36px, #20406F 36px 70px, #16294A 70px 72px);
+    box-shadow:0 -6px 18px rgba(0,0,0,.45); opacity:.85;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 70px}
+
+  .ledger{
+    position:sticky;top:0;z-index:10;margin:0 -18px 16px;padding:11px 18px;
+    background:linear-gradient(180deg, rgba(14,30,56,.97) 70%, rgba(14,30,56,.85));
+    border-bottom:1px solid rgba(217,169,63,.45);backdrop-filter:blur(6px);
+  }
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .stat{text-align:center;flex:1}
+  .stat-label{font-size:.68rem;color:var(--sand-dim);font-weight:500}
+  .stat-val{font-family:'Amiri',serif;font-weight:700;font-size:1.15rem;color:var(--gold-bright);white-space:nowrap}
+  .stat-val.neg{color:var(--ember)}
+
+  .screen{display:none;animation:fadeUp .5s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  .eyebrow{
+    display:inline-block;font-size:.78rem;font-weight:700;color:var(--gold);
+    border:1px solid rgba(217,169,63,.55);border-radius:99px;padding:4px 14px;
+    margin-bottom:14px;background:rgba(217,169,63,.08);
+  }
+  h1{font-family:'Amiri',serif;font-size:2.15rem;line-height:1.4;color:var(--gold-bright);margin-bottom:6px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+  .card{
+    background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));
+    border:1px solid rgba(217,169,63,.35);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow);
+  }
+  .intro-seal{
+    width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--gold);
+    display:flex;align-items:center;justify-content:center;font-size:2.1rem;
+    background:radial-gradient(circle at 35% 30%, rgba(240,199,94,.25), rgba(217,169,63,.06));
+    box-shadow:0 0 30px rgba(217,169,63,.25);
+  }
+  .intro-list{margin:0 0 26px;list-style:none}
+  .intro-list li{display:flex;gap:10px;margin-bottom:10px;color:var(--sand);font-size:.98rem}
+  .intro-list li::before{content:"◆";color:var(--gold);font-size:.7rem;margin-top:7px}
+
+  /* ====== السرد ====== */
+  .story{
+    background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));
+    border:1px solid rgba(217,169,63,.4);border-radius:18px;padding:24px 22px;
+    box-shadow:var(--shadow);margin-bottom:18px;
+  }
+  .story p{
+    font-family:'Amiri',serif;font-size:1.2rem;line-height:2.1;color:var(--sand);
+    margin-bottom:1.45em;text-align:right;opacity:0;animation:inkIn .5s ease forwards;
+  }
+  .story p:last-child{margin-bottom:0}
+  @keyframes inkIn{from{opacity:0}to{opacity:1}}
+  .story .speech{color:var(--gold-bright);font-weight:700}
+
+  .prompt{
+    font-size:.85rem;font-weight:800;color:var(--gold);text-align:center;margin-bottom:12px;
+    letter-spacing:.3px;
+  }
+  .choice{
+    display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;
+    background:rgba(14,30,56,.55);border:1px solid rgba(242,227,188,.22);
+    border-radius:14px;padding:15px 16px;margin-bottom:12px;color:var(--sand);
+    font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.65;cursor:pointer;
+    transition:border-color .2s, background .2s, transform .15s;
+  }
+  .choice:hover,.choice:focus-visible{border-color:var(--gold);background:rgba(217,169,63,.10);transform:translateY(-1px)}
+  .choice:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
+  .choice .glyph{
+    flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:rgba(217,169,63,.16);border:1px solid rgba(217,169,63,.5);
+    color:var(--gold-bright);font-size:.95rem;margin-top:2px;
+  }
+
+  /* ====== النهاية ====== */
+  .end-icon{font-size:3.2rem;text-align:center;margin-bottom:6px}
+  .end-title{font-family:'Amiri',serif;font-size:1.9rem;font-weight:700;text-align:center;color:var(--gold-bright);margin-bottom:4px}
+  .end-kind{text-align:center;font-size:.82rem;font-weight:800;margin-bottom:18px}
+  .end-kind.good{color:#A8CF94}.end-kind.mid{color:var(--gold-bright)}.end-kind.badc{color:#E8997A}
+  .end-text{font-family:'Amiri',serif;font-size:1.18rem;line-height:2;color:var(--sand);margin-bottom:20px}
+  .lessons{list-style:none;margin-bottom:20px}
+  .lessons li{
+    display:flex;gap:10px;background:rgba(217,169,63,.08);border:1px solid rgba(217,169,63,.4);
+    border-radius:12px;padding:11px 14px;margin-bottom:9px;font-size:.93rem;
+  }
+  .lessons li::before{content:"📜";flex:0 0 auto}
+  .kpis{display:flex;gap:10px;margin-bottom:20px}
+  .kpi{flex:1;text-align:center;background:rgba(14,30,56,.5);border:1px solid rgba(242,227,188,.16);border-radius:12px;padding:12px 8px}
+  .kpi b{display:block;font-family:'Amiri',serif;font-size:1.35rem;color:var(--gold-bright)}
+  .kpi b.neg{color:var(--ember)}
+  .kpi span{font-size:.74rem;color:var(--sand-dim)}
+
+  .endings-title{font-family:'Amiri',serif;font-size:1.15rem;color:var(--gold-bright);text-align:center;margin-bottom:10px}
+  .endings-grid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:22px}
+  .end-badge{
+    width:64px;text-align:center;background:rgba(14,30,56,.5);border:1px solid rgba(242,227,188,.16);
+    border-radius:12px;padding:8px 4px;font-size:.62rem;color:var(--sand-dim);line-height:1.5;
+  }
+  .end-badge .ic{display:block;font-size:1.3rem;margin-bottom:2px}
+  .end-badge.found{border-color:rgba(217,169,63,.6);background:rgba(217,169,63,.1);color:var(--sand)}
+  .end-badge.now{box-shadow:0 0 0 2px var(--gold-bright);border-color:var(--gold-bright)}
+
+  .btn{
+    display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;
+    font-weight:800;font-size:1.1rem;color:#1A1304;
+    background:linear-gradient(180deg,var(--gold-bright),var(--gold));
+    border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;
+    box-shadow:0 6px 18px rgba(217,169,63,.3);
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(217,169,63,.4)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(217,169,63,.55);box-shadow:none;margin-top:10px}
+
+  @media (max-width:420px){
+    h1{font-size:1.8rem} .story p{font-size:1.1rem} .end-title{font-size:1.6rem}
+  }
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}
+    .story p{opacity:1!important}}
+  /* إصلاح: نص قائمة المقدّمة يتدفّق ككتلةٍ طبيعية مع إبقاء الكلمات الغليظة في مواضعها بدل تقطيع السطر */
+  .intro-list li{display:block;position:relative;padding-right:22px;gap:0}
+  .intro-list li::before{position:absolute;right:0;top:.5em;margin-top:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- لوح الحكاية -->
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div class="stat"><div class="stat-label">🪙 محفظتك</div><div class="stat-val" id="s-gold">2</div></div>
+      <div class="stat"><div class="stat-label">الفصل</div><div class="stat-val" id="s-act" style="font-size:.95rem;color:var(--sand)">الأول · الشرارة</div></div>
+      <div class="stat"><div class="stat-label">📜 حكمتك</div><div class="stat-val" id="s-wis">0</div></div>
+    </div>
+  </div>
+
+  <!-- البداية -->
+  <section class="screen active" id="intro">
+    <div class="intro-seal">🔥</div>
+    <div style="text-align:center">
+      <div class="eyebrow">قصة تفاعلية · كتاب «أغنى رجل في بابل»</div>
+      <h1>حكاية صانع النحاس</h1>
+      <p class="sub">حكايةٌ واحدة… وسبعُ نهايات. قراراتك وحدها تكتب الأخيرة.</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>أنت صانع نحاسٍ شاب في بابل، أجرك <b>قطعتان فضيتان</b> في الأسبوع.</li>
+        <li>ستلتقي شخصيات الكتاب: <b>أرقاد</b> و<b>ماثون</b> و<b>دباسير</b>… إن قادتك خطاك إليهم.</li>
+        <li>راقب <b>محفظتك 🪙</b> و<b>حكمتك 📜</b> — كلاهما يصنع مصيرك.</li>
+        <li>للحكاية <b>7 نهايات</b> مختلفة. كم نهايةً ستكتشف؟</li>
+      </ul>
+      <button class="btn" onclick="startStory()">أشعل المشعل وادخل بابل 🔥</button>
+    </div>
+  </section>
+
+  <!-- السرد -->
+  <section class="screen" id="game">
+    <div class="eyebrow" id="g-eyebrow"></div>
+    <div class="story" id="g-story"></div>
+    <div class="prompt" id="g-prompt">— ماذا تفعل؟ —</div>
+    <div id="g-choices"></div>
+  </section>
+
+  <!-- النهاية -->
+  <section class="screen" id="ending">
+    <div style="text-align:center"><div class="eyebrow">نهاية الحكاية</div></div>
+    <div class="card">
+      <div class="end-icon" id="e-icon"></div>
+      <div class="end-title" id="e-title"></div>
+      <div class="end-kind" id="e-kind"></div>
+      <div class="end-text" id="e-text"></div>
+      <ul class="lessons" id="e-lessons"></ul>
+      <div class="kpis">
+        <div class="kpi"><b id="e-gold">0</b><span>🪙 ذهبك عند الستار</span></div>
+        <div class="kpi"><b id="e-wis">0</b><span>📜 حكمة جمعتها</span></div>
+      </div>
+      <div class="endings-title">سجل النهايات — اكتشفت <span id="e-count">1</span> من 7</div>
+      <div class="endings-grid" id="e-grid"></div>
+      <button class="btn" onclick="startStory()">عِش الحكاية بمسارٍ آخر 🔥</button>
+      <button class="btn ghost" onclick="backToIntro()">عُد إلى الملخص 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ============ عقد الحكاية ============ */
+const NODES = {
+
+start:{act:1, p:[
+ "غروبُ بابل يصبغ الزقورة بلون النحاس الذي تطرقه منذ الفجر. ساعداك يؤلمانك، وفي جيبك أجر الأسبوع: قطعتان فضيتان… كما كانتا قبل سنة، وكما ستكونان — على ما يبدو — إلى الأبد.",
+ "عند باب الورشة يلحق بك صديقك بانو لاهثاً: <span class='speech'>«أرقاد يتكلم الليلة في ساحة المعبد! أغنى رجلٍ في المدينة سيخبرنا كيف صنع ذهبه!»</span>",
+ "ومن الخان المقابل تتعالى ضحكات حلقة النرد… يقولون إن حمّالاً ضاعف أجر شهرٍ فيها البارحة بليلةٍ واحدة."],
+ ch:[
+  {t:"أذهب مع بانو لسماع أرقاد — كلام الأغنياء قد يساوي ذهباً", wis:2, to:'arkad'},
+  {t:"أدخل حلقة النرد… الحظ يحب الجريئين", to:'dice'},
+  {t:"أعود إلى فراشي — التعب أصدق من الكلام والنرد معاً", to:'sleep'}
+ ]},
+
+arkad:{act:1, p:[
+ "تحت مشاعل الساحة يجلس أرقاد بثوبٍ بسيط لا يليق بأسطورته، ويقول كلماتٍ تحفر في صدرك حفراً:",
+ "<span class='speech'>«وجدتُ الطريق إلى الثراء حين قررتُ أن جزءاً من كل ما أكسبه هو ملكٌ لي وحدي… احتفظ بعُشر ما تكسب مهما قلّ، ودَع هذا العُشر يعمل ويلد أبناءً من ذهب»</span>.",
+ "يلتفت إليك شيخٌ بجانبك ويهمس بمرارة: «سمعتُ هذا الكلام قبل عشرين سنة يا فتى… ولم أعمل به يوماً. انظر إلى ثيابي الآن».",
+ "نظرتَ إلى ثياب الشيخ… ثم إلى يديك."],
+ ch:[
+  {t:"أقررها الليلة: من الغد، عُشرُ أجري لا يغادر محفظتي مهما حدث", wis:1, to:'save_start'},
+  {t:"كلامٌ جميل… لكن قطعتيّ بالكاد تطعمانني. الادخار للأغنياء", to:'dismiss'}
+ ]},
+
+dice:{act:1, p:[
+ "دخانٌ ونبيذُ تمرٍ وزهورُ نردٍ تتقافز. تضع قطعةً… فتربح. ثم أخرى… فتربح!",
+ "خمس قطعٍ فضية تلمع في كفك — أجرُ أسبوعين ونصف في ساعة. صاحبُ الحلقة يبتسم ابتسامةً باردة: <span class='speech'>«يدُك ساخنة يا صانع النحاس… ضاعِفها كلها أو غادر»</span>."],
+ ch:[
+  {t:"أضاعفها! الليلة ليلتي ولن تتكرر", to:'dice_lose'},
+  {t:"آخذ ربحي وأغادر فوراً قبل أن تبرد يدي", gold:5, to:'dice_walk'}
+ ]},
+
+dice_lose:{act:1, p:[
+ "دارت الزهور… وابتلعت الطاولةُ كلَّ ما في كفّك. استدنتَ قطعتين من صاحب الحلقة لتستردّ خسارتك — فابتلعتهما أيضاً.",
+ "خرجتَ إلى ليل بابل خاوي اليدين، وخلفك صوتٌ هادئ كنصل سكين: <span class='speech'>«قطعتان تصيران ثلاثاً مع القمر القادم يا فتى… وأنا لا أنسى وجهاً»</span>."],
+ ch:[
+  {t:"(تمضي الأسابيع والدَّين ينمو…)", gold:-4, to:'debt_life'}
+ ]},
+
+dice_walk:{act:1, p:[
+ "خرجتَ والفضةُ تدفأ في جيبك وقلبُك يطرق كمطرقتك. في طريق عودتك تمرّ بساحة المعبد حيث ينفضّ جمعُ أرقاد، وبانو يلخّص لك بعينين تلمعان: <span class='speech'>«قال: احتفظ بعُشر ما تكسب… واجعله يعمل لك!»</span>",
+ "تنظر إلى القطع الخمس في كفك. ربحُ ليلةٍ واحدة… أم بذرةُ شيءٍ آخر؟"],
+ ch:[
+  {t:"أجعل هذه الفضة أول بذرة في محفظتي — وأجرب طريق أرقاد", wis:1, to:'save_start'},
+  {t:"بل أعود بها غداً إلى الحلقة… يدي ما زالت ساخنة", to:'dice_lose'}
+ ]},
+
+sleep:{act:1, p:[
+ "مطرقة، نحاس، نوم. مطرقة، نحاس، نوم. ثلاثةُ أشهرٍ تذوب كقطعة شمع.",
+ "ذات صباح يمرض معلمُك نوري ويكلّفك بتسليم بوابةٍ نحاسية لقصر تاجرٍ كبير. وبينما تثبّتها تسمع التاجر يقول لابنه خلف الستار: <span class='speech'>«الذهب لا يأتي من العرَق وحده يا بني… بل من ذهبٍ يعرَق بدلاً عنك»</span>.",
+ "الجملة تلاحقك طوال الطريق، كذبابةٍ لا تهدأ."],
+ ch:[
+  {t:"أسأل بانو عن مجلس أرقاد القادم — أريد أن أفهم تلك الجملة", wis:1, to:'arkad'},
+  {t:"كلامُ أغنياءٍ لأبناء أغنياء… أعود إلى مطرقتي", to:'dismiss'}
+ ]},
+
+dismiss:{act:2, p:[
+ "سنةٌ كاملة تمرّ. أجرُك ينفد كل أسبوعٍ قبل أن ينتهي الأسبوع، كماءٍ في قِربةٍ مثقوبة.",
+ "زميلُك في الورشة — ذاك الذي كان يضحك الجميعُ من «عُشره» الصغير — اشترى البارحة حماراً يؤجّره للتجار، وبدأ الذهبُ يقصده وهو نائم.",
+ "تقف أمام بابك مساءً، ومحفظتك الفارغة تثقل أكثر من أي محفظةٍ ممتلئة."],
+ ch:[
+  {t:"يكفي! أبدأ بالعُشر من أجر الغد — متأخرٌ خيرٌ من واقف", wis:1, late:true, to:'save_start'},
+  {t:"هذا قدري… المطرقة والنوم. لكلٍّ نصيبه المكتوب", to:'E6'}
+ ]},
+
+save_start:{act:2, p:[
+ "كل سابع يومٍ تضع قطعةً صغيرة تحت بلاطة بيتك، وتعيش بما تبقى. كان صعباً في الشهر الأول… ثم نسيتَ أنك كنتَ تعيش بغير ذلك.",
+ "اليوم رفعتَ البلاطة وعددت: <span class='speech'>إحدى عشرة قطعةً ذهبية</span>. أول ثروةٍ في حياتك. يداك ترتجفان قليلاً.",
+ "وعند بوابة السوق يعترضك تاجرٌ فينيقي بعباءةٍ مطرزة، يفتح صندوقاً تتلألأ فيه أحجارٌ ملونة: <span class='speech'>«أحجارٌ كريمة من صور يا سيدي! ستتضاعف أربع مراتٍ في موسم القوافل — أقسم بكل آلهة البحر!»</span>"],
+ ch:[
+  {t:"أشتري بكل ذهبي! فرصةُ العمر لا تطرق البابَ مرتين", to:'glass'},
+  {t:"أمهله يوماً… وأستشير ماثون مُقرضَ الذهب أولاً، فهو أهلُ الخبرة", wis:2, to:'mathon'},
+  {t:"أرفض وأعيد ذهبي تحت البلاطة — لا أثق بأحد", to:'buried'}
+ ]},
+
+glass:{act:2, p:[
+ "انتظرتَ موسمَ القوافل بقلبٍ راقص، وحملتَ «أحجارك» إلى الصائغ ليقوّمها.",
+ "قلّبها الصائغُ تحت الشمس ثم رفع عينيه بشفقة: <span class='speech'>«زجاجُ صيدا الملوّن يا فتى. ثمنُه كسرةُ خبز»</span>.",
+ "ركضتَ إلى بوابة السوق… الفينيقيُّ صار ريحاً. إحدى عشرة قطعة — سنةٌ من العرَق — ذابت كملحٍ في الفرات."],
+ ch:[
+  {t:"أبتلع الدرس وأبدأ من جديد… أكثرَ حذراً هذه المرة", wis:1, gold:-11, to:'rebuild'},
+  {t:"انكسر شيءٌ بداخلي… لا فائدة من كل هذا", gold:-11, to:'E4'}
+ ]},
+
+mathon:{act:2, p:[
+ "في بيت ماثون، حيث رائحةُ الألواح الطينية والشمع، يقلّب المُقرضُ العجوز حجراً واحداً ثم ينفجر ضاحكاً: <span class='speech'>«زجاجُ صيدا! لو اشتريتَه لاشتريتَ درساً بإحدى عشرة قطعة»</span>.",
+ "ثم يحدّق فيك طويلاً: <span class='speech'>«لكنك جئتَ تسأل قبل أن تدفع… وهذه يا فتى عادةُ من يكبر ذهبُهم. اسمع: لا تضع ذهبك حيث لا تفهم، ولا تأخذ نصيحةَ الجواهر من صانع طوب»</span>.",
+ "وقبل أن تغادر يهمس: <span class='speech'>«معلّمُك نوري ينافس على عقد البوابات البرونزية لسور المدينة الجديد… ويبحث عن شريكٍ صغير يثق به»</span>."],
+ ch:[
+  {t:"(تشدّ عباءتك وتمضي نحو الورشة…)", to:'opportunity'}
+ ]},
+
+buried:{act:2, p:[
+ "ذهبُك آمنٌ تحت البلاطة. تطمئنّ عليه كل ليلة… وهو يردّ عليك بصمتٍ بارد. الذهبُ النائم لا يلد.",
+ "بعد أشهرٍ تسمع في السوق: المعلم نوري وقّع عقدَ بوابات السور الجديد مع شريكٍ وضع ذهبه معه — شريكٍ صار اليوم يرتدي الكتان المصري ويُدعى «سيدي».",
+ "كان يمكن أن تكون أنت."],
+ ch:[
+  {t:"أتعلّم الدرس: أحمل ذهبي إلى ماثون وأسأله كيف أجعله يعمل", wis:1, to:'opportunity'},
+  {t:"الأمانُ أولاً… بلاطتي خيرٌ من مغامرات السادة", to:'E3'}
+ ]},
+
+debt_life:{act:2, p:[
+ "صاحبُ الحلقة يطرق بابك كلَّ هلال، والقطعتان صارتا أربعاً بالفائدة، والأربعُ ستصير ثماني. صرتَ تمشي في الأسواق ملاصقاً للجدران، تتجنب العيون.",
+ "عند نافورة الجِمال يلمحك رجلٌ وقورٌ بعينين تعرفان: <span class='speech'>«أعرف هذه المشية يا فتى. مشيةُ من يطارده الدَّين. كنتُ مثلك… بل أسوأ: كنتُ عبداً حقيقياً يُباع ويُشترى في أرض الفرس، أنا دباسير تاجرُ الجِمال»</span>."],
+ ch:[
+  {t:"أجلس وأسمع قصته — كيف عاد العبدُ الهارب سيداً يمشي مرفوع الرأس؟", wis:2, to:'dabasir'},
+  {t:"لا وقت للقصص… سأهرب من بابل قبل أن يفضحني الدائن", to:'E5'}
+ ]},
+
+dabasir:{act:2, p:[
+ "يقول دباسير: <span class='speech'>«عُدتُ إلى بابل وديوني تسبقني، لكن صاحبي ماثون خطّ لي على لوحٍ طينيٍّ خطةً ثلاثية: سبعةُ أعشار أجرك لعيشك وأهلك، وعُشران تقسمهما بالعدل على دائنيك كلَّ هلال، وعُشرٌ واحد… لك أنت، لا يمسّه أحد»</span>.",
+ "<span class='speech'>«التزمتُها هلالاً بعد هلال. جاع بطني أحياناً، لكن ظهري استقام. وحيث تُصمّم الإرادةُ يا فتى… يوجد السبيل»</span>.",
+ "يدفع نحوك لوحاً طينياً فارغاً وقلمَ بوص: <span class='speech'>«اكتب أسماء دائنيك. الآن»</span>."],
+ ch:[
+  {t:"أكتب… وألتزم الخطة مهما قسَت الشهور", to:'redemption'},
+  {t:"مستحيل! لا أستطيع العيش بسبعة أعشار أجري الهزيل", to:'debt_spiral'}
+ ]},
+
+debt_spiral:{act:2, p:[
+ "رفضتَ الخطة… والفائدةُ لا ترفض النموّ. صاحبُ الحلقة أرسل من يهدد بأخذ عُدّة عملك نفسِها — مطرقتك، سندانك، يديك تقريباً.",
+ "ليلةٌ سوداء بلا نوم. أمامك طريقان لا ثالث لهما، وكلاهما يمرّ من بوابة عشتار."],
+ ch:[
+  {t:"أعود إلى دباسير منكسراً… وأكتب أسماء دائنيّ بيدٍ ترتجف", wis:1, to:'redemption'},
+  {t:"أهرب الليلة قبل طلوع الفجر", to:'E5'}
+ ]},
+
+redemption:{act:3, p:[
+ "هلالاً بعد هلال: سبعةُ أعشارٍ تطعمك، وعُشران يُوزّعان أمام الشهود على الدائنين، وعُشرٌ يثقل تحت بلاطتك. أكلتَ التمرَ والخبزَ وحدهما شهوراً… لكنك مشيتَ في السوق مرفوعَ الرأس.",
+ "واليوم — يا للعجب — وضعتَ آخرَ قطعةِ دينٍ في كفّ صاحب الحلقة نفسِه، فحدّق فيك طويلاً ثم قال على غير عادته: <span class='speech'>«ما رأيتُ في بابل من يسدّد بانتظامك. إن أردتَ يوماً قرضاً لتجارةٍ شريفة… فبابي مفتوح»</span>.",
+ "حُرٌّ. وتحت البلاطة بذرةُ ذهبٍ صغيرة، وفي صدرك شيءٌ أثمن."],
+ ch:[
+  {t:"(وبعد أسابيع، يصلك خبرٌ من ورشة المعلم نوري…)", gold:6, redeemed:true, to:'opportunity'}
+ ]},
+
+rebuild:{act:3, p:[
+ "عامٌ آخر من المطرقة والعُشر. لكنك هذه المرة لا تكتفي بالادخار: تجالس ماثون، تسأل التجار، تتعلم كيف تُقرأ الألواح وكيف تُوزن المخاطر.",
+ "تحت البلاطة الآن ثماني قطعٍ… ومعها شيءٌ لم يكن في المرة الأولى: عينان تفرّقان الجوهرَ من الزجاج."],
+ ch:[
+  {t:"(وذات صباح، يستدعيك المعلم نوري إلى ركن الورشة…)", gold:8, to:'opportunity'}
+ ]},
+
+opportunity:{act:3, p:[
+ "يبسط المعلم نوري لوحاً طينياً عليه ختمُ المدينة: <span class='speech'>«عقدُ البوابات البرونزية لسور بابل الجديد. فزتُ به يا فتى! لكن النحاس والقصدير يحتاجان ذهباً أكثر مما أملك. ضَع ذهبَك معي… ولك خُمسُ الربح»</span>.",
+ "خُمسُ ربحِ عقدِ المدينة! لكنه يعني أيضاً: كلُّ ما جمعتَه، في كفّةٍ واحدة.",
+ "يداك تتعرقان قليلاً وأنت تزن الأمر."],
+ ch:[
+  {t:"أشارك — لكن بعقدٍ يُخَطّ على لوحٍ طيني أمام شهود، وبعد أن أرى حسابات الورشة بعينَيّ", wis:2, to:'__win'},
+  {t:"أشارك فوراً ومن غير ألواح! نوري كأبي ولا يحتاج الطيبون أوراقاً", to:'E7'},
+  {t:"أعتذر… لا أحتمل المخاطرة بكل ما جمعت", to:'E3'}
+ ]}
+};
+
+/* ============ النهايات ============ */
+const ENDINGS = {
+E1:{icon:"👑", kind:"good", title:"تاجرُ بوابةِ عشتار",
+ text:"عُلّقت البواباتُ البرونزية على سور بابل وتحتها اسمان: نوري… وأنتَ. خُمسُ الربح صار بذرةَ ورشتك الخاصة، وذهبُك اليوم يلد أبناءً وأحفاداً من ذهب وأنت نائم. وفي مساءات الساحة، حين يتحلّق الشبابُ حولك يسألون عن سرّك، تبتسم وتقول ما قاله أرقاد يوماً: «جزءٌ من كل ما تكسبه… هو ملكٌ لك وحدك».",
+ lessons:["العُشر المُدّخر + الذهب العامل + مشورة الخبراء + العقود الموثّقة = طريق أرقاد كاملاً","الثروة لا تُبنى بضربة حظ، بل بقراراتٍ صغيرة صحيحة تتراكم"]},
+E2:{icon:"🌅", kind:"good", title:"الحُرّ من جديد",
+ text:"من قاع حلقة النرد إلى شراكة عقدِ السور — يا لها من رحلة! البواباتُ عُلّقت، ونصيبُك منها سدّد بقايا جراحك القديمة وبنى فوقها. صاحبُ الحلقة نفسُه صار يحييك في السوق بإيماءةٍ مهيبة. لوحُ دباسير الطيني معلّقٌ في صدر بيتك، تريه لكل غارقٍ في الدَّين: سبعةُ أعشارٍ للعيش، وعُشران للدَّين، وعُشرٌ لك… وحيث تُصمّم الإرادة، يوجد السبيل.",
+ lessons:["خطة 70/20/10 تحوّل المديونَ الغارق إلى رجلٍ حر — التزاماً لا ذكاءً","النفسُ المُجرَّبة التي نهضت من قاعها أصلبُ من التي لم تسقط قط"]},
+E3:{icon:"⚖️", kind:"mid", title:"حارسُ المحفظةِ الصغيرة",
+ text:"مرّت السنون. ذهبُك ما زال تحت البلاطة: آمناً… وعقيماً. لم تخسر قطعةً واحدة، هذا صحيح — لكنك في كل موسمٍ ترى قوافلَ غيرِك تعود مثقلة، وبواباتِ غيرِك تعلو الأسوار. تعلّمتَ نصفَ درسِ أرقاد: احتفظتَ بالعُشر… لكنك نسيتَ نصفه الثاني: اجعله يعمل.",
+ lessons:["الادخار وحده لا يصنع ثروة — الذهب النائم يأكله الزمن","الخوف من كل المخاطر هو نفسه أكبر مخاطرة: مخاطرة ألا تنمو أبداً"]},
+E4:{icon:"🪞", kind:"badc", title:"ضحيةُ الزجاجِ البرّاق",
+ text:"بعد ليلة الصائغ، لم ترفع البلاطة مرةً أخرى. عُدتَ إلى المطرقة والنوم، وكلما لمحتَ بريقاً في السوق أشحتَ بوجهك. الفينيقيُّ خدعك مرة… لكن من حرمك سنواتِ ما بعدها كان قرارَك أنت. وفي زاوية صدرك سؤالٌ لا يهدأ: ماذا لو سألتُ ماثون يومها… قبل أن أدفع؟",
+ lessons:["القانون الخامس: الذهب يهرب ممن يطارد الأرباح الخيالية ويصدّق المحتالين","الخسارة درسٌ مدفوع الثمن — من لم يتعلم منه دفع الثمن مجاناً"]},
+E5:{icon:"🌑", kind:"badc", title:"الهاربُ من بابل",
+ text:"غادرتَ من بوابة عشتار قبل الفجر، كظلٍّ يطارده ظل. في المدن الغريبة عملتَ بنصف أجرك القديم، لأن لا أحد يعرف صنعتك ولا اسمك — والاسمُ الذي تعرفه بابل صار مقروناً بالدَّين الهارب. كان دباسير قد قال لك يومها: «الدَّينُ يُسدَّد فيموت… أما العار فيمشي خلفك أينما مشيت». ليتك سمعت.",
+ lessons:["الهروب من الدَّين يضاعفه ويضيف إليه ما لا يُسدَّد: السمعة","الطريق الوحيد للخروج من الحفرة يبدأ بالاعتراف بعمقها — ثم خطة 70/20/10"]},
+E6:{icon:"⏳", kind:"badc", title:"عشرون عاماً أخرى",
+ text:"مطرقة، نحاس، نوم. صار شعرُك رماداً وظهرُك قوساً، وأجرُك — بعد كل هذه السنين — ثلاثُ قطعٍ بدل اثنتين. في ساحة المعبد يتكلم الليلةَ رجلٌ غني جديد أمام الشباب… إنه زميلُك القديم، صاحبُ الحمار الأول. تقف في آخر الجمع وتسمعه يقول: «بدأتُ بعُشر قطعتين فقط…» — وتدرك أن الفرق بينكما لم يكن الأجر يوماً. كان قراراً واحداً صغيراً، اتخذه ولم تتخذه.",
+ lessons:["لا يوجد دخلٌ أصغر من أن يُدّخر عُشره — يوجد فقط قرارٌ مؤجَّل","أغلى ما يُهدَر ليس الذهب… بل السنوات"]},
+E7:{icon:"🤝", kind:"mid", title:"شريكٌ بلا لوحٍ طيني",
+ text:"نجح العقدُ وعُلّقت البوابات! لكن يومَ القسمة بسط ابنُ نوري ألواحَ حساباتٍ لم ترَها من قبل: نفقاتٌ هنا وديونُ ورشةٍ هناك… حتى ذاب نصفُ نصيبك أمام عينيك، ولا لوحَ بيدك يشهد لك. أخذتَ ما أُعطيت وابتلعتَ الباقي. ربحتَ ذهباً أقلَّ مما تستحق… ودرساً أغلى مما دفعت: الطيبون أيضاً يحتاجون ألواحاً.",
+ lessons:["احمِ ثروتك من الخسارة: العقود المكتوبة والشهود ليست شكاً بالشريك بل احتراماً للشراكة","الثقة تُبنى على الوضوح — ما خُطّ على الطين لا يتبدل مع الأهواء"]}
+};
+
+const ACTS = {1:"الأول · الشرارة", 2:"الثاني · الاختبار", 3:"الثالث · القرار"};
+
+let st = null;
+let discovered = new Set(); /* نهايات هذه الجلسة */
+
+const $ = id => document.getElementById(id);
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el=$(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function startStory(){
+  st = {gold:2, wis:0, redeemed:false, late:false};
+  $('ledger').style.display='block';
+  goto('start');
+  show('game');
+}
+
+function renderLedger(){
+  const g=$('s-gold');
+  g.textContent = st.gold; g.classList.toggle('neg', st.gold<0);
+  $('s-wis').textContent = st.wis;
+}
+
+function goto(id){
+  if(id==='__win'){ id = st.redeemed ? 'E2' : 'E1'; }
+  if(ENDINGS[id]){ return showEnding(id); }
+  const n = NODES[id];
+  $('s-act').textContent = ACTS[n.act];
+  $('g-eyebrow').textContent = 'الفصل '+ACTS[n.act];
+  $('g-story').innerHTML = n.p.map(t=>`<p>${t}</p>`).join('');
+  $('g-prompt').textContent = n.ch.length===1 ? '— تابع —' : '— ماذا تفعل؟ —';
+  $('g-choices').innerHTML = n.ch.map((c,i)=>
+    `<button class="choice" onclick="pick('${id}',${i})"><span class="glyph">${n.ch.length===1?'←':'◆'}</span><span>${c.t}</span></button>`
+  ).join('');
+  renderLedger();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function pick(nodeId, ci){
+  const c = NODES[nodeId].ch[ci];
+  if(c.gold) st.gold += c.gold;
+  if(c.wis) st.wis += c.wis;
+  if(c.redeemed) st.redeemed = true;
+  if(c.late) st.late = true;
+  goto(c.to);
+}
+
+function showEnding(id){
+  discovered.add(id);
+  const e = ENDINGS[id];
+  /* ذهب رمزي للنهايات */
+  const endGold = {E1: st.gold+40, E2: st.gold+24, E3: Math.max(st.gold,8), E4: 0, E5: 0, E6: 1, E7: st.gold+9}[id];
+  $('ledger').style.display='none';
+  $('e-icon').textContent = e.icon;
+  $('e-title').textContent = e.title;
+  const kindMap = {good:["نهاية ذهبية ✦","good"], mid:["نهاية فضية ◆","mid"], badc:["نهاية معتمة ▪","badc"]};
+  $('e-kind').textContent = kindMap[e.kind][0];
+  $('e-kind').className = 'end-kind '+kindMap[e.kind][1];
+  $('e-text').textContent = e.text;
+  $('e-lessons').innerHTML = e.lessons.map(l=>`<li>${l}</li>`).join('');
+  const gEl = $('e-gold');
+  gEl.textContent = endGold; gEl.classList.toggle('neg', endGold<=0);
+  $('e-wis').textContent = st.wis;
+  $('e-count').textContent = discovered.size;
+  $('e-grid').innerHTML = Object.keys(ENDINGS).map(k=>{
+    const found = discovered.has(k);
+    const cls = 'end-badge'+(found?' found':'')+(k===id?' now':'');
+    return `<div class="${cls}"><span class="ic">${found?ENDINGS[k].icon:'❔'}</span>${found?ENDINGS[k].title:'؟؟؟'}</div>`;
+  }).join('');
+  show('ending');
+}
+
+function backToIntro(){ $('ledger').style.display='none'; show('intro'); }
+</script>
+</body>
+</html>
