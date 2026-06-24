@@ -330,6 +330,7 @@ function rankOf(w){
   return {r:"🌀 تفكيرك الصغير يحدّ من نتائجك", n:"لا بأس — الوعي أول خطوة. ابدأ بسؤالٍ واحد: «أيّ عذرٍ من الأربعة أتذرّع به الآن؟»"};
 }
 function showResults(){
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"tb_decision"},"*");}catch(e){}/*WA_TRACK*/
   $('ledger').style.display = 'none';
   const rk = rankOf(wealth);
   const amountEl = $('r-amount');

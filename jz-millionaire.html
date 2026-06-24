@@ -3,56 +3,56 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>اختبار الفخاخ اللاعقلانية — من سيربح المليون</title>
+<title>اختبار التحصين العصبي — من سيربح المليون</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --lapis-night:#2A1320; --lapis-deep:#180A12; --lapis-panel:#3D1F2E;
-    --gold:#D9A23B; --gold-bright:#F0C36B; --sand:#F3E6EC; --sand-dim:#C9A8B8;
-    --ember:#D2674E; --reed:#5FB389; --teal:#8A4A6A; --teal-deep:#5C2E46; --teal-bright:#C8769B;
-    --shadow:0 12px 32px rgba(10,2,6,.6);
+    --lapis-night:#1a3027; --lapis-deep:#0a1a14; --lapis-panel:#1f3d31;
+    --gold:#D9A23B; --gold-bright:#F0C36B; --sand:#E8F3EC; --sand-dim:#A8C9B8;
+    --ember:#D2674E; --reed:#5FB389; --teal:#2a5a52; --teal-deep:#1a3c37; --teal-bright:#6fc9a8;
+    --shadow:0 12px 32px rgba(2,10,6,.6);
   }
   *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:'Tajawal',sans-serif;background:radial-gradient(1200px 600px at 50% -10%, #5C2E46 0%, transparent 60%),linear-gradient(180deg, var(--lapis-night) 0%, #0A0207 100%);color:var(--sand);min-height:100vh;line-height:1.7}
-  body::after{content:"";position:fixed;inset:auto 0 0 0;height:3px;z-index:5;background:linear-gradient(90deg, transparent 0, var(--teal) 30%, var(--gold-bright) 50%, var(--teal) 70%, transparent 100%);box-shadow:0 -4px 16px rgba(138,74,106,.35);opacity:.9}
+  body{font-family:'Tajawal',sans-serif;background:radial-gradient(1200px 600px at 50% -10%, #1a3c37 0%, transparent 60%),linear-gradient(180deg, var(--lapis-night) 0%, #060f0b 100%);color:var(--sand);min-height:100vh;line-height:1.7}
+  body::after{content:"";position:fixed;inset:auto 0 0 0;height:3px;z-index:5;background:linear-gradient(90deg, transparent 0, var(--teal) 30%, var(--gold-bright) 50%, var(--teal) 70%, transparent 100%);box-shadow:0 -4px 16px rgba(42,90,82,.35);opacity:.9}
   .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
-  .ledger{position:sticky;top:0;z-index:10;margin:0 -18px 16px;padding:12px 18px;background:linear-gradient(180deg, rgba(42,19,32,.97) 70%, rgba(42,19,32,.85));border-bottom:1px solid rgba(138,74,106,.45);backdrop-filter:blur(6px)}
+  .ledger{position:sticky;top:0;z-index:10;margin:0 -18px 16px;padding:12px 18px;background:linear-gradient(180deg, rgba(26,48,39,.97) 70%, rgba(26,48,39,.85));border-bottom:1px solid rgba(42,90,82,.45);backdrop-filter:blur(6px)}
   .ledger-inner{max-width:524px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:10px}
   .stat-label{font-size:.7rem;color:var(--sand-dim);font-weight:500}
   .stat-val{font-family:'Cairo',sans-serif;font-weight:800;font-size:1.25rem;color:var(--gold-bright);white-space:nowrap}
-  .ladder-btn{border:1px solid rgba(138,74,106,.55);background:rgba(138,74,106,.12);color:var(--teal-bright);border-radius:99px;padding:7px 14px;font-family:'Tajawal',sans-serif;font-weight:800;font-size:.82rem;cursor:pointer}
+  .ladder-btn{border:1px solid rgba(42,90,82,.55);background:rgba(42,90,82,.12);color:var(--teal-bright);border-radius:99px;padding:7px 14px;font-family:'Tajawal',sans-serif;font-weight:800;font-size:.82rem;cursor:pointer}
   .lifelines{display:flex;gap:8px;margin-top:10px;justify-content:center}
-  .life{flex:1;max-width:160px;border-radius:12px;padding:8px 6px;cursor:pointer;text-align:center;font-family:'Tajawal',sans-serif;font-weight:800;font-size:.8rem;color:var(--teal-bright);background:rgba(138,74,106,.12);border:1px solid rgba(138,74,106,.55);transition:opacity .2s, transform .15s}
+  .life{flex:1;max-width:160px;border-radius:12px;padding:8px 6px;cursor:pointer;text-align:center;font-family:'Tajawal',sans-serif;font-weight:800;font-size:.8rem;color:var(--teal-bright);background:rgba(42,90,82,.12);border:1px solid rgba(42,90,82,.55);transition:opacity .2s, transform .15s}
   .life:hover:not(:disabled){transform:translateY(-1px)}
   .life:disabled{opacity:.32;cursor:default;text-decoration:line-through}
   .life:focus-visible{outline:2px solid var(--teal-bright);outline-offset:2px}
-  .ladder-panel{position:fixed;inset:0;z-index:50;background:rgba(10,2,6,.85);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px}
+  .ladder-panel{position:fixed;inset:0;z-index:50;background:rgba(2,10,6,.85);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px}
   .ladder-panel.open{display:flex}
-  .ladder-card{width:100%;max-width:360px;background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(138,74,106,.5);border-radius:18px;padding:20px;box-shadow:var(--shadow);max-height:86vh;overflow:auto}
+  .ladder-card{width:100%;max-width:360px;background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(42,90,82,.5);border-radius:18px;padding:20px;box-shadow:var(--shadow);max-height:86vh;overflow:auto}
   .ladder-title{font-family:'Cairo',sans-serif;font-size:1.3rem;font-weight:800;color:var(--gold-bright);text-align:center;margin-bottom:12px}
   .rung{display:flex;justify-content:space-between;align-items:center;padding:7px 12px;border-radius:10px;font-size:.92rem;margin-bottom:4px;border:1px solid transparent}
   .rung .num{color:var(--sand-dim);font-size:.78rem;font-weight:700;min-width:34px}
   .rung .amt{font-family:'Cairo',sans-serif;font-weight:700;color:var(--sand)}
   .rung.safe .amt{color:var(--gold-bright)}
   .rung.safe{border-color:rgba(217,162,59,.35);background:rgba(217,162,59,.06)}
-  .rung.current{background:rgba(138,74,106,.2);border-color:var(--teal);box-shadow:0 0 12px rgba(138,74,106,.3)}
+  .rung.current{background:rgba(42,90,82,.2);border-color:var(--teal);box-shadow:0 0 12px rgba(42,90,82,.3)}
   .rung.won .amt,.rung.won .num{color:#8FE0B6}
   .screen{display:none;animation:fadeUp .45s ease both}
   .screen.active{display:block}
   @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-  .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;color:var(--teal);border:1px solid rgba(138,74,106,.55);border-radius:99px;padding:4px 14px;margin-bottom:14px;background:rgba(138,74,106,.1)}
+  .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;color:var(--teal);border:1px solid rgba(42,90,82,.55);border-radius:99px;padding:4px 14px;margin-bottom:14px;background:rgba(42,90,82,.1)}
   h1{font-family:'Cairo',sans-serif;font-size:2.2rem;font-weight:900;line-height:1.35;color:var(--gold-bright);margin-bottom:6px}
   .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
-  .card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(138,74,106,.35);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow)}
-  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--teal);display:flex;align-items:center;justify-content:center;font-size:2.1rem;background:radial-gradient(circle at 35% 30%, rgba(138,74,106,.3), rgba(217,162,59,.05));box-shadow:0 0 30px rgba(138,74,106,.3)}
+  .card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(42,90,82,.35);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow)}
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--teal);display:flex;align-items:center;justify-content:center;font-size:2.1rem;background:radial-gradient(circle at 35% 30%, rgba(42,90,82,.3), rgba(217,162,59,.05));box-shadow:0 0 30px rgba(42,90,82,.3)}
   .intro-list{margin:0 0 26px;list-style:none}
   .intro-list li{display:block;position:relative;padding-right:22px;color:var(--sand);font-size:.98rem;margin-bottom:10px}
   .intro-list li::before{content:"◆";color:var(--teal);font-size:.7rem;position:absolute;right:0;top:.5em}
-  .q-card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(138,74,106,.4);border-radius:18px;padding:22px;box-shadow:var(--shadow);margin-bottom:16px;text-align:center}
+  .q-card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(42,90,82,.4);border-radius:18px;padding:22px;box-shadow:var(--shadow);margin-bottom:16px;text-align:center}
   .q-text{font-family:'Cairo',sans-serif;font-size:1.3rem;line-height:1.8;font-weight:700;color:var(--sand)}
-  .hintbox{display:none;background:rgba(138,74,106,.12);border:1px solid rgba(138,74,106,.5);border-radius:14px;padding:14px 16px;margin-bottom:14px;font-size:.95rem}
+  .hintbox{display:none;background:rgba(42,90,82,.12);border:1px solid rgba(42,90,82,.5);border-radius:14px;padding:14px 16px;margin-bottom:14px;font-size:.95rem}
   .hintbox.show{display:block;animation:fadeUp .3s ease both}
   .hintbox .who{font-weight:800;color:var(--teal-bright);font-size:.82rem;margin-bottom:4px}
   .hintbox .txt{font-family:'Cairo',sans-serif;font-size:1.02rem;line-height:1.8}
@@ -60,17 +60,17 @@
   .poll.show{display:block;animation:fadeUp .3s ease both}
   .poll-row{display:flex;align-items:center;gap:10px;margin-bottom:7px}
   .poll-letter{flex:0 0 auto;width:24px;font-weight:800;color:var(--teal-bright);font-size:.9rem}
-  .poll-track{flex:1;height:16px;border-radius:99px;background:rgba(243,230,236,.12);overflow:hidden}
+  .poll-track{flex:1;height:16px;border-radius:99px;background:rgba(232,243,236,.12);overflow:hidden}
   .poll-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--teal-bright),var(--teal-deep));width:0;transition:width .8s ease}
   .poll-pct{flex:0 0 auto;min-width:42px;text-align:left;font-size:.82rem;font-weight:800;color:var(--sand-dim)}
-  .opt{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;background:rgba(24,10,18,.55);border:1px solid rgba(243,230,236,.22);border-radius:14px;padding:14px 16px;margin-bottom:11px;color:var(--sand);font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.6;cursor:pointer;transition:border-color .2s, background .2s, transform .15s, opacity .3s}
-  .opt:hover:not(:disabled),.opt:focus-visible{border-color:var(--teal);background:rgba(138,74,106,.12)}
+  .opt{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;background:rgba(10,26,20,.55);border:1px solid rgba(232,243,236,.22);border-radius:14px;padding:14px 16px;margin-bottom:11px;color:var(--sand);font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.6;cursor:pointer;transition:border-color .2s, background .2s, transform .15s, opacity .3s}
+  .opt:hover:not(:disabled),.opt:focus-visible{border-color:var(--teal);background:rgba(42,90,82,.12)}
   .opt:focus-visible{outline:2px solid var(--teal-bright);outline-offset:2px}
-  .opt .badge{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(138,74,106,.18);border:1px solid rgba(138,74,106,.55);color:var(--teal-bright);font-weight:800;font-size:.95rem;margin-top:1px}
+  .opt .badge{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(42,90,82,.18);border:1px solid rgba(42,90,82,.55);color:var(--teal-bright);font-weight:800;font-size:.95rem;margin-top:1px}
   .opt.removed{opacity:.22;pointer-events:none;text-decoration:line-through}
-  .opt.selected{border-color:var(--teal-bright);background:rgba(138,74,106,.2);box-shadow:0 0 0 2px rgba(200,118,155,.35)}
+  .opt.selected{border-color:var(--teal-bright);background:rgba(42,90,82,.2);box-shadow:0 0 0 2px rgba(111,201,168,.35)}
   .opt.suspense{animation:pulse 0.55s ease-in-out infinite}
-  @keyframes pulse{0%,100%{box-shadow:0 0 0 2px rgba(200,118,155,.25)}50%{box-shadow:0 0 0 6px rgba(200,118,155,.5)}}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 2px rgba(111,201,168,.25)}50%{box-shadow:0 0 0 6px rgba(111,201,168,.5)}}
   .opt.correct{border-color:var(--reed);background:rgba(95,179,137,.2);box-shadow:0 0 0 3px rgba(95,179,137,.4)}
   .opt.correct .badge{background:rgba(95,179,137,.25);border-color:var(--reed);color:#8FE0B6}
   .opt.wrong{border-color:var(--ember);background:rgba(210,103,78,.2);box-shadow:0 0 0 3px rgba(210,103,78,.4)}
@@ -79,16 +79,16 @@
   .confirm-bar{display:none;gap:10px;margin-bottom:12px}
   .confirm-bar.show{display:flex;animation:fadeUp .25s ease both}
   .cbtn{flex:1;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1rem;border-radius:12px;padding:13px}
-  .cbtn.go{color:#2A1320;background:linear-gradient(180deg,var(--teal-bright),var(--teal-deep))}
-  .cbtn.back{background:transparent;color:var(--sand-dim);border:1px solid rgba(243,230,236,.3)}
+  .cbtn.go{color:#1a3027;background:linear-gradient(180deg,var(--teal-bright),var(--teal-deep))}
+  .cbtn.back{background:transparent;color:var(--sand-dim);border:1px solid rgba(232,243,236,.3)}
   .result-banner{display:none;border-radius:14px;padding:14px 16px;margin-bottom:12px;border:1px solid;text-align:center;font-weight:800}
   .result-banner.show{display:block;animation:fadeUp .3s ease both}
   .result-banner.win{background:rgba(95,179,137,.15);border-color:rgba(95,179,137,.6);color:#8FE0B6}
   .result-banner.lose{background:rgba(210,103,78,.15);border-color:rgba(210,103,78,.6);color:#F0987C}
   .walk{display:block;width:100%;background:transparent;border:1px dashed rgba(210,103,78,.55);color:#E8997A;border-radius:12px;padding:10px;font-family:'Tajawal',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;margin-top:4px}
   .walk:hover{background:rgba(210,103,78,.08)}
-  .btn{display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;color:#2A1320;background:linear-gradient(180deg,var(--teal-bright),var(--teal-deep));border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(92,46,70,.4)}
-  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(92,46,70,.5)}
+  .btn{display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;color:#1a3027;background:linear-gradient(180deg,var(--teal-bright),var(--teal-deep));border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(26,60,55,.4)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(26,60,55,.5)}
   .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
   .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(217,162,59,.55);box-shadow:none;margin-top:10px}
   .final-amount{font-family:'Cairo',sans-serif;font-size:3rem;font-weight:900;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
@@ -96,7 +96,7 @@
   .rank{text-align:center;font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800;color:var(--sand);margin-bottom:6px}
   .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:20px}
   .kpis{display:flex;gap:10px;margin-bottom:22px}
-  .kpi{flex:1;text-align:center;background:rgba(24,10,18,.5);border:1px solid rgba(243,230,236,.16);border-radius:12px;padding:12px 8px}
+  .kpi{flex:1;text-align:center;background:rgba(10,26,20,.5);border:1px solid rgba(232,243,236,.16);border-radius:12px;padding:12px 8px}
   .kpi b{display:block;font-family:'Cairo',sans-serif;font-size:1.35rem;color:var(--gold-bright)}
   .kpi span{font-size:.74rem;color:var(--sand-dim)}
   .quote{font-family:'Cairo',sans-serif;font-size:1.16rem;font-weight:700;line-height:1.85;text-align:center;color:var(--gold-bright);border-top:1px solid rgba(217,162,59,.35);border-bottom:1px solid rgba(217,162,59,.35);padding:18px 6px;margin-bottom:22px}
@@ -118,7 +118,7 @@
     </div>
     <div class="lifelines">
       <button class="life" id="L-fifty" onclick="useFifty()">٥٠:٥٠<br>احذف إجابتين</button>
-      <button class="life" id="L-arkad" onclick="useArkad()">📖 استشر<br>أريلي</button>
+      <button class="life" id="L-arkad" onclick="useArkad()">📖 استشر<br>زويغ</button>
       <button class="life" id="L-poll" onclick="usePoll()">🎟️ تصويت<br>القرّاء</button>
     </div>
   </div>
@@ -134,25 +134,25 @@
   <section class="screen active" id="intro">
     <div class="intro-seal">🧠</div>
     <div style="text-align:center">
-      <div class="eyebrow">اختبار الكنز · كتاب «لاعقلانيون بامتياز»</div>
-      <h1>اختبار الفخاخ اللاعقلانية</h1>
-      <p class="sub">12 سؤالاً تصعد بها من 500 درهم إلى المليون… إن صمدت معرفتك بفخاخ دان أريلي المتوقَّعة.</p>
+      <div class="eyebrow">اختبار الكنز · كتاب «مالك وعقلك»</div>
+      <h1>اختبار التحصين العصبي</h1>
+      <p class="sub">12 سؤالاً تصعد بها من 500 درهم إلى المليون… إن صمدت معرفتك بتشريح القرار المالي عند جيسون زويغ.</p>
     </div>
     <div class="card">
       <ul class="intro-list">
-        <li><b>12 سؤالاً</b> متدرّجاً من تجارب دان أريلي في «لاعقلانيون بامتياز».</li>
+        <li><b>12 سؤالاً</b> متدرّجاً من علم أعصاب المال في «مالك وعقلك».</li>
         <li>منطقتا أمان: <b>8,000</b> و<b>250,000</b> — الخطأ يعيدك إلى آخر أمانٍ بلغته.</li>
-        <li>3 وسائل مساعدة: <b>٥٠:٥٠</b>، <b>📖 استشر أريلي</b>، <b>🎟️ تصويت القرّاء</b>.</li>
+        <li>3 وسائل مساعدة: <b>٥٠:٥٠</b>، <b>📖 استشر زويغ</b>، <b>🎟️ تصويت القرّاء</b>.</li>
         <li>يمكنك <b>الانسحاب</b> في أي لحظةٍ بما ربحته.</li>
       </ul>
-      <button class="btn" onclick="startGame()">اجلس على كرسي العقل ⚓</button>
+      <button class="btn" onclick="startGame()">اجلس على كرسي الدماغ ⚓</button>
     </div>
   </section>
 
   <section class="screen" id="game">
     <div class="q-card"><div class="q-text" id="q-text"></div></div>
     <div class="hintbox" id="hintbox">
-      <div class="who">📖 أريلي يهمس لك:</div>
+      <div class="who">📖 زويغ يهمس لك:</div>
       <div class="txt" id="hint-text"></div>
     </div>
     <div class="poll" id="poll"></div>
@@ -169,7 +169,7 @@
   <section class="screen" id="results">
     <div style="text-align:center"><div class="eyebrow" id="r-eyebrow">انتهت الجلسة</div></div>
     <div class="card">
-      <div class="final-label">غادرتَ كرسي العقل ومعك</div>
+      <div class="final-label">غادرتَ كرسي الدماغ ومعك</div>
       <div class="final-amount" id="r-amount">0</div>
       <div class="final-label">درهم</div>
       <div class="kpis">
@@ -178,7 +178,7 @@
       </div>
       <div class="rank" id="r-rank"></div>
       <p class="rank-note" id="r-note"></p>
-      <div class="quote">«نحن لاعقلانيون، لكن لاعقلانيتنا ليست عشوائية ولا بلا معنى — إنها منهجية ومتوقَّعة»<span>— دان أريلي</span></div>
+      <div class="quote">«المستثمرون لا يتصرفون بجنون — إنهم يتصرفون بالضبط كما صُمّمت أدمغتهم على التصرف، في بيئةٍ لم تُصمَّم من أجلها»<span>— جيسون زويغ</span></div>
       <button class="btn" onclick="startGame()">حاول بلوغ المليون مجدداً 🧠</button>
       <button class="btn ghost" onclick="backToIntro()">عُد إلى الملخص 📖</button>
     </div>
@@ -191,42 +191,42 @@ const LADDER = [500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1
 const SAFE = [4,9];
 
 const QUESTIONS = [
- {t:1, q:"من مؤلّف كتاب «لاعقلانيون بامتياز»؟",
-  opts:[["دان أريلي",true],["ريتشارد ثالر",false],["دانيال كانمان",false],["نسيم نيكولاس طالب",false]],
-  hint:"أريلي أستاذ الاقتصاد السلوكي بجامعة ديوك، استوحى شغفه بدراسة القرار من تجربته الشخصية في غرفة الحروق."},
- {t:1, q:"ماذا يثبت كتاب أريلي عن لاعقلانيتنا؟",
-  opts:[["أنها منهجيةٌ ومتوقَّعة، لا عشوائية، ويمكن دراستها والتحرّر منها",true],["أننا عقلانيون بالكامل في كل قراراتنا المالية",false],["أن لاعقلانيتنا عشوائيةٌ تماماً ولا يمكن فهمها",false],["أن البشر لا يتأثرون أبداً بالعوامل النفسية",false]],
-  hint:"لأن لاعقلانيتنا متوقَّعة، يمكن توقّعها وحماية أنفسنا منها."},
- {t:1, q:"ما «تأثير الشَرَك» الذي يصفه أريلي في تجربة اشتراك المجلّة؟",
-  opts:[["إضافة خيارٍ ثالث لا يُقصد بيعه، فقط ليجعل خياراً آخر يبدو ممتازاً بالمقارنة",true],["تقديم خصمٍ حقيقي على كل المنتجات المعروضة",false],["حذف كل الخيارات الإضافية لتسهيل القرار",false],["زيادة عدد الموظفين في المتجر لخدمة الزبائن",false]],
-  hint:"حين أُضيف خيار «ورقي فقط بـ125» اندفع الجميع نحو العرض المشترك لأنه بدا صفقة بالمقارنة."},
- {t:1, q:"ماذا يعني «التماسك العشوائي» (Arbitrary Coherence) الذي اكتشفه أريلي؟",
-  opts:[["استعدادنا للدفع يمكن «تثبيته» على رقمٍ عشوائي، ثم نبني عليه قراراتنا اللاحقة",true],["أسعار السلع تتحدّد دائماً بعقلانيةٍ كاملة من العرض والطلب",false],["لا علاقة بين الأرقام التي نراها وبين استعدادنا للدفع",false],["كل المستهلكين يدفعون السعر نفسه تماماً لكل منتج",false]],
-  hint:"في تجربته، طلب من طلابٍ كتابة آخر رقمين من بطاقتهم، فدفع ذوو الأرقام العالية أكثر بكثير."},
- {t:2, q:"ماذا يحدث حين تنخفض كلفة سلعةٍ إلى الصفر (تصبح «مجانية»)؟",
-  opts:[["نندفع نحوها بقوةٍ تتجاوز حساب التكلفة والفائدة العقلاني",true],["لا يتغيّر سلوكنا الشرائي إطلاقاً بصرف النظر عن السعر",false],["نرفضها تلقائياً لأنها تبدو مشبوهة",false],["نقيّمها بعقلانيةٍ أكبر من أي سعرٍ آخر",false]],
-  hint:"في تجربة الشوكولاتة، حين أصبح أحد الخيارين مجانياً (بفارق السعر نفسه)، اندفع الجميع نحوه."},
- {t:2, q:"كيف يفسّر أريلي الفرق بين المعايير الاجتماعية والمعايير السوقية؟",
-  opts:[["عالمان متوازيان بقواعد مختلفة؛ إدخال المال في علاقةٍ اجتماعية يحوّلها لصفقةٍ ويصعب إصلاحها",true],["لا فرق بينهما؛ المال يقوّي كل أنواع العلاقات دون استثناء",false],["المعايير السوقية هي الأقوى دائماً في كل أنواع العلاقات",false],["المعايير الاجتماعية لا تنطبق على أي جانبٍ من حياتنا المالية",false]],
-  hint:"حين عُرض أجرٌ زهيد لمهمّةٍ كانت «معروفاً»، بذل الناس جهداً أقل من المتطوّعين بلا أجر."},
- {t:2, q:"ما الفرق بين الحالة «الباردة» والحالة «الساخنة» في قراراتنا بحسب أريلي؟",
-  opts:[["في الحالة الساخنة (إثارة، غضب، طمع) نتصرف بطرقٍ نعجز عن تصوّرها ونحن باردون، ونندم عليها",true],["لا فرق بين الحالتين في طريقة اتخاذ القرار إطلاقاً",false],["الحالة الساخنة تجعلنا أكثر عقلانيةً من الحالة الباردة",false],["الحالة الباردة هي الأخطر دائماً على قراراتنا المالية",false]],
-  hint:"الحل أن نتّخذ قراراتنا المالية المهمّة ونحن باردون، ونضع قيوداً مسبقة تحمينا من نسختنا الساخنة."},
- {t:2, q:"ما «تأثير الملكية» الذي يصفه أريلي بتجربة تذاكر المباراة؟",
-  opts:[["نبالغ في تقدير قيمة ما نملكه لمجرّد أنه صار لنا",true],["نقيّم ممتلكاتنا بأقلّ من قيمتها الحقيقية دائماً",false],["لا يوجد أي تأثيرٍ للملكية على تقييمنا للأشياء",false],["نتخلّى عن ممتلكاتنا بسهولةٍ دون أي تردّد",false]],
-  hint:"من يملكون تذكرةً طلبوا لبيعها أضعاف ما استعدّ غيرهم لدفعه فيها — السلعة نفسها، والفارق الملكية وحدها."},
- {t:3, q:"كيف يصف أريلي «مغالطة إبقاء كل الأبواب مفتوحة»؟",
-  opts:[["نبدّد طاقتنا ومالنا للحفاظ على خياراتٍ لا نحتاجها خوفاً من إغلاقها",true],["إغلاق الخيارات الزائدة هو الخطأ الأكبر الذي يجب تجنّبه دائماً",false],["كل الخيارات المفتوحة تساوي قيمةً متساوية بصرف النظر عن جودتها",false],["لا علاقة بين عدد الخيارات المفتوحة وبين إنفاقنا",false]],
-  hint:"الحكمة أحياناً في إغلاق الأبواب الزائدة عمداً والتركيز على الأفضل بينها."},
- {t:3, q:"كيف تؤثّر توقّعاتنا على تجربتنا الفعلية بحسب تجربة الدواء الغُفل؟",
-  opts:[["الدواء الأغلى ثمناً يخفّف الألم أكثر من الرخيص، رغم أنهما المادة نفسها تماماً",true],["السعر لا يؤثّر إطلاقاً على فعالية أي دواءٍ نتناوله",false],["الدواء الأرخص دائماً أكثر فعاليةً من الأغلى",false],["توقّعاتنا لا تغيّر أي شيءٍ في تجربتنا الحسية الفعلية",false]],
-  hint:"توقّعنا أن الغالي أفضل يجعله أفضل فعلاً في إدراكنا — أثر الثمن على المفعول."},
- {t:3, q:"ماذا أظهرت تجارب أريلي عن الغش والأمانة؟",
-  opts:[["معظم الناس يغشّون قليلاً حين تسنح فرصةٌ آمنة، لكن تذكيراً أخلاقياً قُبيل الفرصة يقلّل الغش بشدّة",true],["كل الناس صادقون تماماً بلا أي استثناء في كل الظروف",false],["كل الناس يغشّون بأقصى ما يمكنهم دون أي حدود",false],["لا علاقة بين التذكير الأخلاقي وبين سلوك الغش",false]],
-  hint:"الغش يزيد حين يبتعد المال خطوةً عن الوعي، لكن تذكيراً أخلاقياً رمزياً يخفّضه بشدّة."},
- {t:3, q:"سؤال المليون: ما الرسالة الجوهرية لكتاب «لاعقلانيون بامتياز»؟",
-  opts:[["لاعقلانيتنا منهجيةٌ ومتوقَّعة وليست عشوائية، وفهم أنماطها يحرّرنا من خداع المال لنا",true],["البشر عقلانيون بالكامل في كل قراراتهم المالية والاستثمارية",false],["لا يمكن أبداً دراسة أو توقّع السلوك المالي البشري بأي شكل",false],["العاطفة لا تؤثّر إطلاقاً على القرارات المالية الكبرى",false]],
-  hint:"الكتاب يكشف أنماطاً متكرّرة من اللاعقلانية — الشَرَك، والمجاني، والملكية، والتسويف — يمكن توقّعها وحماية أنفسنا منها."}
+ {t:1, q:"من مؤلّف كتاب «مالك وعقلك»؟",
+  opts:[["جيسون زويغ",true],["دانيال كانمان",false],["ريتشارد ثالر",false],["دان أريلي",false]],
+  hint:"زويغ كاتبٌ مالي في «وول ستريت جورنال» ومحرّر الطبعة الحديثة من «المستثمر الذكي» لغراهام."},
+ {t:1, q:"ما الفكرة المركزية التي يخرج بها زويغ من جولاته في مختبرات تصوير الدماغ؟",
+  opts:[["الانحيازات المالية لها أساسٌ بيولوجي عصبي حتمي، لا مجرد ضعف شخصية أو خطأ أخلاقي",true],["المستثمرون عقلانيون بالكامل ولا تؤثّر فيهم أي عوامل عصبية",false],["الدماغ لا علاقة له إطلاقاً بالقرارات المالية اليومية",false],["كل البشر يتّخذون قراراتهم المالية بالطريقة نفسها تماماً دون فروق",false]],
+  hint:"تصوير الدماغ يُظهر حرفياً الدائرة العصبية التي تجعلك تنحاز، لا فقط أنك تنحاز."},
+ {t:1, q:"ما دور «النواة المتكئة» في دماغ المستثمر بحسب زويغ؟",
+  opts:[["مركز المتعة والترقّب الذي يضيء عند احتمال الربح، بشدّةٍ أكبر من لحظة تحصيله الفعلي",true],["مركز الخوف البدائي الذي يستحوذ عند الخسارة والتهديد",false],["المنطقة المسؤولة عن التفكير المنطقي البطيء فقط",false],["لا علاقة لها بأي قرارٍ مالي على الإطلاق",false]],
+  hint:"دوائر الدوبامين فيها تنشط أقصاها لحظة توقّع المكسب، لا لحظة تحصيله."},
+ {t:1, q:"لماذا يفسّر زويغ إدمان التداول المتكرر والمضاربة عصبياً؟",
+  opts:[["لأن متعة «توقّع» الربح أقوى فعلياً من متعة تحصيله، فيطلب المتداول نشوة الترقّب نفسها لا الثراء فقط",true],["لأن المتداولين أكثر ذكاءً من غيرهم في قراءة السوق فعلياً",false],["لأن التداول المتكرر يضمن دائماً عائداً أعلى من الاستثمار طويل المدى",false],["لأن الدماغ لا يتأثّر بتكرار المكاسب الصغيرة إطلاقاً",false]],
+  hint:"سلسلة مكاسب صغيرة متتالية — حتى لو حظّية — تُنشئ وهماً عصبياً بالكفاءة يشبه إدمان المنشّطات."},
+ {t:2, q:"كيف تستجيب اللوزة الدماغية وقت انهيار الأسواق بحسب زويغ؟",
+  opts:[["تعامل خسارة المحفظة كتهديدٍ حياتيٍّ مباشر، فتُطلق استجابة «الكرّ أو الفرّ» وتدفع للبيع الفوري هلعاً",true],["تبقى غير نشطةٍ تماماً أثناء أي انهيارٍ مالي مهما كانت حدّته",false],["تُحفّز تفكيراً منطقياً هادئاً يساعد على اتخاذ القرار الأمثل",false],["تتوقف عن العمل تماماً عند أي خسارةٍ مالية صغيرة",false]],
+  hint:"اللوزة لا تفرّق بين خسارة 30% من المحفظة ومواجهة أسدٍ جائع — كلاهما يُحفّز الذعر نفسه."},
+ {t:2, q:"ما توصية زويغ العملية عند الشعور بذعرٍ مالي حاد وقت انهيارٍ سوقي؟",
+  opts:[["تأجيل أي قرارٍ فعلي 24 إلى 48 ساعة على الأقل حتى تخفت حدّة الاستجابة العصبية", true],["البيع الفوري دون أي تأخير لتجنّب مزيدٍ من الخسائر المحتملة",false],["مضاعفة الاستثمار فوراً وسط الانهيار لأنه «فرصة العمر»",false],["إيقاف متابعة الأخبار المالية كلياً لبقية الحياة",false]],
+  hint:"جزءٌ كبير من حدّة الاستجابة العصبية يخفت تلقائياً بعد ساعاتٍ قليلة، فيعود العقل التأملي لاستعادة بعض السيطرة."},
+ {t:2, q:"كيف يفسّر زويغ ظاهرة الثقة الزائفة عصبياً؟",
+  opts:[["تحيّزٌ في التخزين نفسه: ذكريات النجاح تُسجَّل بوضوح أكبر، بينما تُمحى ذكريات التوقّعات الخاطئة بسرعةٍ أكبر",true],["الثقة الزائفة لا علاقة لها بالذاكرة إطلاقاً ولا يمكن تفسيرها عصبياً",false],["الخبراء فقط يقعون في الثقة الزائفة، أما الهواة فمحميون منها تماماً",false],["كل التوقّعات المالية تُحفظ بدقّةٍ متساوية في الذاكرة دون أي تحيّز",false]],
+  hint:"المحللون الأكثر ثقةً في تنبؤاتهم هم غالباً الأقل دقةً إحصائياً، لأن الثقة عصبيةٌ في جزءٍ كبير منها."},
+ {t:2, q:"ما الدرس العملي الذي يقترحه زويغ لمواجهة تحيّز الثقة الزائفة؟",
+  opts:[["الاحتفاظ بسجلٍّ مكتوبٍ صريح لكل توقّعاتك وتواريخها، ومراجعته دورياً بصدق",true],["الاعتماد كلياً على الشعور الداخلي بالثقة دون أي تتبّعٍ موضوعي",false],["تجاهل كل التوقّعات السابقة كلياً لأنها لا تفيد أبداً",false],["زيادة المخاطرة فوراً كل مرةٍ تشعر فيها بثقةٍ قوية",false]],
+  hint:"السجل الموضوعي وحده يصحّح ما لا يستطيع شعورك الداخلي بالثقة تصحيحه أبداً."},
+ {t:2, q:"كيف يربط زويغ بين ألم الخسارة المالية والألم الجسدي؟",
+  opts:[["منطقة معالجة الألم نفسها التي تنشط عند الإصابة الجسدية تنشط أيضاً عند خسارةٍ مالية",true],["لا توجد أي علاقة بين الخسارة المالية وأي نوعٍ من الألم الجسدي إطلاقاً",false],["الخسارة المالية تُحفّز فقط مناطق المتعة في الدماغ لا الألم",false],["الألم الجسدي أقوى دائماً من أي ألمٍ ناتجٍ عن خسارةٍ مالية",false]],
+  hint:"بينما تنشط مناطق المتعة المرتبطة بالمكاسب بحدّةٍ أقل نسبياً مقابل القيمة المالية نفسها."},
+ {t:3, q:"كيف يفسّر زويغ ظاهرة فقاعات المضاربة الجماعية عصبياً؟",
+  opts:[["مشاهدة الآخرين يربحون تُحفّز في دماغك استجابةً شبيهة بالربح الشخصي، فتدفعك للانضمام خوفاً من فوات الفرصة",true],["فقاعات المضاربة لا علاقة لها بأي آليةٍ عصبية، بل هي قرارات عقلانية بحتة",false],["الدماغ لا يتأثّر إطلاقاً بمشاهدة نجاح أو ربح الآخرين من حوله",false],["فقاعات المضاربة تحدث فقط بسبب أخطاءٍ حسابية فردية منعزلة",false]],
+  hint:"تتراكم هذه الاستجابات الفردية في ملايين الأدمغة لتُنتج ظواهر سوقٍ كاملة تنهار جماعياً دفعةً واحدة."},
+ {t:3, q:"ما الأداة الأساسية التي يقترحها زويغ لهندسة قرارات تتجاوز ضعف اللحظة العاطفية؟",
+  opts:[["التزاماتٌ مسبقة تُبنى وأنت هادئ، مثل ادخارٍ تلقائي وحدود بيعٍ مسبّقة تُنفَّذ آلياً دون تدخّل عاطفي",true],["الاعتماد فقط على قوة الإرادة وقت الضغط دون أي خطّةٍ مسبقة",false],["زيادة عدد مرّات متابعة المحفظة لاتخاذ قراراتٍ أسرع",false],["الانتظار حتى لحظة الذعر لاتخاذ القرار الأهم بالضبط",false]],
+  hint:"لا يمكنك الاعتماد على الإرادة وقت الانفعال لأن النظام العاطفي يسبق المنطقي بأجزاءٍ من الثانية."},
+ {t:3, q:"سؤال المليون: ما الرسالة الجامعة لكتاب «مالك وعقلك»؟",
+  opts:[["لا يمكنك إعادة برمجة ملايين السنين من التطور بالإرادة، لكنك تستطيع تصميم بيئتك المالية بحيث يصعب على دماغك القديم تخريب قراراتك",true],["دماغ الإنسان لا يتأثّر إطلاقاً بأي قرارٍ مالي يومي",false],["العقلانية المالية تعني غياب المشاعر بالكامل عن كل قرار",false],["لا فائدة من فهم بيولوجيا الدماغ لأنها لا تتغيّر أبداً ولا يمكن تجاوزها",false]],
+  hint:"فهم بيولوجيا الخطأ ليس استسلاماً له، بل أول خطوةٍ عملية لتجاوزه ببناء أنظمةٍ هادئة مسبقة."}
 ];
 
 let qi=0, lifes={fifty:false,arkad:false,poll:false}, view=[], removedIdx=new Set(), selected=-1, phase='choose', finalAmount=0, lastOutcome='';
@@ -329,7 +329,7 @@ function reveal(){
   if(ok){
     phase='revealed-win';
     banner.className='result-banner win show';
-    banner.textContent = qi===11 ? '🧠🧠🧠 المليـــون! فهمتَ الفخاخ المتوقَّعة كلّها!' : `✅ صحيح! ضمنتَ ${fmt(LADDER[qi])} درهم`;
+    banner.textContent = qi===11 ? '🧠🧠🧠 المليـــون! فهمتَ تشريح القرار المالي كلّه!' : `✅ صحيح! ضمنتَ ${fmt(LADDER[qi])} درهم`;
     nb.textContent = qi===11 ? 'استلم كنزك 🧠' : 'السؤال التالي ←';
     lastOutcome = qi===11 ? 'million' : 'next';
   }else{
@@ -396,13 +396,13 @@ function usePoll(){
 }
 
 function rankOf(a){
-  if(a>=1000000) return {r:"🧠 فهمٌ كاملٌ لكل الفخاخ المتوقَّعة!", n:"أعدتَ ضبط فهمك للاعقلانية بالكامل — أريلي نفسه سيصفّق لك. طبّق هذا على حياتك الحقيقية الآن."};
+  if(a>=1000000) return {r:"🧠 فهمٌ كاملٌ لتشريح القرار المالي!", n:"أعدتَ ضبط فهمك للدماغ القديم بالكامل — زويغ نفسه سيصفّق لك. طبّق هذا على حياتك الحقيقية الآن."};
   if(a>=250000) return {r:"⚖️ رؤيتك في طور الإتقان", n:"تجاوزتَ أصعب المبادئ. سؤالٌ أو سؤالان عن القمّة — راجع الكتاب وعُد."};
-  if(a>=8000)  return {r:"🌱 بدأتَ تفرّق بين العقلاني واللاعقلاني", n:"أساسك جيّد لكن المبادئ العميقة أوقعتك. أعد قراءة الكتاب ثم عُد للكرسي."};
-  return {r:"🌀 لا تزال تقع في الفخاخ المتوقَّعة نفسها", n:"لا فهمَ كاملاً اليوم… لكنك عرفتَ القاعدة الأولى: لاعقلانيتنا منهجيةٌ لا عشوائية. الملخص بانتظارك!"};
+  if(a>=8000)  return {r:"🌱 بدأتَ تفرّق بين العقل التأملي والدماغ القديم", n:"أساسك جيّد لكن المبادئ العميقة أوقعتك. أعد قراءة الكتاب ثم عُد للكرسي."};
+  return {r:"🌀 لا يزال دماغك القديم يستحوذ على فهمك", n:"لا فهمَ كاملاً اليوم… لكنك عرفتَ القاعدة الأولى: الانحياز بيولوجيٌّ لا أخلاقي. الملخص بانتظارك!"};
 }
 function showResults(eyebrow){
-/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"pi_millionaire"},"*");}catch(e){}/*WA_TRACK*/
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"jz_millionaire"},"*");}catch(e){}/*WA_TRACK*/
   $('ledger').style.display='none';
   $('r-eyebrow').textContent = eyebrow;
   const used = Object.values(lifes).filter(Boolean).length;

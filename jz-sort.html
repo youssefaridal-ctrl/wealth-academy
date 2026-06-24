@@ -3,39 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>عقلانيٌّ أم فخٌّ متوقَّع؟ — تحدي الـ60 ثانية</title>
+<title>عقلٌ هادئ أم دماغٌ قديمٌ مستحوذ؟ — تحدي الـ60 ثانية</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --lapis-night:#2A1320; --lapis-deep:#180A12; --lapis-panel:#3D1F2E;
-    --gold:#D9A23B; --gold-bright:#F0C36B; --sand:#F3E6EC; --sand-dim:#C9A8B8;
-    --ember:#D2674E; --reed:#5FB389; --teal:#8A4A6A; --teal-deep:#5C2E46;
-    --shadow:0 12px 32px rgba(10,2,6,.6);
+    --lapis-night:#1a3027; --lapis-deep:#0a1a14; --lapis-panel:#1f3d31;
+    --gold:#D9A23B; --gold-bright:#F0C36B; --sand:#E8F3EC; --sand-dim:#A8C9B8;
+    --ember:#D2674E; --reed:#5FB389; --teal:#2a5a52; --teal-deep:#1a3c37;
+    --shadow:0 12px 32px rgba(2,10,6,.6);
   }
   *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:'Tajawal',sans-serif;background:radial-gradient(1200px 600px at 50% -10%, #5C2E46 0%, transparent 60%),linear-gradient(180deg, var(--lapis-night) 0%, #0A0207 100%);color:var(--sand);min-height:100vh;line-height:1.7}
-  body::after{content:"";position:fixed;inset:auto 0 0 0;height:3px;z-index:5;background:linear-gradient(90deg, transparent 0, var(--teal) 30%, var(--gold-bright) 50%, var(--teal) 70%, transparent 100%);box-shadow:0 -4px 16px rgba(138,74,106,.35);opacity:.9}
+  body{font-family:'Tajawal',sans-serif;background:radial-gradient(1200px 600px at 50% -10%, #1a3c37 0%, transparent 60%),linear-gradient(180deg, var(--lapis-night) 0%, #060f0b 100%);color:var(--sand);min-height:100vh;line-height:1.7}
+  body::after{content:"";position:fixed;inset:auto 0 0 0;height:3px;z-index:5;background:linear-gradient(90deg, transparent 0, var(--teal) 30%, var(--gold-bright) 50%, var(--teal) 70%, transparent 100%);box-shadow:0 -4px 16px rgba(42,90,82,.35);opacity:.9}
   .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
-  .ledger{position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:12px 18px;background:linear-gradient(180deg, rgba(42,19,32,.97) 70%, rgba(42,19,32,.85));border-bottom:1px solid rgba(138,74,106,.45);backdrop-filter:blur(6px)}
+  .ledger{position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:12px 18px;background:linear-gradient(180deg, rgba(26,48,39,.97) 70%, rgba(26,48,39,.85));border-bottom:1px solid rgba(42,90,82,.45);backdrop-filter:blur(6px)}
   .ledger-inner{max-width:524px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:10px}
   .stat{text-align:center}
   .stat-label{font-size:.7rem;color:var(--sand-dim);font-weight:500}
   .stat-val{font-family:'Cairo',sans-serif;font-weight:800;font-size:1.3rem;color:var(--gold-bright)}
   .timer-wrap{flex:1;max-width:200px}
-  .timer-bar{height:8px;border-radius:99px;background:rgba(243,230,236,.15);overflow:hidden}
+  .timer-bar{height:8px;border-radius:99px;background:rgba(232,243,236,.15);overflow:hidden}
   .timer-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--teal),var(--gold));transition:width .25s linear}
   .timer-fill.low{background:linear-gradient(90deg,#F0987C,var(--ember))}
   .timer-num{text-align:center;font-size:.78rem;color:var(--sand-dim);margin-top:3px;font-weight:700}
   .screen{display:none;animation:fadeUp .45s ease both}
   .screen.active{display:block}
   @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-  .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;color:var(--teal);border:1px solid rgba(138,74,106,.55);border-radius:99px;padding:4px 14px;margin-bottom:14px;background:rgba(138,74,106,.1)}
+  .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;color:var(--teal);border:1px solid rgba(42,90,82,.55);border-radius:99px;padding:4px 14px;margin-bottom:14px;background:rgba(42,90,82,.1)}
   h1{font-family:'Cairo',sans-serif;font-size:2.0rem;font-weight:900;line-height:1.3;color:var(--gold-bright);margin-bottom:6px}
   .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
-  .card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(138,74,106,.32);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow)}
-  .statement-card{min-height:190px;display:flex;align-items:center;justify-content:center;text-align:center;background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(138,74,106,.4);border-radius:18px;padding:28px 22px;box-shadow:var(--shadow);margin-bottom:18px;position:relative;transition:border-color .15s, box-shadow .15s}
+  .card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(42,90,82,.32);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow)}
+  .statement-card{min-height:190px;display:flex;align-items:center;justify-content:center;text-align:center;background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(42,90,82,.4);border-radius:18px;padding:28px 22px;box-shadow:var(--shadow);margin-bottom:18px;position:relative;transition:border-color .15s, box-shadow .15s}
   .statement-card.hit{border-color:var(--reed);box-shadow:0 0 0 3px rgba(95,179,137,.35), var(--shadow)}
   .statement-card.miss{border-color:var(--ember);box-shadow:0 0 0 3px rgba(210,103,78,.35), var(--shadow)}
   .statement{font-family:'Cairo',sans-serif;font-size:1.4rem;line-height:1.7;font-weight:700;color:var(--sand)}
@@ -53,11 +53,11 @@
   .sort:hover{transform:translateY(-2px)}
   .sort:active{transform:scale(.97)}
   .sort:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
-  .btn{display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;color:#2A1320;background:linear-gradient(180deg,#C8769B,var(--teal-deep));border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(92,46,70,.4)}
-  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(92,46,70,.5)}
+  .btn{display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;color:#1a3027;background:linear-gradient(180deg,#6fc9a8,var(--teal-deep));border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(26,60,55,.4)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(26,60,55,.5)}
   .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
   .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(217,162,59,.55);box-shadow:none;margin-top:10px}
-  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--teal);display:flex;align-items:center;justify-content:center;font-size:2.1rem;background:radial-gradient(circle at 35% 30%, rgba(138,74,106,.3), rgba(217,162,59,.05));box-shadow:0 0 30px rgba(138,74,106,.3)}
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--teal);display:flex;align-items:center;justify-content:center;font-size:2.1rem;background:radial-gradient(circle at 35% 30%, rgba(42,90,82,.3), rgba(217,162,59,.05));box-shadow:0 0 30px rgba(42,90,82,.3)}
   .intro-list{margin:0 0 26px;list-style:none}
   .intro-list li{display:block;position:relative;padding-right:22px;color:var(--sand);font-size:.98rem;margin-bottom:10px}
   .intro-list li::before{content:"◆";color:var(--teal);font-size:.7rem;position:absolute;right:0;top:.5em}
@@ -66,17 +66,17 @@
   .rank{text-align:center;font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800;color:var(--sand);margin-bottom:6px}
   .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:20px}
   .kpis{display:flex;gap:10px;margin-bottom:22px}
-  .kpi{flex:1;text-align:center;background:rgba(24,10,18,.55);border:1px solid rgba(243,230,236,.16);border-radius:12px;padding:12px 8px}
+  .kpi{flex:1;text-align:center;background:rgba(10,26,20,.55);border:1px solid rgba(232,243,236,.16);border-radius:12px;padding:12px 8px}
   .kpi b{display:block;font-family:'Cairo',sans-serif;font-size:1.4rem;color:var(--gold-bright)}
   .kpi span{font-size:.75rem;color:var(--sand-dim)}
   .review-title{font-family:'Cairo',sans-serif;font-size:1.22rem;font-weight:800;color:var(--gold-bright);margin-bottom:12px;text-align:center}
   .review{list-style:none;margin-bottom:22px}
-  .review li{background:rgba(24,10,18,.55);border:1px solid rgba(243,230,236,.12);border-radius:12px;padding:12px 14px;margin-bottom:9px}
+  .review li{background:rgba(10,26,20,.55);border:1px solid rgba(232,243,236,.12);border-radius:12px;padding:12px 14px;margin-bottom:9px}
   .review .head{display:flex;gap:10px;align-items:flex-start;font-size:.95rem;font-weight:700}
   .r-mark{flex:0 0 auto;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;margin-top:2px}
   .r-mark.yes{background:rgba(95,179,137,.2);color:#8FE0B6;border:1px solid rgba(95,179,137,.6)}
   .r-mark.no{background:rgba(210,103,78,.2);color:#F0987C;border:1px solid rgba(210,103,78,.6)}
-  .r-mark.skip{background:rgba(243,230,236,.1);color:var(--sand-dim);border:1px solid rgba(243,230,236,.3)}
+  .r-mark.skip{background:rgba(232,243,236,.1);color:var(--sand-dim);border:1px solid rgba(232,243,236,.3)}
   .review .lesson{font-size:.85rem;color:var(--sand-dim);margin-top:6px;padding-right:34px}
   .review .lesson b{color:var(--teal)}
   @media (max-width:420px){h1{font-size:1.6rem}.statement{font-size:1.22rem}.final-amount{font-size:2.4rem}.sort{font-size:.92rem}}
@@ -97,16 +97,16 @@
   <section class="screen active" id="intro">
     <div class="intro-seal">🧠</div>
     <div style="text-align:center">
-      <div class="eyebrow">فرز سريع · كتاب «لاعقلانيون بامتياز»</div>
-      <h1>عقلانيٌّ أم فخٌّ متوقَّع؟</h1>
-      <p class="sub">قراراتٌ مالية تمرّ بسرعة… أيّها تقييمٌ عقلانيٌّ سليم وأيّها فخٌّ لاعقلانيٌّ يتكرّر مع الجميع؟</p>
+      <div class="eyebrow">فرز سريع · كتاب «مالك وعقلك»</div>
+      <h1>عقلٌ هادئ أم دماغٌ قديمٌ مستحوذ؟</h1>
+      <p class="sub">سلوكياتٌ مالية تمرّ بسرعة… أيّها قرارٌ يحترم تشريح دماغك وأيّها استحواذٌ من النواة المتكئة أو اللوزة الدماغية؟</p>
     </div>
     <div class="card">
       <ul class="intro-list">
         <li>أمامك <b>60 ثانية</b> و<b>16 سلوكاً</b> مالياً يومياً.</li>
-        <li>اضغط <b>🟢 عقلانيٌّ سليم</b> أو <b>🔴 فخٌّ متوقَّع</b> — بسرعة!</li>
-        <li>القاعدة: لاعقلانيتنا <b>منهجيةٌ ومتكرّرة</b> — تأثير الشَرَك، وسحر المجاني، والملكية، والتسويف.</li>
-        <li>في النهاية: مراجعة كاملة بمنطق أريلي وراء كل بطاقة.</li>
+        <li>اضغط <b>🟢 عقلٌ هادئ</b> أو <b>🔴 دماغٌ قديمٌ مستحوذ</b> — بسرعة!</li>
+        <li>القاعدة: نشوة الترقّب، والذعر، والثقة الزائفة، والقطيع العصبي — كلها آلياتٌ بيولوجية متوقَّعة.</li>
+        <li>في النهاية: مراجعة كاملة بمنطق زويغ وراء كل بطاقة.</li>
       </ul>
       <button class="btn" onclick="startGame()">ابدأ التحدي ⚡</button>
     </div>
@@ -120,8 +120,8 @@
       <div class="statement" id="st-text"></div>
     </div>
     <div class="sort-btns">
-      <button class="sort fat" onclick="answer(true)"><span class="ic">🟢</span>عقلانيٌّ سليم<small>تقييمٌ بالقيمة المطلقة</small></button>
-      <button class="sort hole" onclick="answer(false)"><span class="ic">🔴</span>فخٌّ متوقَّع<small>انحيازٌ منهجيٌّ معروف</small></button>
+      <button class="sort fat" onclick="answer(true)"><span class="ic">🟢</span>عقلٌ هادئ<small>قرارٌ تأملي مدروس</small></button>
+      <button class="sort hole" onclick="answer(false)"><span class="ic">🔴</span>دماغٌ قديمٌ مستحوذ<small>استجابةٌ بدائية متوقَّعة</small></button>
     </div>
   </section>
 
@@ -148,24 +148,25 @@
 </div>
 
 <script>
-/* fat:true = عقلانيٌّ سليم (تقييمٌ بالقيمة المطلقة) ، false = فخٌّ متوقَّع (انحيازٌ منهجي) */
+/* fat:true = عقلٌ هادئ (تأملي مدروس) ، false = دماغٌ قديمٌ مستحوذ (استجابةٌ بدائية) */
 const CARDS = [
-  {s:"السؤال عن القيمة المطلقة لكل خيارٍ بدل الانسياق وراء خيارٍ ثالثٍ «شَرَك» مُصمَّم للمقارنة", fat:true,  l:"تأثير الشَرَك يجعل خياراً يبدو ممتازاً بالمقارنة فقط؛ القيمة المطلقة هي الحَكَم الحقيقي."},
-  {s:"اختيار العرض المشترك فوراً لأنه يبدو «صفقة» بجانب خيارٍ ثالث لا يختاره عاقل", fat:false, l:"هذا هو تأثير الشَرَك تماماً: خيارٌ ثالث وُجد فقط ليجعل خياراً آخر يلمع بالمقارنة."},
-  {s:"البحث عن القيمة السوقية الحقيقية لسلعةٍ من مصدرٍ مستقل قبل أي تفاوض على سعرها", fat:true,  l:"هذا يحميك من «التماسك العشوائي» الذي يجعل أول رقمٍ تراه يثبّت كل تقييماتك اللاحقة."},
-  {s:"قبول السعر الذي يذكره البائع أولاً كمرجعٍ للتفاوض دون بحثٍ مستقل", fat:false, l:"السعر الأول يُسمّى «مرساة» تثبّت تقييمك حتى لو كان عشوائياً أو مقصوداً من البائع."},
-  {s:"حساب التكلفة الحقيقية الكاملة قبل اقتناص عرضٍ يحوي كلمة «مجاني»", fat:true,  l:"كلمة «مجاني» زرٌّ عاطفي يُلغي حساب التكلفة والفائدة؛ التوقّف للحساب يحميك منه."},
-  {s:"شراء منتجٍ لا تحتاجه فقط للحصول على «شحنٍ مجاني» أو «هديةٍ مجانية»", fat:false, l:"الصفر ليس سعراً عادياً، بل مُحفّزٌ عاطفي يدفعنا لشراء ما لا نحتاجه."},
-  {s:"إبقاء العلاقات العائلية والصداقات في إطار المعايير الاجتماعية دون إدخال المال فيها", fat:true,  l:"المال يحوّل المعروف إلى صفقةٍ رخيصة، والولاء تحرّكه المعايير الاجتماعية أكثر من المال."},
-  {s:"عرض أجرٍ مالي رمزي على قريبٍ يساعدك دائماً بصدقٍ ومحبة", fat:false, l:"حتى الأجر الرمزي يكفي لتحويل علاقةٍ من «معروف» إلى «صفقة» يصعب إصلاحها بعد ذلك."},
-  {s:"الالتزام بقواعد استثماريةٍ وُضعت في حالة الهدوء بدل اتخاذ قرارٍ في لحظة ذعرٍ مفاجئ", fat:true,  l:"نتحوّل لأشخاصٍ مختلفين في الحالة «الساخنة»؛ القواعد المسبقة تحميك من نفسك الساخنة."},
-  {s:"بيع كل الاستثمارات فوراً في ذروة انهيارٍ مفاجئ بدافع الذعر اللحظي", fat:false, l:"هذا قرارٌ «ساخن» نموذجي يخالف كل ما كنت ستقرّره بهدوءٍ وروية."},
-  {s:"تقييم استثمارٍ خاسرٍ بسؤال: هل سأشتريه اليوم بسعره الحالي؟ بصرف النظر عن ملكيتي له", fat:true,  l:"هذا يحرّرك من «تأثير الملكية» الذي يجعلنا نبالغ في تقدير ما نملكه لمجرّد أنه لنا."},
-  {s:"التشبّث باستثمارٍ خاسر لأنه «صار جزءاً منك» رغم أن كل التحليل يقول بيعه", fat:false, l:"تأثير الملكية يضخّم قيمة ما تحوزه؛ القرار العقلاني ينظر للمستقبل فقط لا للماضي."},
-  {s:"الادخار التلقائي الذي يُقتطع قبل أن تلمس راتبك، لحماية نفسك من نسختك «الساخنة»", fat:true,  l:"أدوات الإلزام المسبق تحميك من التسويف الذي يخون خططك المستقبلية طلباً للذةٍ آنية."},
-  {s:"التسويف المستمر في الادخار اعتماداً على «قوة الإرادة» وحدها دون أي أداة إلزامٍ", fat:false, l:"نخطّط بحكمة للمستقبل ثم نخون خططنا في الحاضر؛ قوة الإرادة وحدها نادراً ما تكفي."},
-  {s:"تذكير نفسك بمعيارٍ أخلاقي واضح قبل أي قرارٍ مالي قد يحمل فرصة غشٍّ صغير", fat:true,  l:"تذكيرٌ أخلاقيٌّ قُبيل الفرصة يقلّل الغش بشدّة، حتى لو كان رمزياً بلا عقوبةٍ وراءه."},
-  {s:"تجاهل أثر السعر والعلامة التجارية على إدراكك تماماً عند تقييم منتجٍ أو استثمارٍ", fat:false, l:"التوقّعات تغيّر تجربتنا الفعلية حرفياً؛ تجاهل هذا التأثير الكامل غير واقعي ويُبقيك عرضةً له دون وعي."}
+  {s:"الشكّ في سلسلة مكاسب متتالية حظّية، وطلب دليلٍ موضوعي طويل الأمد قبل مضاعفة المخاطرة", fat:true,  l:"النواة المتكئة تخلق وهماً عصبياً بالكفاءة من سلسلة دوبامين عشوائية لا مهارة حقيقية."},
+  {s:"مضاعفة حجم الاستثمار فوراً بعد ثلاث صفقاتٍ رابحة متتالية لأنك «اكتشفت موهبة»", fat:false, l:"نشوة الترقّب المتكررة تخلق شعوراً زائفاً بالموهبة، وهي في الحقيقة كيمياء دوبامين عابرة."},
+  {s:"تأجيل أي قرار بيعٍ كبير 24 ساعة على الأقل عند الشعور بذعرٍ مالي حاد", fat:true,  l:"حدّة استجابة اللوزة الدماغية تخفت تلقائياً بعد ساعاتٍ قليلة، فتمنح العقل التأملي فرصة العودة."},
+  {s:"بيع كل المحفظة فوراً في ذروة انهيارٍ مفاجئ بدافع يقينٍ عاطفي قوي", fat:false, l:"اللوزة الدماغية لا تفرّق بين خسارة المال وخطرٍ حياتي؛ تدفعك للهروب في أسوأ لحظة."},
+  {s:"الاحتفاظ بسجلٍّ مكتوبٍ صريح لكل توقّعاتك المالية ومراجعته بصدقٍ دوري", fat:true,  l:"السجل الموضوعي يصحّح ما لا يصحّحه شعورك الداخلي، لأن الذاكرة تحفظ النجاح وتمحو الفشل."},
+  {s:"الثقة بشعورك الداخلي بدقّة توقّعاتك لأنك «تتذكّر» أنها كانت صحيحة غالباً", fat:false, l:"تحيّزٌ عصبيٌّ في التخزين نفسه يجعل ذكريات النجاح أبرز من ذكريات الفشل التي تُمحى بسرعة."},
+  {s:"حساب القيمة المتوقعة الرقمية لكل خيارٍ مالي بمعزلٍ عن طريقة عرض الوسيط له", fat:true,  l:"إطار العرض يُحفّز ألماً أو راحةً عصبية لا علاقة لها بالقيمة الحسابية الحقيقية للخيار."},
+  {s:"رفض خيارٍ ماليٍّ جيد فقط لأن كلمة «خسارة مؤكدة» في وصفه أشعرتك بألمٍ فوري", fat:false, l:"ألم الخسارة الصغيرة المؤكدة يُحفّز استجابةً عصبية أقوى من قيمتها الحسابية الحقيقية."},
+  {s:"تأجيل قرار الانضمام لاستثمارٍ مضاربي رائج والتريّث بمعزلٍ عن حماس الآخرين", fat:true,  l:"إلحاح الانضمام هو استجابة دائرةٍ عصبية اجتماعية قديمة لا تحليلاً موضوعياً للفرصة."},
+  {s:"استثمار كل مدّخراتك فوراً في فرصةٍ مضاربية لأن «الجميع يربح فيها» على وسائل التواصل", fat:false, l:"مشاهدة ربح الآخرين تُحفّز دماغك كأنه ربحك الشخصي، وهذه آلية العدوى الاجتماعية للفقاعات."},
+  {s:"بناء ادخارٍ تلقائي وحدود بيعٍ مسبّقة وأنت في حالةٍ هادئة بعيدة عن أي ضغط", fat:true,  l:"الالتزامات المسبقة في الهدوء تمنع الدماغ القديم من التحكّم في لحظة الذعر أو النشوة."},
+  {s:"الاعتماد على قوة الإرادة فقط وقت الذعر دون أي نظامٍ أو حدودٍ مسبقة", fat:false, l:"النظام العاطفي يسبق المنطقي بأجزاءٍ من الثانية ويتّخذ القرار قبل وعيك به تماماً."},
+  {s:"تقليل عدد مرّات متابعة المحفظة اللحظية لأن كل نظرةٍ تُحفّز دوبامين أو خوفاً دون حاجة فعلية", fat:true,  l:"كثرة المتابعة تعني كثرة الفرص لتدخّل الدماغ القديم في قرارٍ كان يجب أن يبقى هادئاً."},
+  {s:"التحقّق من المحفظة عشرات المرات يومياً «للبقاء على اطلاع» بكل تقلّب", fat:false, l:"كل نظرةٍ متكررة تُحفّز دائرة الدوبامين أو الخوف دون سببٍ موضوعي حقيقي."},
+  {s:"تذكّر أن الانحياز ليس عيباً شخصياً بل ميزةً تطورية قديمة في سياقٍ خاطئ، فتبني نظاماً عملياً بدل لوم النفس", fat:true,  l:"الحكمة المالية الحقيقية تصميم نظامٍ يحترم وجود المشاعر ويحاصر أثرها الضار، لا إنكارها."},
+  {s:"جلد النفس أخلاقياً بعد كل قرارٍ خاطئ دون بناء أي نظامٍ عملي يمنع تكرار الخطأ", fat:false, l:"اللوم الأخلاقي وحده لا يغيّر التصميم العصبي القديم؛ الحل أنظمةٌ هندسية تتجاوزه فعلياً."},
+  {s:"معرفة متى تثق بحدسك السريع المتدرّب طويلاً ومتى تُجبر نفسك على التريّث في قرارٍ مالي غير مألوف", fat:true,  l:"الحكمة عند زويغ ليست غياب الانفعال، بل معرفة متى تثق بالحدس ومتى تُجبر نفسك على التحليل البطيء."}
 ];
 
 const TIME = 60;
@@ -227,13 +228,13 @@ function answer(saidWealth){
   }, 320);
 }
 function rankOf(c){
-  if(c>=14) return {r:"🧠 تميّز العقلاني من الفخّ المتوقَّع بدقّة", n:"تطبّق حكمة أريلي بإتقان — هذا جوهر منهج «لاعقلانيون بامتياز»."};
-  if(c>=10) return {r:"⚖️ وعيك بفخاخك يتطوّر", n:"أساسك جيد. راجع البطاقات التي أخطأت فيها أدناه وأعد التحدي."};
-  if(c>=6)  return {r:"⚠️ بعض الفخاخ المتوقَّعة ما زالت تخدعك", n:"بعض الأنماط ما زالت تخدعك. لوح المراجعة سيعيد ضبط رؤيتك."};
-  return {r:"🌀 لا تزال تقع في الفخاخ المتوقَّعة نفسها", n:"لا تقلق — الوعي أول خطوة. اقرأ لوح المراجعة ثم عُد للتحدي."};
+  if(c>=14) return {r:"🧠 تميّز العقل الهادئ من الدماغ القديم بدقّة", n:"تطبّق حكمة زويغ بإتقان — هذا جوهر منهج «مالك وعقلك»."};
+  if(c>=10) return {r:"⚖️ وعيك بتشريح دماغك يتطوّر", n:"أساسك جيد. راجع البطاقات التي أخطأت فيها أدناه وأعد التحدي."};
+  if(c>=6)  return {r:"⚠️ بعض الاستحواذات العصبية ما زالت تخدعك", n:"بعض الأنماط ما زالت تخدعك. لوح المراجعة سيعيد ضبط رؤيتك."};
+  return {r:"🌀 لا يزال دماغك القديم يستحوذ على أغلب قراراتك", n:"لا تقلق — الوعي أول خطوة. اقرأ لوح المراجعة ثم عُد للتحدي."};
 }
 function endGame(){
-/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"pi_sort"},"*");}catch(e){}/*WA_TRACK*/
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"jz_sort"},"*");}catch(e){}/*WA_TRACK*/
   $('ledger').style.display='none';
   const done = answers.filter(a=>a!==null).length;
   const acc = done? Math.round(correct/done*100) : 0;
@@ -247,7 +248,7 @@ function endGame(){
   $('r-review').innerHTML = deck.map((c,k)=>{
     const a = answers[k];
     const mark = a===null ? `<span class="r-mark skip">·</span>` : a ? `<span class="r-mark yes">✓</span>` : `<span class="r-mark no">✗</span>`;
-    const tag = c.fat ? '🟢 عقلانيٌّ سليم' : '🔴 فخٌّ متوقَّع';
+    const tag = c.fat ? '🟢 عقلٌ هادئ' : '🔴 دماغٌ قديمٌ مستحوذ';
     return `<li><div class="head">${mark}<span>${c.s}</span></div><div class="lesson"><b>${tag}</b> — ${c.l}</div></li>`;
   }).join('');
   show('results');

@@ -324,6 +324,7 @@ function rankOf(c){
 }
 
 function endGame(){
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"sort"},"*");}catch(e){}/*WA_TRACK*/
   $('ledger').style.display='none';
   const done = answers.filter(a=>a!==null).length;
   const acc = done? Math.round(correct/done*100) : 0;

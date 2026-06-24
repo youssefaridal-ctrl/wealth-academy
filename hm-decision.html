@@ -375,6 +375,7 @@ function rankOf(w){
   return {r:"🌀 لا تزال تتبع القطيع", n:"لا بأس — الوعي أول خطوة. ابدأ بسؤالٍ واحد: «هل يعرف السوق هذا بالفعل؟»"};
 }
 function showResults(){
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"hm_decision"},"*");}catch(e){}/*WA_TRACK*/
   $('ledger').style.display = 'none';
   const rk = rankOf(wealth);
   const amountEl = $('r-amount');

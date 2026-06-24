@@ -375,6 +375,7 @@ function rankOf(w){
   return {r:"🚧 لا تزال على الرصيف", n:"لا بأس — الوعي أول خطوة. ابدأ بسؤالٍ واحد: «هل دخلي من وقتي أم من نظامٍ يعمل دوني؟»"};
 }
 function showResults(){
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"df_decision"},"*");}catch(e){}/*WA_TRACK*/
   $('ledger').style.display = 'none';
   const rk = rankOf(wealth);
   const amountEl = $('r-amount');

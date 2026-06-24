@@ -378,6 +378,7 @@ function rankOf(w){
   return {r:"🌀 مخطّطك يحتاج إعادة برمجة", n:"لا بأس — الوعي أول خطوة. ابدأ بأول ملف: «أنا أصنع حياتي»، وغيّر الجذور."};
 }
 function showResults(){
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"ek_decision"},"*");}catch(e){}/*WA_TRACK*/
   $('ledger').style.display = 'none';
   const rk = rankOf(wealth);
   const amountEl = $('r-amount');

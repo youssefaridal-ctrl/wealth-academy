@@ -329,6 +329,7 @@ function rankOf(w){
   return {r:"🌀 اعتمادك على الدخل لا يزال كاملاً", n:"لا بأس — الوعي أول خطوة. ابدأ بسؤالٍ واحد: «ما الذي يمكن أن أقلّصه دون أن أشعر بفقدان؟»"};
 }
 function showResults(){
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"er_decision"},"*");}catch(e){}/*WA_TRACK*/
   $('ledger').style.display = 'none';
   const rk = rankOf(wealth);
   const amountEl = $('r-amount');

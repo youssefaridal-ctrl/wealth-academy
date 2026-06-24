@@ -379,6 +379,7 @@ function rankOf(w){
   return {r:"🎩 «قبّعةٌ كبيرةٌ بلا ماشية»؟", n:"احذر فخّ المظاهر. ابدأ بأبسط مبدأ: عِش تحت مستوى دخلك، وقِس صافي ثروتك لا راتبك."};
 }
 function showResults(){
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"mn_decision"},"*");}catch(e){}/*WA_TRACK*/
   $('ledger').style.display = 'none';
   const rk = rankOf(wealth);
   const amountEl = $('r-amount');

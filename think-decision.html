@@ -379,6 +379,7 @@ function rankOf(w){
   return {r:"🌫️ عقلك ما زال يقاوم الثروة", n:"لا بأس — الوعي أول خطوة. عُد إلى المبدأ الأول: ابدأ برغبةٍ محدّدةٍ مشتعلة، وغيّر كل ما عداها."};
 }
 function showResults(){
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"tg_decision"},"*");}catch(e){}/*WA_TRACK*/
   $('ledger').style.display = 'none';
   const rk = rankOf(wealth);
   const amountEl = $('r-amount');

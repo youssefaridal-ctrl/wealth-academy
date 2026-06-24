@@ -378,6 +378,7 @@ function rankOf(w){
   return {r:"📉 السوق يقودك لا خطّتك", n:"لا بأس — هذا أهمّ درس. عدوّك الأول هو نفسُك؛ ابدأ بقاعدة هامش الأمان ولا تنقَد لمزاج السوق."};
 }
 function showResults(){
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"gr_decision"},"*");}catch(e){}/*WA_TRACK*/
   $('ledger').style.display = 'none';
   const rk = rankOf(wealth);
   const amountEl = $('r-amount');

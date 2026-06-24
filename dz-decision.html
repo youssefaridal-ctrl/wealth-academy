@@ -375,6 +375,7 @@ function rankOf(w){
   return {r:"🌀 ثروتك لا تزال بلا توقيتٍ واعٍ", n:"لا بأس — الوعي أول خطوة. ابدأ بسؤالٍ واحد: «ما التجربة التي أؤجّلها بلا سبب؟»"};
 }
 function showResults(){
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"dz_decision"},"*");}catch(e){}/*WA_TRACK*/
   $('ledger').style.display = 'none';
   const rk = rankOf(wealth);
   const amountEl = $('r-amount');

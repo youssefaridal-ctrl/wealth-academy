@@ -500,6 +500,7 @@ function rankOf(a){
   return {r:"🎩 مظهرٌ بلا ثروةٍ بعد", n:"لا ثروةَ اليوم… لكنك عرفتَ الفرق بين المظهر والثراء. الملخص بانتظارك!"};
 }
 function showResults(eyebrow){
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"mn_millionaire"},"*");}catch(e){}/*WA_TRACK*/
   $('ledger').style.display='none';
   $('r-eyebrow').textContent = eyebrow;
   const used = Object.values(lifes).filter(Boolean).length;

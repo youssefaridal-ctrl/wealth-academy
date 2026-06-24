@@ -513,6 +513,7 @@ function rankOf(a){
   return {r:"🕳️ غادرت صفر اليدين", n:"لا ذهب اليوم… لكنك خرجت بشيءٍ أثمن: معرفة ما ينقصك. الملخص بانتظارك!"};
 }
 function showResults(eyebrow){
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"millionaire"},"*");}catch(e){}/*WA_TRACK*/
   $('ledger').style.display='none';
   $('r-eyebrow').textContent = eyebrow;
   const used = Object.values(lifes).filter(Boolean).length;

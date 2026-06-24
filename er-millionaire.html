@@ -402,6 +402,7 @@ function rankOf(a){
   return {r:"🌀 اعتمادك على الدخل لا يزال كاملاً", n:"لا ثروةَ اليوم… لكنك عرفتَ القاعدة الأولى: نسبة الادّخار. الملخص بانتظارك!"};
 }
 function showResults(eyebrow){
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"er_millionaire"},"*");}catch(e){}/*WA_TRACK*/
   $('ledger').style.display='none';
   $('r-eyebrow').textContent = eyebrow;
   const used = Object.values(lifes).filter(Boolean).length;

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>المستثمر السلوكي — لعبة القرارات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#3a1f30; --lapis-deep:#1f0f19; --lapis-panel:#4a2a3e;
+    --gold:#D9A23B; --gold-bright:#F0C36B; --sand:#F3E6EC; --sand-dim:#C9A8B8;
+    --ember:#D2674E; --reed:#5FB389; --teal:#8a4a78; --teal-deep:#5c2e50; --teal-bright:#d68fc0;
+    --shadow:0 12px 32px rgba(10,2,8,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:'Tajawal',sans-serif;background:radial-gradient(1200px 600px at 50% -10%, #5c2e50 0%, transparent 60%),linear-gradient(180deg, var(--lapis-night) 0%, #0d0509 100%);color:var(--sand);min-height:100vh;line-height:1.7}
+  body::after{content:"";position:fixed;inset:auto 0 0 0;height:3px;z-index:5;background:linear-gradient(90deg, transparent 0, var(--teal) 30%, var(--gold-bright) 50%, var(--teal) 70%, transparent 100%);box-shadow:0 -4px 16px rgba(138,74,120,.35);opacity:.9}
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+  .ledger{position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:14px 18px 12px;background:linear-gradient(180deg, rgba(58,31,48,.97) 70%, rgba(58,31,48,.85));border-bottom:1px solid rgba(138,74,120,.45);backdrop-filter:blur(6px)}
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .ledger-label{font-size:.78rem;color:var(--sand-dim);font-weight:500}
+  .ledger-amount{font-family:'Cairo',sans-serif;font-weight:800;font-size:1.4rem;color:var(--gold-bright);letter-spacing:.3px;white-space:nowrap}
+  .ledger-amount small{font-size:.82rem;color:var(--sand-dim);font-family:'Tajawal',sans-serif;font-weight:500;margin-right:4px}
+  .ledger-amount.neg{color:var(--ember)}
+  .dots{display:flex;gap:6px;margin-top:8px;justify-content:center}
+  .dot{width:26px;height:4px;border-radius:99px;background:rgba(243,230,236,.16);transition:background .4s}
+  .dot.on{background:var(--teal)}
+  .dot.now{background:var(--teal-bright);box-shadow:0 0 8px rgba(214,143,192,.8)}
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;color:var(--teal-bright);border:1px solid rgba(138,74,120,.55);border-radius:99px;padding:4px 14px;margin-bottom:14px;letter-spacing:.3px;background:rgba(138,74,120,.1)}
+  h1{font-family:'Cairo',sans-serif;font-size:2.2rem;font-weight:900;line-height:1.3;color:var(--gold-bright);margin-bottom:6px}
+  h2.situation{font-family:'Tajawal',sans-serif;font-size:1.4rem;line-height:1.75;color:var(--sand);font-weight:700;margin-bottom:22px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+  .card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(138,74,120,.32);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow)}
+  .choice{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;background:rgba(31,15,25,.6);border:1px solid rgba(243,230,236,.16);border-radius:14px;padding:15px 16px;margin-bottom:12px;color:var(--sand);font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.65;cursor:pointer;transition:border-color .2s, background .2s, transform .15s}
+  .choice:hover,.choice:focus-visible{border-color:var(--teal);background:rgba(138,74,120,.12);transform:translateY(-1px)}
+  .choice:focus-visible{outline:2px solid var(--teal-bright);outline-offset:2px}
+  .badge{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(138,74,120,.18);border:1px solid rgba(138,74,120,.55);color:var(--teal-bright);font-weight:800;font-size:.95rem;margin-top:2px}
+  .verdict{border-radius:14px;padding:18px;margin-bottom:16px;border:1px solid}
+  .verdict.best{background:rgba(95,179,137,.14);border-color:rgba(95,179,137,.6)}
+  .verdict.ok{background:rgba(217,162,59,.12);border-color:rgba(217,162,59,.55)}
+  .verdict.bad{background:rgba(210,103,78,.14);border-color:rgba(210,103,78,.6)}
+  .verdict-title{font-family:'Cairo',sans-serif;font-size:1.22rem;font-weight:800;margin-bottom:8px}
+  .verdict.best .verdict-title{color:#8FE0B6}
+  .verdict.ok .verdict-title{color:var(--gold-bright)}
+  .verdict.bad .verdict-title{color:#F0987C}
+  .verdict p{font-size:.98rem}
+  .timeline{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+  .t-row{display:flex;gap:12px;align-items:flex-start;background:rgba(31,15,25,.55);border-radius:12px;padding:12px 14px;border:1px solid rgba(243,230,236,.12)}
+  .t-when{flex:0 0 auto;font-weight:800;color:var(--teal-bright);font-size:.85rem;border-left:1px solid rgba(138,74,120,.4);padding-left:12px;min-width:74px}
+  .t-what{font-size:.95rem;color:var(--sand)}
+  .delta{display:inline-flex;align-items:center;gap:8px;font-family:'Cairo',sans-serif;font-weight:800;font-size:1.3rem;border-radius:12px;padding:8px 16px;margin-bottom:18px}
+  .delta.up{background:rgba(95,179,137,.16);color:#8FE0B6;border:1px solid rgba(95,179,137,.5)}
+  .delta.down{background:rgba(210,103,78,.16);color:#F0987C;border:1px solid rgba(210,103,78,.5)}
+  .delta.flat{background:rgba(243,230,236,.08);color:var(--sand-dim);border:1px solid rgba(243,230,236,.22)}
+  .btn{display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;color:#3a1f30;background:linear-gradient(180deg,var(--teal-bright),var(--teal-deep));border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(92,46,80,.4)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(92,46,80,.5)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(217,162,59,.55);box-shadow:none;margin-top:10px}
+  .final-amount{font-family:'Cairo',sans-serif;font-size:3rem;font-weight:900;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
+  .final-amount.neg{color:var(--ember)}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{text-align:center;font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800;color:var(--sand);margin-bottom:6px}
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:22px}
+  .principles{list-style:none;margin-bottom:22px}
+  .principles li{display:flex;gap:10px;align-items:center;padding:10px 14px;margin-bottom:8px;background:rgba(31,15,25,.55);border-radius:12px;border:1px solid rgba(243,230,236,.12);font-size:.95rem}
+  .p-mark{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+  .p-mark.yes{background:rgba(95,179,137,.2);color:#8FE0B6;border:1px solid rgba(95,179,137,.6)}
+  .p-mark.no{background:rgba(210,103,78,.2);color:#F0987C;border:1px solid rgba(210,103,78,.6)}
+  .quote{font-family:'Cairo',sans-serif;font-size:1.16rem;font-weight:700;line-height:1.85;text-align:center;color:var(--gold-bright);border-top:1px solid rgba(217,162,59,.35);border-bottom:1px solid rgba(217,162,59,.35);padding:18px 6px;margin-bottom:22px}
+  .quote span{display:block;font-family:'Tajawal',sans-serif;font-size:.85rem;font-weight:500;color:var(--sand-dim);margin-top:8px}
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--teal);display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:radial-gradient(circle at 35% 30%, rgba(138,74,120,.3), rgba(217,162,59,.05));box-shadow:0 0 30px rgba(138,74,120,.3)}
+  .intro-list{margin:0 0 26px;padding:0;list-style:none}
+  .intro-list li{display:block;position:relative;padding-right:22px;color:var(--sand);font-size:.98rem;margin-bottom:10px}
+  .intro-list li::before{content:"◆";color:var(--teal);font-size:.7rem;position:absolute;right:0;top:.5em}
+  @media (max-width:420px){h1{font-size:1.85rem}h2.situation{font-size:1.25rem}.final-amount{font-size:2.4rem}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div>
+        <div class="ledger-label">رصيد النظام السلوكي</div>
+        <div class="ledger-amount" id="wealth">0 <small>نقطة</small></div>
+      </div>
+      <div style="font-size:1.6rem">📐</div>
+    </div>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <section class="screen active" id="intro">
+    <div class="intro-seal">📐</div>
+    <div style="text-align:center">
+      <div class="eyebrow">لعبة قرارات · كتاب «المستثمر السلوكي»</div>
+      <h1>من التشخيص إلى نظام القواعد</h1>
+      <p class="sub">دانيال كروسبي: لستَ بحاجةٍ لتصبح عقلانياً بالكامل — بل لتصميم نظامٍ يجعل عقلانيتك الهادئة تتغلّب على عاطفيتك المتوقَّعة وقت الضغط.</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>ستواجه <b>6 مواقف</b> مبنية على القواعد الخمس والعائلات الأربع عند كروسبي.</li>
+        <li>كل قرارٍ يرفع أو يخفض <b>رصيد النظام السلوكي</b> لديك.</li>
+        <li>المبدأ: انحيازاتٌ إيغوية، وعاطفية، وانتباهية، وحفظية — تحاصرها قواعدُ آليةٌ لا تتفاوض.</li>
+        <li>اجمع أعلى رصيدٍ ممكن… وابنِ نظامك الخاص قبل أن يشتدّ الضغط.</li>
+      </ul>
+      <button class="btn" onclick="startGame()">ابدأ الاختبار ▸</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="eyebrow" id="g-eyebrow"></div>
+    <h2 class="situation" id="g-situation"></h2>
+    <div id="g-choices"></div>
+  </section>
+
+  <section class="screen" id="feedback">
+    <div class="card">
+      <div class="verdict" id="f-verdict">
+        <div class="verdict-title" id="f-title"></div>
+        <p id="f-text"></p>
+      </div>
+      <div class="timeline">
+        <div class="t-row"><div class="t-when">أثرٌ فوري</div><div class="t-what" id="f-y1"></div></div>
+        <div class="t-row"><div class="t-when">على المدى البعيد</div><div class="t-what" id="f-y5"></div></div>
+      </div>
+      <div style="text-align:center"><span class="delta" id="f-delta"></span></div>
+      <button class="btn" id="f-next" onclick="nextScenario()">متابعة ←</button>
+    </div>
+  </section>
+
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow">اكتملت الجلسة</div></div>
+    <div class="card">
+      <div class="final-label">رصيد النظام السلوكي</div>
+      <div class="final-amount" id="r-amount">0</div>
+      <div class="final-label">نقطة &nbsp;·&nbsp; من أصل 114</div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <ul class="principles" id="r-principles"></ul>
+      <div class="quote">«أفضل استراتيجية استثمارية ليست أذكى استراتيجية، بل أكثرها قابليةً للالتزام بها حين يشتدّ الضغط»<span>— دانيال كروسبي</span></div>
+      <button class="btn" onclick="restart()">أعد المحاولة 🔄</button>
+      <button class="btn ghost" onclick="restart()">اقرأ الملخص مرة أخرى 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const SCENARIOS = [
+  {
+    cure:"المبدأ · الانحيازات الإيغوية والثقة المفرطة",
+    short:"تواضعٌ منهجي يحاصر الثقة الزائفة",
+    situation:"تتابع شركةً تعمل في قطاعٍ تفهمه جيداً بفضل خبرتك المهنية، وتفكّر في تركيز جزءٍ كبيرٍ من محفظتك فيها لأنك «تعرفها أكثر من أي خبير آخر».",
+    choices:[
+      {t:"ألتزم بحدود تنويعٍ صارمة لا تستثني أي أصلٍ مهما بدا «مفهوماً» لي جيداً، وأبحث عمداً عن أدلةٍ مناقضة لقناعتي قبل أي تركيز", q:"best", d:20,
+       fb:"كروسبي يوضح أن الثقة المفرطة وانحياز التأكيد يدفعاننا للتركّز في أصولٍ «نعرفها» متجاهلين أن الفهم الشخصي لا يحمي من مخاطر السوق الجماعية.",
+       y1:"محفظةٌ محمية من تركّز المخاطرة في قناعةٍ شخصية", y5:"حصانةٌ راسخة من فخّ «أنا أعرف أكثر من السوق»"},
+      {t:"أزيد حصّة هذه الشركة في محفظتي بشكلٍ ملحوظ لأن معرفتي المهنية بقطاعها تمنحني ميزةً واضحة على غيري", q:"ok", d:5,
+       fb:"هذا تماماً ما يحذّر منه كروسبي: الفهم الشخصي العميق يخلق ثقةً زائفة بالقدرة على التغلّب على مخاطر السوق الجماعية التي لا تفرّق بين خبيرٍ وهاوٍ.",
+       y1:"تركّزٌ متزايدٌ في أصلٍ واحد بثقةٍ غير مبرَّرة كافياً", y5:"تعرّضٌ أعلى لمخاطر قطاعٍ واحد عند أي انعكاسٍ مفاجئ"},
+      {t:"أستثمر كل مدّخراتي المتاحة في هذه الشركة وحدها لأن معرفتي بها «تُلغي» الحاجة لأي تنويعٍ آخر كلياً", q:"bad", d:-8,
+       fb:"هذا أوضح صورةٍ للانحياز الإيغوي الذي يصفه كروسبي: ثقةٌ مفرطة بمعرفةٍ شخصية تتجاهل تماماً أن الفهم العميق لا يحمي من مخاطر السوق الجماعية.",
+       y1:"تركيزٌ خطيرٌ كاملٌ في أصلٍ واحد بلا أي تنويع", y5:"كارثةٌ ماليةٌ محتملة عند أي صدمةٍ في ذلك القطاع وحده"}
+    ]
+  },
+  {
+    cure:"المبدأ · الانحيازات العاطفية والخوف والطمع",
+    short:"إعادة توازنٍ آلية تتجاوز توقيت الانفعال",
+    situation:"السوق يرتفع بحماسةٍ واضحة منذ أسابيع، وتشعر برغبةٍ قوية في زيادة استثمارك الآن لأن «كل المؤشرات إيجابية» وتخشى تفويت الموجة.",
+    choices:[
+      {t:"ألتزم بقواعد إعادة توازنٍ آلية مجدولة مسبقاً (شهرية أو فصلية) لا تتطلّب قراراً عاطفياً لحظياً بصرف النظر عن حماسة السوق الحالية", q:"best", d:20,
+       fb:"كروسبي يوضح أن متوسط عائد المستثمر الفرد أقل من متوسط السوق أساساً بسبب توقيت الدخول الحماسي والخروج الذعِر — قواعدٌ مجدولة تكسر هذا النمط.",
+       y1:"قرارٌ استثماريٌّ مجدولٌ بمعزلٍ عن حماسة اللحظة", y5:"تجنّب نمط الشراء غالياً والبيع رخيصاً المنهجي"},
+      {t:"أزيد استثماري بمقدارٍ معتدل «استجابةً للزخم الإيجابي» دون قاعدةٍ مجدولة مسبقة تحدّد ذلك", q:"ok", d:5,
+       fb:"حتى الزيادة المعتدلة المستجيبة لحماسة السوق اللحظية تكسر مبدأ المنهجية الآلية الذي يدعو إليه كروسبي، وتُبقيك عرضةً لتوقيتٍ عاطفي.",
+       y1:"دخولٌ إضافيٌّ بدافع حماسة السوق لا خطّةٍ مسبقة", y5:"نمطٌ متكرّرٌ من القرارات الاستثمارية الموقوتة عاطفياً"},
+      {t:"أضاعف استثماري بالكامل فوراً لأن «الجميع متحمّسٌ والفرصة لن تتكرّر»، متجاهلاً أي خطّةٍ موضوعة مسبقاً", q:"bad", d:-9,
+       fb:"هذا تماماً نمط الدخول حين ترتفع الأسعار حماساً والخروج حين تنخفض ذعراً الذي يصفه كروسبي كسببٍ أساسي لتدنّي عائد المستثمر الفرد عن السوق.",
+       y1:"مخاطرةٌ مضاعفة بدافع حماسةٍ جماعية لحظية", y5:"خسارةٌ محتملة كبيرة عند أول انعكاسٍ في الزخم"}
+    ]
+  },
+  {
+    cure:"المبدأ · الانحيازات الانتباهية وضريبة الجاذبية",
+    short:"معايير موضوعية لا قصص إعلامية مثيرة",
+    situation:"سهمٌ صغير يتصدّر عناوين الأخبار ووسائل التواصل بقصّةٍ مثيرة عن نموٍّ مستقبلي ضخم، بينما شركةٌ هادئة الأداء لا تصنع أي عناوين تقريباً.",
+    choices:[
+      {t:"أُقيّم الفرصتين بمعايير موضوعية ثابتة (نسبٌ مالية، استقرار أرباح) بصرف النظر عن مدى إثارة أيٍّ منهما إعلامياً، وأبحث عمداً عن الفرص «المملة» المهجورة", q:"best", d:19,
+       fb:"كروسبي يسمّي هذا «ضريبة الجاذبية»: القصص المثيرة تدفع علاوةً سعرية غير مبرَّرة، بينما الشركات الصبورة الهادئة تحصل على خصمٍ مجاني يستحق الانتباه.",
+       y1:"تقييمٌ موضوعي بمعزلٍ عن الجاذبية الإعلامية للقصة", y5:"محفظةٌ تستفيد من خصم «الملل» بدل علاوة الإثارة"},
+      {t:"أخصّص جزءاً صغيراً لكلٍّ من السهم المثير والشركة الهادئة «للتوازن» دون معيارٍ موضوعي واضح يحدّد النسبة", q:"ok", d:5,
+       fb:"التوازن الحدسي دون معاييرٍ موضوعية ثابتة لا يزال متأثراً جزئياً بضريبة الجاذبية، وقد يخصّص وزناً أكبر من اللازم للقصة المثيرة.",
+       y1:"تخصيصٌ غير مدروسٍ بمعيارٍ حدسي لا موضوعي", y5:"تكرار الانجذاب الجزئي لكل قصةٍ إعلامية مثيرة مستقبلاً"},
+      {t:"أستثمر في السهم المثير فقط لأن «كل الأخبار تتحدّث عنه» وأتجاهل الشركة الهادئة تماماً لأنها «مملة ولا تستحق الاهتمام»", q:"bad", d:-8,
+       fb:"هذا هو الانحياز الانتباهي في أوضح صوره: توجيه انتباهٍ كامل لما يصرخ إعلامياً بدل ما يستحق الاهتمام فعلياً بمعاييره الموضوعية.",
+       y1:"استثمارٌ مبنيٌّ على الإثارة الإعلامية لا التحليل", y5:"خسارة فرص الشركات الهادئة المهجورة ذات القيمة الحقيقية"}
+    ]
+  },
+  {
+    cure:"المبدأ · الانحيازات الحفظية والتكلفة الغارقة",
+    short:"مراجعةٌ دورية بمعزلٍ عن سعر الشراء التاريخي",
+    situation:"تملك استثماراً خسر قيمته بشكلٍ كبير منذ شرائه، وكل تحليلٍ موضوعي يقول إن المال الأفضل اليوم في مكانٍ آخر، لكنك تتشبّث به لأنك «استثمرتَ فيه كثيراً ولا يمكن الاعتراف بالخطأ الآن».",
+    choices:[
+      {t:"أسأل نفسي بصدق: لو لم أكن أملك هذا الأصل، هل كنت سأشتريه اليوم بسعره الحالي؟ فإن كان الجواب لا، أبيعه بمعزلٍ تامٍّ عن سعر شرائي التاريخي", q:"best", d:19,
+       fb:"كروسبي يوضح أن مغالطة التكلفة الغارقة تجعلنا نتشبّث باستثمارٍ فاشل لأننا «استثمرنا فيه كثيراً»، وأن السؤال التحرّري هذا يفصل القرار عن الماضي تماماً.",
+       y1:"قرارٌ استثماريٌّ مبنيٌّ على القيمة المستقبلية فقط", y5:"محفظةٌ محرَّرة من قيد التكلفة الغارقة والذاكرة العاطفية"},
+      {t:"أحتفظ بنصف الاستثمار وأبيع النصف الآخر «حلاً وسطاً» دون مراجعةٍ موضوعية واضحة لقيمته المستقبلية", q:"ok", d:5,
+       fb:"الحلّ الوسط دون سؤالٍ تحرّري موضوعي لا يزال متأثراً بانحياز الوضع الراهن والتشبّث الجزئي بقرارٍ سابقٍ غير مُراجَع بصدق.",
+       y1:"قرارٌ جزئيٌّ غير مبنيٍّ على مراجعةٍ واضحة", y5:"استمرارٌ جزئيٌّ في خسارةٍ كان يمكن تجنّبها بالكامل"},
+      {t:"أحتفظ بالاستثمار كاملاً لأن الاعتراف ببيعه يعني الاعتراف بخطأ شرائي السابق، وهذا أصعب من تحمّل المزيد من الخسارة", q:"bad", d:-8,
+       fb:"هذا هو البُعد الاجتماعي للانحياز الحفظي الذي يضيفه كروسبي: نفضّل استمرار الخطأ على ألم الإقرار به علناً أمام أنفسنا أو الآخرين.",
+       y1:"استمرارٌ في خسارةٍ كان يمكن تجنّبها بمراجعةٍ موضوعية", y5:"نمطٌ متكرّرٌ من التشبّث بقراراتٍ سابقة خوفاً من الاعتراف بالخطأ"}
+    ]
+  },
+  {
+    cure:"المبدأ · دور الحارس وحماية المستثمر من نفسه",
+    short:"القيمة في منع الكوارث لا التنبؤ بالأسواق",
+    situation:"تشعر بإغراءٍ قويٍّ للاتصال بمستشارك المالي وطلب البيع الفوري لكل استثماراتك بعد يومٍ سيءٍ في السوق، رغم أن لا شيء جوهرياً تغيّر في خطّتك طويلة المدى.",
+    choices:[
+      {t:"أتذكّر أن دور الحارس الحقيقي — مستشاري أو نظامي الآلي الخاص — هو حمايتي من نفسي وقت الضغط لا التنبؤ بالأسواق، وألتزم بالخطّة المكتوبة مسبقاً وأنا هادئ", q:"best", d:19,
+       fb:"كروسبي يوضح أن أفضل قيمةٍ يقدّمها مستشارٌ جيد لا تُقاس بعائدٍ إضافي، بل بكوارثَ يمنعها: تلك المكالمة التي تهدّئ عميلاً يريد البيع بذعرٍ في قعر انهيار.",
+       y1:"التزامٌ بالخطّة المكتوبة بمعزلٍ عن انفعال يومٍ سيء", y5:"تجنّب كارثةٍ مالية كانت ستنتج عن قرارٍ ذعِرٍ لحظي"},
+      {t:"أتصل بمستشاري وأطلب رأيه فقط لكنني أتّخذ القرار النهائي بنفسي بناءً على شعوري اللحظي بصرف النظر عن نصيحته", q:"ok", d:5,
+       fb:"طلب الرأي خطوةٌ جيدة، لكن تجاهل النصيحة لصالح الشعور اللحظي يُفرغ دور الحارس من قيمته الأساسية التي يصفها كروسبي: حمايتك من نفسك وقت الضغط.",
+       y1:"استشارةٌ جزئية لم تُغيّر القرار النهائي المتأثّر بالانفعال", y5:"تآكلٌ تدريجي لثقتك في النظام الذي بنيتَه مسبقاً"},
+      {t:"أبيع كل استثماراتي فوراً دون استشارة أي أحد لأن «شعوري يخبرني أن هذا أفضل قرار الآن»، متجاهلاً خطّتي المكتوبة مسبقاً بالكامل", q:"bad", d:-9,
+       fb:"هذا تماماً ما يحذّر منه كروسبي: تجاهل دور الحارس ونظام القواعد المكتوب مسبقاً لصالح قرارٍ لحظي ذعِر يدمّر نظاماً بُني بعنايةٍ على مدى سنوات.",
+       y1:"قرارٌ بيعٍ ذعِرٌ يخالف الخطّة المكتوبة بالكامل", y5:"تفكيكٌ كاملٌ لنظامٍ استثماري استغرق سنواتٍ لبنائه"}
+    ]
+  },
+  {
+    cure:"المبدأ · القواعد الخمس ونظام السلوك المتكامل",
+    short:"نظامٌ متكامل لا قاعدةٌ منفردة",
+    situation:"تراجع استراتيجيتك الاستثمارية وتدرك أنك تطبّق التنويع جيداً، لكنك تتحقّق من محفظتك يومياً وتغيّر تخصيصاتك بحسب شعورك اللحظي تجاه أداء السوق الأسبوعي.",
+    choices:[
+      {t:"أبني نظاماً متكاملاً يجمع القواعد الخمس معاً: تواضعٌ معرفي، ومنهجيةٌ آلية، وتنويعٌ حقيقي، ووعيٌ بالتكلفة، وصبرٌ منهجي — لأن قوة النظام في تكامله لا في قاعدةٍ منفردة", q:"best", d:20,
+       fb:"كروسبي يلخّص جوهر الكتاب: لا فائدة من الصبر وحده إن غاب التنويع، ولا التنويع وحده إن غابت الآلية التي تمنع كسره وقت الذعر — القواعد الخمس تُغلق كل المنافذ معاً.",
+       y1:"نظامٌ استثماريٌّ متكاملٌ يحاصر كل العائلات الأربع معاً", y5:"التزامٌ راسخٌ بخطّةٍ طويلة المدى لا تتأثر بمزاج السوق الأسبوعي"},
+      {t:"أحافظ على التنويع الجيد فقط وأعتبره كافياً بمفرده، دون إضافة قواعد المنهجية الآلية أو الصبر المنهجي إلى نظامي", q:"ok", d:5,
+       fb:"كروسبي يحذّر تحديداً من هذا: التنويع الجيد بمفرده لا يحميك إن كسرتَه بقرارٍ عاطفي أسبوعي، فالقواعد الخمس يجب أن تعمل معاً لا منفردة.",
+       y1:"حمايةٌ جزئية فقط من خلال التنويع وحده", y5:"احتمالٌ مستمرٌّ لكسر النظام عاطفياً عند أول ضغطٍ حقيقي"},
+      {t:"أستمر في تغيير تخصيصاتي أسبوعياً بحسب شعوري اللحظي تجاه أداء السوق، معتبراً أن التنويع وحده يكفيني دون أي قواعد إضافية", q:"bad", d:-8,
+       fb:"هذا يناقض جوهر نظام كروسبي بالكامل: تغيير التخصيصات بحسب المزاج اللحظي هو تماماً السلوك العاطفي الذي يفترض النظام الآلي حمايتك منه.",
+       y1:"نمطٌ استثماريٌّ متقلّبٌ بحسب مزاج السوق الأسبوعي", y5:"تآكلٌ تراكمي للعائد بسبب قراراتٍ عاطفية متكررة"}
+    ]
+  }
+];
+
+const VERDICTS = {
+  best:{title:"📐 نظامٌ سلوكيٌّ متماسك — هكذا يفكّر كروسبي", cls:"best"},
+  ok:{title:"⚖️ مقبول… لكن النظام لم يكتمل تماماً", cls:"ok"},
+  bad:{title:"🌀 قرارٌ يكشف غياب نظام القواعد", cls:"bad"}
+};
+
+let idx = 0, wealth = 0, mastered = [];
+const $ = id => document.getElementById(id);
+
+function fmt(n){
+  const s = Math.abs(n).toLocaleString('en-US').replace(/,/g,'٬');
+  return (n<0?'−':'')+s;
+}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function renderDots(){
+  $('dots').innerHTML = SCENARIOS.map((_,i)=>`<div class="dot ${i<idx?'on':''} ${i===idx?'now':''}"></div>`).join('');
+}
+function renderWealth(animateFrom){
+  const el = $('wealth');
+  el.classList.toggle('neg', wealth<0);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(animateFrom===undefined || reduce){ el.innerHTML = fmt(wealth)+' <small>نقطة</small>'; return; }
+  const start = animateFrom, diff = wealth-start, dur = 900, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    el.innerHTML = fmt(Math.round(start+diff*e))+' <small>نقطة</small>';
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function startGame(){
+  idx = 0; wealth = 0; mastered = [];
+  $('ledger').style.display = 'block';
+  renderWealth(); renderDots(); renderScenario(); show('game');
+}
+function renderScenario(){
+  const s = SCENARIOS[idx];
+  $('g-eyebrow').textContent = `الموقف ${idx+1} من ${SCENARIOS.length} · ${s.cure}`;
+  $('g-situation').textContent = s.situation;
+  const letters = ['أ','ب','ج'];
+  $('g-choices').innerHTML = s.choices.map((c,i)=>
+    `<button class="choice" onclick="choose(${i})"><span class="badge">${letters[i]}</span><span>${c.t}</span></button>`).join('');
+  renderDots();
+}
+function choose(ci){
+  const s = SCENARIOS[idx], c = s.choices[ci];
+  const before = wealth;
+  wealth += c.d;
+  mastered.push(c.q === 'best');
+  const v = VERDICTS[c.q];
+  $('f-verdict').className = 'verdict '+v.cls;
+  $('f-title').textContent = v.title;
+  $('f-text').textContent = c.fb;
+  $('f-y1').textContent = c.y1;
+  $('f-y5').textContent = c.y5;
+  const dEl = $('f-delta');
+  dEl.className = 'delta '+(c.d>0?'up':c.d<0?'down':'flat');
+  dEl.textContent = (c.d>0?'📈 +':c.d<0?'📉 −':'⏳ ')+(c.d===0?'لا تغيير':Math.abs(c.d)+' نقطة');
+  $('f-next').textContent = (idx === SCENARIOS.length-1) ? 'اكشف نتيجتك النهائية 📐' : 'الموقف التالي ←';
+  show('feedback');
+  renderWealth(before);
+}
+function nextScenario(){
+  idx++;
+  if(idx < SCENARIOS.length){ renderScenario(); show('game'); }
+  else showResults();
+}
+function rankOf(w){
+  if(w>=95) return {r:"📐 تتقن بناء نظام القواعد السلوكي", n:"تطبّق حكمة كروسبي بإتقان: التواضع، والمنهجية، والتنويع، والصبر. طبّقها على حياتك الحقيقية الآن."};
+  if(w>=60) return {r:"⚖️ نظامك السلوكي يتشكّل تدريجياً", n:"تمتلك معظم المبادئ. راجع ما أخطأت فيه أدناه ورسّخه."};
+  if(w>=25) return {r:"⏳ بدأتَ تفرّق بين القرار العاطفي والقاعدة المنهجية", n:"وضعتَ أولى لبنات الفهم. أعد قراءة الفصول ثم عُد."};
+  return {r:"🌀 لا يزال غياب النظام يكلّفك قراراتٍ خاطئة", n:"لا بأس — الوعي أول خطوة. ابدأ بسؤالٍ واحد: «هل لديّ قاعدةٌ مكتوبة مسبقاً لهذا القرار؟»"};
+}
+function showResults(){
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"bi_decision"},"*");}catch(e){}/*WA_TRACK*/
+  $('ledger').style.display = 'none';
+  const rk = rankOf(wealth);
+  const amountEl = $('r-amount');
+  amountEl.classList.toggle('neg', wealth<0);
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n;
+  $('r-principles').innerHTML = SCENARIOS.map((s,i)=>
+    `<li><span class="p-mark ${mastered[i]?'yes':'no'}">${mastered[i]?'✓':'✗'}</span><span>${s.short}</span></li>`).join('');
+  show('results');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ amountEl.textContent = fmt(wealth); return; }
+  const dur = 1400, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    amountEl.textContent = fmt(Math.round(wealth*e));
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function restart(){ $('ledger').style.display = 'none'; show('intro'); }
+</script>
+</body>
+</html>

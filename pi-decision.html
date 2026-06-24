@@ -329,6 +329,7 @@ function rankOf(w){
   return {r:"🌀 لا تزال تقع في الفخاخ المتوقَّعة نفسها", n:"لا بأس — الوعي أول خطوة. ابدأ بسؤالٍ واحد: «هل أقيّم بالقيمة المطلقة أم بالمقارنة المفروضة عليّ؟»"};
 }
 function showResults(){
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"pi_decision"},"*");}catch(e){}/*WA_TRACK*/
   $('ledger').style.display = 'none';
   const rk = rankOf(wealth);
   const amountEl = $('r-amount');

@@ -329,6 +329,7 @@ function rankOf(w){
   return {r:"🌀 لا تزال أسير الوهم الفنّي", n:"لا بأس — الوعي أول خطوة. ابدأ بسؤالٍ واحد: «هل أعمل على مشروعي أم داخله فقط؟»"};
 }
 function showResults(){
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"em_decision"},"*");}catch(e){}/*WA_TRACK*/
   $('ledger').style.display = 'none';
   const rk = rankOf(wealth);
   const amountEl = $('r-amount');

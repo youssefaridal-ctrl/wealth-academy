@@ -339,6 +339,7 @@ function rankOf(w){
   return {r:"🌀 خياراتك تحتاج تصميماً أوضح", n:"لا بأس — الوعي أول خطوة. ابدأ بسؤالٍ واحد: «ما الخيار الافتراضي في حياتي المالية الآن؟»"};
 }
 function showResults(){
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"nd_decision"},"*");}catch(e){}/*WA_TRACK*/
   $('ledger').style.display = 'none';
   const rk = rankOf(wealth);
   const amountEl = $('r-amount');

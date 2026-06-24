@@ -500,6 +500,7 @@ function rankOf(a){
   return {r:"🌀 مخطّطك يحتاج إعادة برمجة", n:"لا ثروةَ اليوم… لكنك عرفتَ أيّ جذورٍ تحتاج تغييراً. الملخص بانتظارك!"};
 }
 function showResults(eyebrow){
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"ek_millionaire"},"*");}catch(e){}/*WA_TRACK*/
   $('ledger').style.display='none';
   $('r-eyebrow').textContent = eyebrow;
   const used = Object.values(lifes).filter(Boolean).length;

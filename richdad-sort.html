@@ -268,6 +268,7 @@ function rankOf(c){
   return {r:"🐀 محفظتك تتسرّب!", n:"لا تقلق — لهذا وُجد الملخص. اقرأ لوح المراجعة ثم عُد للثأر."};
 }
 function endGame(){
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"rd_sort"},"*");}catch(e){}/*WA_TRACK*/
   $('ledger').style.display='none';
   const done = answers.filter(a=>a!==null).length;
   const acc = done? Math.round(correct/done*100) : 0;

@@ -329,6 +329,7 @@ function rankOf(w){
   return {r:"🌀 لا تزال تطلب المال أو المكانة بدل الثروة", n:"لا بأس — الوعي أول خطوة. ابدأ بسؤالٍ واحد: «هل أملك حصّةً أم أؤجّر وقتي فقط؟»"};
 }
 function showResults(){
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"nv_decision"},"*");}catch(e){}/*WA_TRACK*/
   $('ledger').style.display = 'none';
   const rk = rankOf(wealth);
   const amountEl = $('r-amount');

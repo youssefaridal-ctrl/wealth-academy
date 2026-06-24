@@ -3,56 +3,56 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>اختبار سوء التصرف — من سيربح المليون</title>
+<title>اختبار نظام القواعد السلوكي — من سيربح المليون</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --lapis-night:#261B0A; --lapis-deep:#160F05; --lapis-panel:#3A2A12;
-    --gold:#D9A23B; --gold-bright:#F0C36B; --sand:#F5EEDB; --sand-dim:#C9B996;
-    --ember:#D2674E; --reed:#5FB389; --teal:#7A5A2A; --teal-deep:#523C1A; --teal-bright:#C99B4A;
-    --shadow:0 12px 32px rgba(10,6,2,.6);
+    --lapis-night:#3a1f30; --lapis-deep:#1f0f19; --lapis-panel:#4a2a3e;
+    --gold:#D9A23B; --gold-bright:#F0C36B; --sand:#F3E6EC; --sand-dim:#C9A8B8;
+    --ember:#D2674E; --reed:#5FB389; --teal:#8a4a78; --teal-deep:#5c2e50; --teal-bright:#d68fc0;
+    --shadow:0 12px 32px rgba(10,2,8,.6);
   }
   *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:'Tajawal',sans-serif;background:radial-gradient(1200px 600px at 50% -10%, #523C1A 0%, transparent 60%),linear-gradient(180deg, var(--lapis-night) 0%, #0A0703 100%);color:var(--sand);min-height:100vh;line-height:1.7}
-  body::after{content:"";position:fixed;inset:auto 0 0 0;height:3px;z-index:5;background:linear-gradient(90deg, transparent 0, var(--teal) 30%, var(--gold-bright) 50%, var(--teal) 70%, transparent 100%);box-shadow:0 -4px 16px rgba(122,90,42,.35);opacity:.9}
+  body{font-family:'Tajawal',sans-serif;background:radial-gradient(1200px 600px at 50% -10%, #5c2e50 0%, transparent 60%),linear-gradient(180deg, var(--lapis-night) 0%, #0d0509 100%);color:var(--sand);min-height:100vh;line-height:1.7}
+  body::after{content:"";position:fixed;inset:auto 0 0 0;height:3px;z-index:5;background:linear-gradient(90deg, transparent 0, var(--teal) 30%, var(--gold-bright) 50%, var(--teal) 70%, transparent 100%);box-shadow:0 -4px 16px rgba(138,74,120,.35);opacity:.9}
   .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
-  .ledger{position:sticky;top:0;z-index:10;margin:0 -18px 16px;padding:12px 18px;background:linear-gradient(180deg, rgba(38,27,10,.97) 70%, rgba(38,27,10,.85));border-bottom:1px solid rgba(122,90,42,.45);backdrop-filter:blur(6px)}
+  .ledger{position:sticky;top:0;z-index:10;margin:0 -18px 16px;padding:12px 18px;background:linear-gradient(180deg, rgba(58,31,48,.97) 70%, rgba(58,31,48,.85));border-bottom:1px solid rgba(138,74,120,.45);backdrop-filter:blur(6px)}
   .ledger-inner{max-width:524px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:10px}
   .stat-label{font-size:.7rem;color:var(--sand-dim);font-weight:500}
   .stat-val{font-family:'Cairo',sans-serif;font-weight:800;font-size:1.25rem;color:var(--gold-bright);white-space:nowrap}
-  .ladder-btn{border:1px solid rgba(122,90,42,.55);background:rgba(122,90,42,.12);color:var(--teal-bright);border-radius:99px;padding:7px 14px;font-family:'Tajawal',sans-serif;font-weight:800;font-size:.82rem;cursor:pointer}
+  .ladder-btn{border:1px solid rgba(138,74,120,.55);background:rgba(138,74,120,.12);color:var(--teal-bright);border-radius:99px;padding:7px 14px;font-family:'Tajawal',sans-serif;font-weight:800;font-size:.82rem;cursor:pointer}
   .lifelines{display:flex;gap:8px;margin-top:10px;justify-content:center}
-  .life{flex:1;max-width:160px;border-radius:12px;padding:8px 6px;cursor:pointer;text-align:center;font-family:'Tajawal',sans-serif;font-weight:800;font-size:.8rem;color:var(--teal-bright);background:rgba(122,90,42,.12);border:1px solid rgba(122,90,42,.55);transition:opacity .2s, transform .15s}
+  .life{flex:1;max-width:160px;border-radius:12px;padding:8px 6px;cursor:pointer;text-align:center;font-family:'Tajawal',sans-serif;font-weight:800;font-size:.8rem;color:var(--teal-bright);background:rgba(138,74,120,.12);border:1px solid rgba(138,74,120,.55);transition:opacity .2s, transform .15s}
   .life:hover:not(:disabled){transform:translateY(-1px)}
   .life:disabled{opacity:.32;cursor:default;text-decoration:line-through}
   .life:focus-visible{outline:2px solid var(--teal-bright);outline-offset:2px}
-  .ladder-panel{position:fixed;inset:0;z-index:50;background:rgba(10,6,2,.85);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px}
+  .ladder-panel{position:fixed;inset:0;z-index:50;background:rgba(10,2,8,.85);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px}
   .ladder-panel.open{display:flex}
-  .ladder-card{width:100%;max-width:360px;background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(122,90,42,.5);border-radius:18px;padding:20px;box-shadow:var(--shadow);max-height:86vh;overflow:auto}
+  .ladder-card{width:100%;max-width:360px;background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(138,74,120,.5);border-radius:18px;padding:20px;box-shadow:var(--shadow);max-height:86vh;overflow:auto}
   .ladder-title{font-family:'Cairo',sans-serif;font-size:1.3rem;font-weight:800;color:var(--gold-bright);text-align:center;margin-bottom:12px}
   .rung{display:flex;justify-content:space-between;align-items:center;padding:7px 12px;border-radius:10px;font-size:.92rem;margin-bottom:4px;border:1px solid transparent}
   .rung .num{color:var(--sand-dim);font-size:.78rem;font-weight:700;min-width:34px}
   .rung .amt{font-family:'Cairo',sans-serif;font-weight:700;color:var(--sand)}
   .rung.safe .amt{color:var(--gold-bright)}
   .rung.safe{border-color:rgba(217,162,59,.35);background:rgba(217,162,59,.06)}
-  .rung.current{background:rgba(122,90,42,.2);border-color:var(--teal);box-shadow:0 0 12px rgba(122,90,42,.3)}
+  .rung.current{background:rgba(138,74,120,.2);border-color:var(--teal);box-shadow:0 0 12px rgba(138,74,120,.3)}
   .rung.won .amt,.rung.won .num{color:#8FE0B6}
   .screen{display:none;animation:fadeUp .45s ease both}
   .screen.active{display:block}
   @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-  .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;color:var(--teal);border:1px solid rgba(122,90,42,.55);border-radius:99px;padding:4px 14px;margin-bottom:14px;background:rgba(122,90,42,.1)}
+  .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;color:var(--teal);border:1px solid rgba(138,74,120,.55);border-radius:99px;padding:4px 14px;margin-bottom:14px;background:rgba(138,74,120,.1)}
   h1{font-family:'Cairo',sans-serif;font-size:2.2rem;font-weight:900;line-height:1.35;color:var(--gold-bright);margin-bottom:6px}
   .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
-  .card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(122,90,42,.35);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow)}
-  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--teal);display:flex;align-items:center;justify-content:center;font-size:2.1rem;background:radial-gradient(circle at 35% 30%, rgba(122,90,42,.3), rgba(217,162,59,.05));box-shadow:0 0 30px rgba(122,90,42,.3)}
+  .card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(138,74,120,.35);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow)}
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--teal);display:flex;align-items:center;justify-content:center;font-size:2.1rem;background:radial-gradient(circle at 35% 30%, rgba(138,74,120,.3), rgba(217,162,59,.05));box-shadow:0 0 30px rgba(138,74,120,.3)}
   .intro-list{margin:0 0 26px;list-style:none}
   .intro-list li{display:block;position:relative;padding-right:22px;color:var(--sand);font-size:.98rem;margin-bottom:10px}
   .intro-list li::before{content:"◆";color:var(--teal);font-size:.7rem;position:absolute;right:0;top:.5em}
-  .q-card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(122,90,42,.4);border-radius:18px;padding:22px;box-shadow:var(--shadow);margin-bottom:16px;text-align:center}
+  .q-card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(138,74,120,.4);border-radius:18px;padding:22px;box-shadow:var(--shadow);margin-bottom:16px;text-align:center}
   .q-text{font-family:'Cairo',sans-serif;font-size:1.3rem;line-height:1.8;font-weight:700;color:var(--sand)}
-  .hintbox{display:none;background:rgba(122,90,42,.12);border:1px solid rgba(122,90,42,.5);border-radius:14px;padding:14px 16px;margin-bottom:14px;font-size:.95rem}
+  .hintbox{display:none;background:rgba(138,74,120,.12);border:1px solid rgba(138,74,120,.5);border-radius:14px;padding:14px 16px;margin-bottom:14px;font-size:.95rem}
   .hintbox.show{display:block;animation:fadeUp .3s ease both}
   .hintbox .who{font-weight:800;color:var(--teal-bright);font-size:.82rem;margin-bottom:4px}
   .hintbox .txt{font-family:'Cairo',sans-serif;font-size:1.02rem;line-height:1.8}
@@ -60,17 +60,17 @@
   .poll.show{display:block;animation:fadeUp .3s ease both}
   .poll-row{display:flex;align-items:center;gap:10px;margin-bottom:7px}
   .poll-letter{flex:0 0 auto;width:24px;font-weight:800;color:var(--teal-bright);font-size:.9rem}
-  .poll-track{flex:1;height:16px;border-radius:99px;background:rgba(245,238,219,.12);overflow:hidden}
+  .poll-track{flex:1;height:16px;border-radius:99px;background:rgba(243,230,236,.12);overflow:hidden}
   .poll-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--teal-bright),var(--teal-deep));width:0;transition:width .8s ease}
   .poll-pct{flex:0 0 auto;min-width:42px;text-align:left;font-size:.82rem;font-weight:800;color:var(--sand-dim)}
-  .opt{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;background:rgba(22,15,5,.55);border:1px solid rgba(245,238,219,.22);border-radius:14px;padding:14px 16px;margin-bottom:11px;color:var(--sand);font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.6;cursor:pointer;transition:border-color .2s, background .2s, transform .15s, opacity .3s}
-  .opt:hover:not(:disabled),.opt:focus-visible{border-color:var(--teal);background:rgba(122,90,42,.12)}
+  .opt{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;background:rgba(31,15,25,.55);border:1px solid rgba(243,230,236,.22);border-radius:14px;padding:14px 16px;margin-bottom:11px;color:var(--sand);font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.6;cursor:pointer;transition:border-color .2s, background .2s, transform .15s, opacity .3s}
+  .opt:hover:not(:disabled),.opt:focus-visible{border-color:var(--teal);background:rgba(138,74,120,.12)}
   .opt:focus-visible{outline:2px solid var(--teal-bright);outline-offset:2px}
-  .opt .badge{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(122,90,42,.18);border:1px solid rgba(122,90,42,.55);color:var(--teal-bright);font-weight:800;font-size:.95rem;margin-top:1px}
+  .opt .badge{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(138,74,120,.18);border:1px solid rgba(138,74,120,.55);color:var(--teal-bright);font-weight:800;font-size:.95rem;margin-top:1px}
   .opt.removed{opacity:.22;pointer-events:none;text-decoration:line-through}
-  .opt.selected{border-color:var(--teal-bright);background:rgba(122,90,42,.2);box-shadow:0 0 0 2px rgba(201,155,74,.35)}
+  .opt.selected{border-color:var(--teal-bright);background:rgba(138,74,120,.2);box-shadow:0 0 0 2px rgba(214,143,192,.35)}
   .opt.suspense{animation:pulse 0.55s ease-in-out infinite}
-  @keyframes pulse{0%,100%{box-shadow:0 0 0 2px rgba(201,155,74,.25)}50%{box-shadow:0 0 0 6px rgba(201,155,74,.5)}}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 2px rgba(214,143,192,.25)}50%{box-shadow:0 0 0 6px rgba(214,143,192,.5)}}
   .opt.correct{border-color:var(--reed);background:rgba(95,179,137,.2);box-shadow:0 0 0 3px rgba(95,179,137,.4)}
   .opt.correct .badge{background:rgba(95,179,137,.25);border-color:var(--reed);color:#8FE0B6}
   .opt.wrong{border-color:var(--ember);background:rgba(210,103,78,.2);box-shadow:0 0 0 3px rgba(210,103,78,.4)}
@@ -79,16 +79,16 @@
   .confirm-bar{display:none;gap:10px;margin-bottom:12px}
   .confirm-bar.show{display:flex;animation:fadeUp .25s ease both}
   .cbtn{flex:1;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1rem;border-radius:12px;padding:13px}
-  .cbtn.go{color:#261B0A;background:linear-gradient(180deg,var(--teal-bright),var(--teal-deep))}
-  .cbtn.back{background:transparent;color:var(--sand-dim);border:1px solid rgba(245,238,219,.3)}
+  .cbtn.go{color:#3a1f30;background:linear-gradient(180deg,var(--teal-bright),var(--teal-deep))}
+  .cbtn.back{background:transparent;color:var(--sand-dim);border:1px solid rgba(243,230,236,.3)}
   .result-banner{display:none;border-radius:14px;padding:14px 16px;margin-bottom:12px;border:1px solid;text-align:center;font-weight:800}
   .result-banner.show{display:block;animation:fadeUp .3s ease both}
   .result-banner.win{background:rgba(95,179,137,.15);border-color:rgba(95,179,137,.6);color:#8FE0B6}
   .result-banner.lose{background:rgba(210,103,78,.15);border-color:rgba(210,103,78,.6);color:#F0987C}
   .walk{display:block;width:100%;background:transparent;border:1px dashed rgba(210,103,78,.55);color:#E8997A;border-radius:12px;padding:10px;font-family:'Tajawal',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;margin-top:4px}
   .walk:hover{background:rgba(210,103,78,.08)}
-  .btn{display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;color:#261B0A;background:linear-gradient(180deg,var(--teal-bright),var(--teal-deep));border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(82,60,26,.4)}
-  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(82,60,26,.5)}
+  .btn{display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;color:#3a1f30;background:linear-gradient(180deg,var(--teal-bright),var(--teal-deep));border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(92,46,80,.4)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(92,46,80,.5)}
   .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
   .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(217,162,59,.55);box-shadow:none;margin-top:10px}
   .final-amount{font-family:'Cairo',sans-serif;font-size:3rem;font-weight:900;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
@@ -96,7 +96,7 @@
   .rank{text-align:center;font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800;color:var(--sand);margin-bottom:6px}
   .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:20px}
   .kpis{display:flex;gap:10px;margin-bottom:22px}
-  .kpi{flex:1;text-align:center;background:rgba(22,15,5,.5);border:1px solid rgba(245,238,219,.16);border-radius:12px;padding:12px 8px}
+  .kpi{flex:1;text-align:center;background:rgba(31,15,25,.5);border:1px solid rgba(243,230,236,.16);border-radius:12px;padding:12px 8px}
   .kpi b{display:block;font-family:'Cairo',sans-serif;font-size:1.35rem;color:var(--gold-bright)}
   .kpi span{font-size:.74rem;color:var(--sand-dim)}
   .quote{font-family:'Cairo',sans-serif;font-size:1.16rem;font-weight:700;line-height:1.85;text-align:center;color:var(--gold-bright);border-top:1px solid rgba(217,162,59,.35);border-bottom:1px solid rgba(217,162,59,.35);padding:18px 6px;margin-bottom:22px}
@@ -114,45 +114,45 @@
         <div class="stat-label">السؤال <span id="s-q">1</span> من 12 · تلعب على</div>
         <div class="stat-val" id="s-prize">500 درهم</div>
       </div>
-      <button class="ladder-btn" onclick="toggleLadder(true)">🪜 سلّم الفهم السلوكي</button>
+      <button class="ladder-btn" onclick="toggleLadder(true)">🪜 سلّم الفهم</button>
     </div>
     <div class="lifelines">
       <button class="life" id="L-fifty" onclick="useFifty()">٥٠:٥٠<br>احذف إجابتين</button>
-      <button class="life" id="L-arkad" onclick="useArkad()">📖 استشر<br>ثالر</button>
+      <button class="life" id="L-arkad" onclick="useArkad()">📖 استشر<br>كروسبي</button>
       <button class="life" id="L-poll" onclick="usePoll()">🎟️ تصويت<br>القرّاء</button>
     </div>
   </div>
 
   <div class="ladder-panel" id="ladder-panel" onclick="toggleLadder(false)">
     <div class="ladder-card" onclick="event.stopPropagation()">
-      <div class="ladder-title">🪜 سلّم الفهم السلوكي</div>
+      <div class="ladder-title">🪜 سلّم الفهم</div>
       <div id="ladder-rungs"></div>
       <button class="btn ghost" onclick="toggleLadder(false)" style="margin-top:14px">إغلاق</button>
     </div>
   </div>
 
   <section class="screen active" id="intro">
-    <div class="intro-seal">📋</div>
+    <div class="intro-seal">📐</div>
     <div style="text-align:center">
-      <div class="eyebrow">اختبار الكنز · كتاب «سوء التصرف»</div>
-      <h1>اختبار سوء التصرف</h1>
-      <p class="sub">12 سؤالاً تصعد بها من 500 درهم إلى المليون… إن صمدت معرفتك بثورة ريتشارد ثالر السلوكية.</p>
+      <div class="eyebrow">اختبار الكنز · كتاب «المستثمر السلوكي»</div>
+      <h1>اختبار نظام القواعد السلوكي</h1>
+      <p class="sub">12 سؤالاً تصعد بها من 500 درهم إلى المليون… إن صمدت معرفتك بنظام القواعد الخمس عند دانيال كروسبي.</p>
     </div>
     <div class="card">
       <ul class="intro-list">
-        <li><b>12 سؤالاً</b> متدرّجاً من أفكار ريتشارد ثالر في «سوء التصرف».</li>
+        <li><b>12 سؤالاً</b> متدرّجاً من نظام التمويل السلوكي في «المستثمر السلوكي».</li>
         <li>منطقتا أمان: <b>8,000</b> و<b>250,000</b> — الخطأ يعيدك إلى آخر أمانٍ بلغته.</li>
-        <li>3 وسائل مساعدة: <b>٥٠:٥٠</b>، <b>📖 استشر ثالر</b>، <b>🎟️ تصويت القرّاء</b>.</li>
+        <li>3 وسائل مساعدة: <b>٥٠:٥٠</b>، <b>📖 استشر كروسبي</b>، <b>🎟️ تصويت القرّاء</b>.</li>
         <li>يمكنك <b>الانسحاب</b> في أي لحظةٍ بما ربحته.</li>
       </ul>
-      <button class="btn" onclick="startGame()">اجلس على كرسي السلوك ⚓</button>
+      <button class="btn" onclick="startGame()">اجلس على كرسي النظام ⚓</button>
     </div>
   </section>
 
   <section class="screen" id="game">
     <div class="q-card"><div class="q-text" id="q-text"></div></div>
     <div class="hintbox" id="hintbox">
-      <div class="who">📖 ثالر يهمس لك:</div>
+      <div class="who">📖 كروسبي يهمس لك:</div>
       <div class="txt" id="hint-text"></div>
     </div>
     <div class="poll" id="poll"></div>
@@ -169,7 +169,7 @@
   <section class="screen" id="results">
     <div style="text-align:center"><div class="eyebrow" id="r-eyebrow">انتهت الجلسة</div></div>
     <div class="card">
-      <div class="final-label">غادرتَ كرسي السلوك ومعك</div>
+      <div class="final-label">غادرتَ كرسي النظام ومعك</div>
       <div class="final-amount" id="r-amount">0</div>
       <div class="final-label">درهم</div>
       <div class="kpis">
@@ -178,8 +178,8 @@
       </div>
       <div class="rank" id="r-rank"></div>
       <p class="rank-note" id="r-note"></p>
-      <div class="quote">«لجعل الاقتصاد أكثر دقة، علينا فقط أن نجعله أكثر إنسانية — أن نملأه ببشرٍ حقيقيين»<span>— ريتشارد ثالر</span></div>
-      <button class="btn" onclick="startGame()">حاول بلوغ المليون مجدداً 📋</button>
+      <div class="quote">«أفضل استراتيجية استثمارية ليست أذكى استراتيجية، بل أكثرها قابليةً للالتزام بها حين يشتدّ الضغط»<span>— دانيال كروسبي</span></div>
+      <button class="btn" onclick="startGame()">حاول بلوغ المليون مجدداً 📐</button>
       <button class="btn ghost" onclick="backToIntro()">عُد إلى الملخص 📖</button>
     </div>
   </section>
@@ -191,42 +191,42 @@ const LADDER = [500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1
 const SAFE = [4,9];
 
 const QUESTIONS = [
- {t:1, q:"من مؤلّف كتاب «سوء التصرف» (Misbehaving)؟",
-  opts:[["ريتشارد ثالر",true],["دان أريلي",false],["دانيال كانمان",false],["كاس سانستين",false]],
-  hint:"ريتشارد ثالر نال جائزة نوبل في الاقتصاد سنة 2017 تقديراً لأبحاثه في الاقتصاد السلوكي."},
- {t:1, q:"ماذا تعني قائمة ثالر «الأشياء المفترض تجاهلها» (SIFs)؟",
-  opts:[["سلوكياتٌ بشرية يقول الاقتصاد إنها لا ينبغي أن تحدث، لكنها تحدث طوال الوقت بانتظام",true],["قائمةٌ بأخطاء حسابيةٍ نادرة لا تتكرّر أبداً",false],["قائمةٌ بأفضل الاستثمارات الآمنة المضمونة دائماً",false],["قائمةٌ بقوانين السوق الكلاسيكية الثابتة",false]],
-  hint:"مثالها: نسعد بأن يُنتزع منا حق الاختيار حين يرفع المضيف طبق المكسّرات قبل العشاء."},
- {t:1, q:"ما نظرية «المحاسبة الذهنية» التي طوّرها ثالر؟",
-  opts:[["نتعامل مع أموالنا كأنها موزّعة في حساباتٍ ذهنية منفصلة لكلٍّ قواعده، خلافاً لمبدأ أن المال قابلٌ للاستبدال",true],["نحاسب أنفسنا دائماً بعقلانيةٍ كاملة على كل قرشٍ ننفقه",false],["كل الأموال متماثلةٌ تماماً في تعاملنا معها بصرف النظر عن مصدرها",false],["لا علاقة بين مصدر المال وبين طريقة إنفاقنا له",false]],
-  hint:"نحتفظ بمدخراتٍ بفائدةٍ ضئيلة بينما نحمل ديوناً بفائدةٍ عالية، لأن «حساب المدخرات» مقدّسٌ منفصل."},
- {t:1, q:"كيف يصف ثالر «نفور الخسارة» (Loss Aversion)؟",
-  opts:[["ألم خسارة مبلغٍ يفوق بنحو الضعف متعة كسب المبلغ نفسه",true],["متعة الكسب تساوي تماماً ألم الخسارة المعادلة له دائماً",false],["لا يوجد أي فرقٍ نفسي بين المكسب والخسارة المتساويين",false],["متعة الكسب تفوق ألم الخسارة المعادلة لها دائماً",false]],
-  hint:"هذا اللاتماثل يفسّر تشبّثنا بالأصول الخاسرة وتجنّبنا للمخاطر المعقولة."},
- {t:2, q:"ما «مغالطة التكلفة الغارقة» التي يشرحها ثالر؟",
-  opts:[["مواصلة قرارٍ خاسر لمجرّد استثمارٍ سابق فيه، رغم أن المال الذي أُنفق لن يعود مهما فعلنا",true],["حساب كل التكاليف المستقبلية بدقّةٍ تامة قبل أي قرار",false],["تجاهل كل التكاليف السابقة والمستقبلية في كل القرارات",false],["إعادة حساب التكاليف الغارقة دورياً لتحديثها باستمرار",false]],
-  hint:"نأكل عشاءً تخمنا منه «لأننا دفعنا ثمنه»؛ القرار العقلاني يتجاهل الماضي وينظر للمستقبل فقط."},
- {t:2, q:"كيف يفسّر ثالر «تأثير الامتلاك» بتجربة الأكواب؟",
-  opts:[["من يملك كوباً يطلب لبيعه ضعف ما يستعدّ غيره لدفعه فيه، والفارق هو الملكية وحدها",true],["لا يوجد أي تأثيرٍ للملكية على تقييمنا لقيمة الأشياء",false],["من يملك كوباً يطلب نصف ما يستعدّ غيره لدفعه فيه",false],["تأثير الامتلاك يقلّل من تقديرنا لما نملكه بشدّة",false]],
-  hint:"يجعلنا هذا نتشبّث بأصولٍ يجب أن نتخلّى عنها ونرفض عروضاً معقولة."},
- {t:2, q:"كيف يصف ثالر صراع «المخطِّط والفاعل» في ضبط النفس؟",
-  opts:[["مخطِّطٌ بعيد النظر يريد الخير المستقبلي، وفاعلٌ قصير النظر يريد المتعة الآنية، وبينهما صراعٌ دائم",true],["لا يوجد أي صراعٍ داخلي بين الرغبات المستقبلية والآنية إطلاقاً",false],["الفاعل قصير النظر يفوز دائماً بلا أي استثناء في كل القرارات",false],["المخطِّط بعيد النظر يفوز تلقائياً دون أي حاجةٍ لأدوات الالتزام",false]],
-  hint:"البشر الأذكياء يستخدمون أدوات التزامٍ مسبقة كالادخار التلقائي ليُقيّدوا «الفاعل» الضعيف."},
- {t:2, q:"ماذا أظهرت تجارب ثالر عن «الإنصاف» في الأسواق؟",
-  opts:[["الناس يرفضون صفقاتٍ مربحةً لهم إن رأوها ظالمة، ويعاقبون من يعاملهم بجشعٍ حتى لو كلّفهم ذلك",true],["الناس يقبلون أي صفقةٍ مربحة بصرف النظر عن عدالتها تماماً",false],["لا علاقة بين شعور الإنصاف وبين قرارات السوق إطلاقاً",false],["الجشع لا يؤثّر أبداً على ولاء الزبائن طويل الأمد",false]],
-  hint:"مثال المجارف: رفع سعرها بعد عاصفةٍ ثلجية يُغضب الزبائن ويخسر الولاء رغم منطق العرض والطلب."},
- {t:3, q:"ما موقف ثالر من نظرية «كفاءة السوق» التي تقول إن «السعر دائماً صحيح»؟",
-  opts:[["يجادل بأدلةٍ متراكمة أن الأسواق ليست عقلانيةً كاملة، ومليئةٌ بفقاعاتٍ ومبالغاتٍ جماعية",true],["يؤكّد أن الأسواق عقلانيةٌ كاملة دائماً وأن السعر صحيحٌ بلا استثناء",false],["يرى أن هزيمة السوق سهلةٌ جداً لأنه غير عقلاني بالكامل",false],["يرفض تماماً وجود أي جزءٍ صحيح في نظرية كفاءة السوق",false]],
-  hint:"لكنه ينصف خصومه: يقرّ أن «هزيمة السوق» باستمرارٍ صعبةٌ جداً، فاللاعقلانية لا تعني سهولة الربح."},
- {t:3, q:"كيف انتصرت أفكار ثالر بعد عقودٍ من سخرية كبار الاقتصاديين؟",
-  opts:[["أثبتت الأدلة المتراكمة أن الانحيازات السلوكية ثابتةٌ لا تزول، حتى لدى المحترفين في الأسواق المالية",true],["اختفت الانحيازات السلوكية تماماً حين «تعلّم» الناس كما توقّع خصومه",false],["صحّحت قوى السوق كل الانحيازات السلوكية بمرور الوقت كما زعم خصومه",false],["لم تنتصر أفكاره أبداً وظلّت مرفوضةً من المؤسسة الأكاديمية",false]],
-  hint:"تُوّج المسار بحصول الاقتصاد السلوكي على اعترافٍ كامل، ونوبل لثالر سنة 2017."},
- {t:3, q:"ما الدرس الأعمق الذي يتجاوز المال في كتاب ثالر؟",
-  opts:[["التقدّم الحقيقي في أي مجالٍ يبدأ بأخذ «الشذوذات» التي يتجاهلها الجميع على محمل الجدّ",true],["يجب تجاهل كل الملاحظات التي تخالف النموذج السائد دائماً",false],["العلم لا يتغيّر أبداً بصرف النظر عن الأدلة المتراكمة الجديدة",false],["الشذوذات السلوكية ظاهرةٌ نادرة لا تستحق أي اهتمامٍ علمي",false]],
-  hint:"ثالر لم يخترع سلوك البشر، بل تجرّأ على ملاحظته بجدّيةٍ حين رفض الكبار ذلك."},
- {t:3, q:"سؤال المليون: ما جوهر رسالة «سوء التصرف» في جملة؟",
-  opts:[["البشر «هيومانز» لا «إيكونز» عقلانيون بالكامل، وفهم شذوذاتنا السلوكية المنهجية يحرّرنا منها",true],["الاقتصاد الكلاسيكي يصف سلوك البشر الفعلي بدقّةٍ كاملة دون أي استثناء",false],["لا يمكن أبداً دراسة أو فهم أو توقّع السلوك المالي البشري بأي شكل",false],["الأسواق المالية عقلانيةٌ كاملة ولا تتأثّر أبداً بسلوك البشر",false]],
-  hint:"لجعل الاقتصاد أكثر دقة، علينا أن نجعله أكثر إنسانية — أن نملأه ببشرٍ حقيقيين لا «إيكونز»."}
+ {t:1, q:"من مؤلّف كتاب «المستثمر السلوكي»؟",
+  opts:[["دانيال كروسبي",true],["جيسون زويغ",false],["ريتشارد ثالر",false],["دان أريلي",false]],
+  hint:"كروسبي عالم نفسٍ ومستشار استثمار، يكتب ليصف العلاج بعد تشخيص كانمان وأريلي وثالر وزويغ."},
+ {t:1, q:"ماذا يسمّي كروسبي مجموعة السياسات الاستثمارية الصارمة التي يقترحها؟",
+  opts:[["نظام القواعد",true],["نظرية الأسواق الفعّالة",false],["محفظة السوق العشوائي",false],["استراتيجية القيمة الجوهرية",false]],
+  hint:"نظامٌ مصمَّمٌ خصيصاً ليكون «مضادّاً للسلوك البشري الطبيعي»، لا يعتمد على قوة إرادتك وقت الضغط."},
+ {t:1, q:"ما العائلة الأولى من الانحيازات التي يصفها كروسبي؟",
+  opts:[["الانحيازات الإيغوية المرتبطة بالثقة المفرطة وتقدير قدراتنا فوق حقيقتها",true],["الانحيازات الحفظية المرتبطة برفض تغيير القرارات القديمة",false],["الانحيازات الانتباهية المرتبطة بما يجذب اهتمامنا",false],["الانحيازات العاطفية المرتبطة بالخوف والطمع اللحظيين",false]],
+  hint:"تدفعنا للتركيز المفرط في أصولٍ «نعرفها جيداً» وتجاهل التنويع."},
+ {t:1, q:"كيف يفسّر كروسبي الانحيازات العاطفية وأثرها على عائد المستثمر الفرد؟",
+  opts:[["الخوف والطمع يدفعان للبيع في القعر والشراء في القمة، فيقل عائد المستثمر الفرد عن متوسط السوق", true],["الانحيازات العاطفية لا تؤثّر إطلاقاً على عائد المستثمر مقارنةً بالسوق",false],["الخوف يجعل المستثمرين يحققون عائداً أعلى من السوق دائماً",false],["الطمع يحمي المستثمرين من اتخاذ أي قراراتٍ خاطئة",false]],
+  hint:"يدخل المستثمرون حين ترتفع الأسعار حماساً، ويخرجون حين تنخفض ذعراً، فيشترون غالياً ويبيعون رخيصاً."},
+ {t:2, q:"ما «ضريبة الجاذبية» التي يصفها كروسبي في الانحيازات الانتباهية؟",
+  opts:[["علاوةٌ سعرية تُدفع لأي قصةٍ إعلامية مثيرة، وخصمٌ مجاني تحصل عليه الشركات الهادئة المهجورة",true],["ضريبةٌ حكومية حقيقية تُفرض على كل صفقةٍ استثمارية",false],["تكلفةٌ إضافية تدفعها فقط الشركات الكبرى المسجَّلة في البورصة",false],["لا علاقة لهذا المصطلح بأي سلوكٍ استثماري فعلي",false]],
+  hint:"الأخبار الصاخبة والأسهم الرائجة تجذب استثماراتٍ أكبر من حجمها الموضوعي."},
+ {t:2, q:"ما السؤال التحرّري الذي يقترحه كروسبي لمواجهة الانحياز الحفظي والتشبّث بالقرار القديم؟",
+  opts:[["لو لم أكن أملك هذا الأصل، هل كنت سأشتريه اليوم بسعره الحالي؟",true],["كم استثمرتُ في هذا الأصل حتى الآن منذ شرائه؟",false],["ماذا سيقول الآخرون إن بعتُ هذا الأصل الآن؟",false],["متى ارتفع سعر هذا الأصل آخر مرّة في تاريخه؟",false]],
+  hint:"فإن كان الجواب لا، فالتمسّك به مجرد ذاكرةٍ عاطفية لا قرارٍ استثماري موضوعي."},
+ {t:2, q:"ما القاعدة الأولى من القواعد الخمس التي يقترحها كروسبي؟",
+  opts:[["كن متواضعاً منهجياً، وافترض أنك لا تعرف اتجاه السوق القادم",true],["كن جريئاً وثق بحدسك الشخصي في كل قرارٍ استثماري كبير",false],["تابع محفظتك لحظياً لاتخاذ قراراتٍ أسرع من السوق",false],["ركّز استثمارك في الأصل الذي تفهمه أكثر من أي شيءٍ آخر",false]],
+  hint:"ابنِ استراتيجيتك على افتراض عدم المعرفة لا على «نظرياتك» الشخصية حول اتجاه السوق."},
+ {t:2, q:"كيف يفسّر كروسبي نجاح عاملي «القيمة» و«الزخم» الاستثماريين؟",
+  opts:[["ليسا أسراراً رياضية، بل ترويضٌ منهجي لانحيازات البشر الجماعية الثابتة عبر الزمن",true],["ينجحان فقط بسبب حظٍّ عشوائي صرف لا علاقة له بسلوك المستثمرين",false],["لا علاقة لهما بعلم النفس السلوكي إطلاقاً، بل بمعادلاتٍ رياضية معقّدة",false],["ينجحان فقط في الأسواق الصغيرة غير المتطوّرة دون غيرها",false]],
+  hint:"القيمة تربح لأن البشر يتجنّبون جماعياً الأسهم «المملة»، والزخم يربح لأن البشر يلحقون بالموجة متأخرين."},
+ {t:2, q:"كيف يعيد كروسبي تعريف دور المستشار المالي الحقيقي؟",
+  opts:[["حماية العميل من نفسه وقت الضغط، لا التنبؤ بالأسواق",true],["التنبؤ الدقيق باتجاه السوق في كل لحظة بصرف النظر عن نفسية العميل",false],["زيادة عدد الصفقات لزيادة العمولة دون اعتبارٍ لمصلحة العميل",false],["اتخاذ كل القرارات الاستثمارية بمعزلٍ كاملٍ عن رغبات العميل",false]],
+  hint:"أفضل قيمةٍ يقدّمها مستشارٌ جيد تُقاس بأخطاءٍ كارثية يمنعها لا بعائدٍ إضافي يحقّقه."},
+ {t:3, q:"ما القاعدة الرابعة من القواعد الخمس المتعلّقة بالتنويع عند كروسبي؟",
+  opts:[["نوّع بصدق بين فئات أصولٍ غير مترابطة فعلياً، لا تنويعاً سطحياً بين أسهمٍ تتحرّك معاً",true],["استثمر في أصلٍ واحد فقط لتجنّب تعقيد إدارة المحفظة",false],["نوّع فقط بين أسهم القطاع نفسه لضمان فهمٍ أعمق له",false],["تجنّب التنويع كلياً لأنه يقلّل من العائد المحتمل دائماً",false]],
+  hint:"تنويعٌ شكليٌّ بين أصولٍ متشابهة الحركة لا يحميك فعلياً من المخاطر الجماعية."},
+ {t:3, q:"لماذا يرى كروسبي أن استغلال عاملي القيمة والزخم صعبٌ نفسياً وليس تحليلياً فقط؟",
+  opts:[["استراتيجية القيمة خصوصاً قد تتخلّف عن السوق لسنواتٍ متتالية قبل أن تُثمر، وهذا اختبارٌ للصبر لا للتحليل",true],["لأن استغلالهما يتطلّب معرفةً رياضية متقدّمة لا يمتلكها أغلب المستثمرين",false],["لأنهما يتطلّبان رأس مالٍ ضخماً لا يستطيع المستثمر الفرد توفيره",false],["لأن القوانين المالية تحظر استخدام هذين العاملين في أغلب الأسواق",false]],
+  hint:"الصبر نفسه الذي يصعب على من يحاول الاستفادة من هذه العوامل هو شرط نجاحها."},
+ {t:3, q:"سؤال المليون: ما الفكرة الجوهرية التي يقدّمها كروسبي بصفته جسراً بين التشخيص والعلاج؟",
+  opts:[["المعرفة النظرية بالانحيازات لا تكفي للحماية منها؛ الكافي نظامٌ خارجي يطبّق القواعد عنك تلقائياً بصرف النظر عن لحظة الضغط",true],["معرفة الانحيازات النظرية كافيةٌ تماماً لحماية أي مستثمرٍ من الوقوع فيها",false],["لا يمكن لأي نظامٍ أو قاعدةٍ مكتوبة أن تحمي مستثمراً من انحيازاته إطلاقاً",false],["الانحيازات تصيب فقط المستثمرين المبتدئين، ولا تصيب الخبراء أو المستشارين أبداً",false]],
+  hint:"الأطباء النفسيون يقعون في انحيازاتهم كغيرهم؛ المعرفة ضرورية لكنها غير كافية، والنظام هو الحل."}
 ];
 
 let qi=0, lifes={fifty:false,arkad:false,poll:false}, view=[], removedIdx=new Set(), selected=-1, phase='choose', finalAmount=0, lastOutcome='';
@@ -329,8 +329,8 @@ function reveal(){
   if(ok){
     phase='revealed-win';
     banner.className='result-banner win show';
-    banner.textContent = qi===11 ? '📋📋📋 المليـــون! فهمتَ سوء التصرف بالكامل!' : `✅ صحيح! ضمنتَ ${fmt(LADDER[qi])} درهم`;
-    nb.textContent = qi===11 ? 'استلم كنزك 📋' : 'السؤال التالي ←';
+    banner.textContent = qi===11 ? '📐📐📐 المليـــون! فهمتَ نظام القواعد كلّه!' : `✅ صحيح! ضمنتَ ${fmt(LADDER[qi])} درهم`;
+    nb.textContent = qi===11 ? 'استلم كنزك 📐' : 'السؤال التالي ←';
     lastOutcome = qi===11 ? 'million' : 'next';
   }else{
     phase='revealed-lose';
@@ -396,13 +396,13 @@ function usePoll(){
 }
 
 function rankOf(a){
-  if(a>=1000000) return {r:"📋 فهمٌ كاملٌ لثورة ثالر السلوكية!", n:"أعدتَ ضبط فهمك للسلوك المالي بالكامل — ثالر نفسه سيصفّق لك. طبّق هذا على حياتك الحقيقية الآن."};
+  if(a>=1000000) return {r:"📐 فهمٌ كاملٌ لنظام القواعد السلوكي!", n:"أعدتَ ضبط فهمك للنظام السلوكي بالكامل — كروسبي نفسه سيصفّق لك. طبّق هذا على حياتك الحقيقية الآن."};
   if(a>=250000) return {r:"⚖️ رؤيتك في طور الإتقان", n:"تجاوزتَ أصعب المبادئ. سؤالٌ أو سؤالان عن القمّة — راجع الكتاب وعُد."};
-  if(a>=8000)  return {r:"🌱 بدأتَ تفرّق بين «الإيكون» و«الهيومان» فيك", n:"أساسك جيّد لكن المبادئ العميقة أوقعتك. أعد قراءة الكتاب ثم عُد للكرسي."};
-  return {r:"🌀 لا تزال تسيء التصرف بالأنماط نفسها", n:"لا فهمَ كاملاً اليوم… لكنك عرفتَ القاعدة الأولى: شذوذاتنا منهجيةٌ لا عشوائية. الملخص بانتظارك!"};
+  if(a>=8000)  return {r:"🌱 بدأتَ تفرّق بين القاعدة السلوكية والانحياز", n:"أساسك جيّد لكن المبادئ العميقة أوقعتك. أعد قراءة الكتاب ثم عُد للكرسي."};
+  return {r:"🌀 لا يزال غياب النظام يكلّفك فهمك", n:"لا فهمَ كاملاً اليوم… لكنك عرفتَ القاعدة الأولى: المعرفة لا تكفي، النظام هو الحل. الملخص بانتظارك!"};
 }
 function showResults(eyebrow){
-/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"mb_millionaire"},"*");}catch(e){}/*WA_TRACK*/
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"bi_millionaire"},"*");}catch(e){}/*WA_TRACK*/
   $('ledger').style.display='none';
   $('r-eyebrow').textContent = eyebrow;
   const used = Object.values(lifes).filter(Boolean).length;

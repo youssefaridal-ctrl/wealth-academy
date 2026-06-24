@@ -379,6 +379,7 @@ function rankOf(w){
   return {r:"🌀 عاداتك المالية تحتاج إعادة ضبط", n:"لا بأس — الوعي أول خطوة. ابدأ بأبسط مبدأ: «الثروة هي ما لا تُنفقه»، وارفع معدّل ادّخارك."};
 }
 function showResults(){
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"ps_decision"},"*");}catch(e){}/*WA_TRACK*/
   $('ledger').style.display = 'none';
   const rk = rankOf(wealth);
   const amountEl = $('r-amount');

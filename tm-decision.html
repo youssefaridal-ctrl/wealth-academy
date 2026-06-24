@@ -379,6 +379,7 @@ function rankOf(w){
   return {r:"💳 ما زلتَ في الدوّامة", n:"لا بأس — الوعي أوّل خطوة. ابدأ بالخطوة الأولى: صندوق طوارئ مبدئي، ثم أغلق صنبور الديون."};
 }
 function showResults(){
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"tm_decision"},"*");}catch(e){}/*WA_TRACK*/
   $('ledger').style.display = 'none';
   const rk = rankOf(wealth);
   const amountEl = $('r-amount');

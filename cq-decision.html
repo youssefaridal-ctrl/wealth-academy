@@ -329,6 +329,7 @@ function rankOf(w){
   return {r:"🌀 لا تزال حبيس بيع الوقت", n:"لا بأس — الوعي أول خطوة. ابدأ بسؤالٍ واحد: «من أي ربعٍ يأتي دخلي الحالي؟»"};
 }
 function showResults(){
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"cq_decision"},"*");}catch(e){}/*WA_TRACK*/
   $('ledger').style.display = 'none';
   const rk = rankOf(wealth);
   const amountEl = $('r-amount');

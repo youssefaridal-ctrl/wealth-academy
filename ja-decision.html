@@ -329,6 +329,7 @@ function rankOf(w){
   return {r:"🌀 حشائش الفكر السلبي تسيطر على حديقتك", n:"لا بأس — الوعي أول خطوة. ابدأ بسؤالٍ واحد: «ما الفكرة المتكرّرة التي تصنع ظروفي المالية الحالية؟»"};
 }
 function showResults(){
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"ja_decision"},"*");}catch(e){}/*WA_TRACK*/
   $('ledger').style.display = 'none';
   const rk = rankOf(wealth);
   const amountEl = $('r-amount');

@@ -3,22 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>عقلانيٌّ أم فخٌّ متوقَّع؟ — تحدي الـ60 ثانية</title>
+<title>قاعدةٌ سلوكية أم انحيازٌ يتحكّم؟ — تحدي الـ60 ثانية</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --lapis-night:#2A1320; --lapis-deep:#180A12; --lapis-panel:#3D1F2E;
+    --lapis-night:#3a1f30; --lapis-deep:#1f0f19; --lapis-panel:#4a2a3e;
     --gold:#D9A23B; --gold-bright:#F0C36B; --sand:#F3E6EC; --sand-dim:#C9A8B8;
-    --ember:#D2674E; --reed:#5FB389; --teal:#8A4A6A; --teal-deep:#5C2E46;
-    --shadow:0 12px 32px rgba(10,2,6,.6);
+    --ember:#D2674E; --reed:#5FB389; --teal:#8a4a78; --teal-deep:#5c2e50;
+    --shadow:0 12px 32px rgba(10,2,8,.6);
   }
   *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:'Tajawal',sans-serif;background:radial-gradient(1200px 600px at 50% -10%, #5C2E46 0%, transparent 60%),linear-gradient(180deg, var(--lapis-night) 0%, #0A0207 100%);color:var(--sand);min-height:100vh;line-height:1.7}
-  body::after{content:"";position:fixed;inset:auto 0 0 0;height:3px;z-index:5;background:linear-gradient(90deg, transparent 0, var(--teal) 30%, var(--gold-bright) 50%, var(--teal) 70%, transparent 100%);box-shadow:0 -4px 16px rgba(138,74,106,.35);opacity:.9}
+  body{font-family:'Tajawal',sans-serif;background:radial-gradient(1200px 600px at 50% -10%, #5c2e50 0%, transparent 60%),linear-gradient(180deg, var(--lapis-night) 0%, #0d0509 100%);color:var(--sand);min-height:100vh;line-height:1.7}
+  body::after{content:"";position:fixed;inset:auto 0 0 0;height:3px;z-index:5;background:linear-gradient(90deg, transparent 0, var(--teal) 30%, var(--gold-bright) 50%, var(--teal) 70%, transparent 100%);box-shadow:0 -4px 16px rgba(138,74,120,.35);opacity:.9}
   .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
-  .ledger{position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:12px 18px;background:linear-gradient(180deg, rgba(42,19,32,.97) 70%, rgba(42,19,32,.85));border-bottom:1px solid rgba(138,74,106,.45);backdrop-filter:blur(6px)}
+  .ledger{position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:12px 18px;background:linear-gradient(180deg, rgba(58,31,48,.97) 70%, rgba(58,31,48,.85));border-bottom:1px solid rgba(138,74,120,.45);backdrop-filter:blur(6px)}
   .ledger-inner{max-width:524px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:10px}
   .stat{text-align:center}
   .stat-label{font-size:.7rem;color:var(--sand-dim);font-weight:500}
@@ -31,11 +31,11 @@
   .screen{display:none;animation:fadeUp .45s ease both}
   .screen.active{display:block}
   @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-  .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;color:var(--teal);border:1px solid rgba(138,74,106,.55);border-radius:99px;padding:4px 14px;margin-bottom:14px;background:rgba(138,74,106,.1)}
+  .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;color:var(--teal);border:1px solid rgba(138,74,120,.55);border-radius:99px;padding:4px 14px;margin-bottom:14px;background:rgba(138,74,120,.1)}
   h1{font-family:'Cairo',sans-serif;font-size:2.0rem;font-weight:900;line-height:1.3;color:var(--gold-bright);margin-bottom:6px}
   .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
-  .card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(138,74,106,.32);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow)}
-  .statement-card{min-height:190px;display:flex;align-items:center;justify-content:center;text-align:center;background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(138,74,106,.4);border-radius:18px;padding:28px 22px;box-shadow:var(--shadow);margin-bottom:18px;position:relative;transition:border-color .15s, box-shadow .15s}
+  .card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(138,74,120,.32);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow)}
+  .statement-card{min-height:190px;display:flex;align-items:center;justify-content:center;text-align:center;background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(138,74,120,.4);border-radius:18px;padding:28px 22px;box-shadow:var(--shadow);margin-bottom:18px;position:relative;transition:border-color .15s, box-shadow .15s}
   .statement-card.hit{border-color:var(--reed);box-shadow:0 0 0 3px rgba(95,179,137,.35), var(--shadow)}
   .statement-card.miss{border-color:var(--ember);box-shadow:0 0 0 3px rgba(210,103,78,.35), var(--shadow)}
   .statement{font-family:'Cairo',sans-serif;font-size:1.4rem;line-height:1.7;font-weight:700;color:var(--sand)}
@@ -53,11 +53,11 @@
   .sort:hover{transform:translateY(-2px)}
   .sort:active{transform:scale(.97)}
   .sort:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
-  .btn{display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;color:#2A1320;background:linear-gradient(180deg,#C8769B,var(--teal-deep));border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(92,46,70,.4)}
-  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(92,46,70,.5)}
+  .btn{display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;color:#3a1f30;background:linear-gradient(180deg,#d68fc0,var(--teal-deep));border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(92,46,80,.4)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(92,46,80,.5)}
   .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
   .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(217,162,59,.55);box-shadow:none;margin-top:10px}
-  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--teal);display:flex;align-items:center;justify-content:center;font-size:2.1rem;background:radial-gradient(circle at 35% 30%, rgba(138,74,106,.3), rgba(217,162,59,.05));box-shadow:0 0 30px rgba(138,74,106,.3)}
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--teal);display:flex;align-items:center;justify-content:center;font-size:2.1rem;background:radial-gradient(circle at 35% 30%, rgba(138,74,120,.3), rgba(217,162,59,.05));box-shadow:0 0 30px rgba(138,74,120,.3)}
   .intro-list{margin:0 0 26px;list-style:none}
   .intro-list li{display:block;position:relative;padding-right:22px;color:var(--sand);font-size:.98rem;margin-bottom:10px}
   .intro-list li::before{content:"◆";color:var(--teal);font-size:.7rem;position:absolute;right:0;top:.5em}
@@ -66,12 +66,12 @@
   .rank{text-align:center;font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800;color:var(--sand);margin-bottom:6px}
   .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:20px}
   .kpis{display:flex;gap:10px;margin-bottom:22px}
-  .kpi{flex:1;text-align:center;background:rgba(24,10,18,.55);border:1px solid rgba(243,230,236,.16);border-radius:12px;padding:12px 8px}
+  .kpi{flex:1;text-align:center;background:rgba(31,15,25,.55);border:1px solid rgba(243,230,236,.16);border-radius:12px;padding:12px 8px}
   .kpi b{display:block;font-family:'Cairo',sans-serif;font-size:1.4rem;color:var(--gold-bright)}
   .kpi span{font-size:.75rem;color:var(--sand-dim)}
   .review-title{font-family:'Cairo',sans-serif;font-size:1.22rem;font-weight:800;color:var(--gold-bright);margin-bottom:12px;text-align:center}
   .review{list-style:none;margin-bottom:22px}
-  .review li{background:rgba(24,10,18,.55);border:1px solid rgba(243,230,236,.12);border-radius:12px;padding:12px 14px;margin-bottom:9px}
+  .review li{background:rgba(31,15,25,.55);border:1px solid rgba(243,230,236,.12);border-radius:12px;padding:12px 14px;margin-bottom:9px}
   .review .head{display:flex;gap:10px;align-items:flex-start;font-size:.95rem;font-weight:700}
   .r-mark{flex:0 0 auto;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;margin-top:2px}
   .r-mark.yes{background:rgba(95,179,137,.2);color:#8FE0B6;border:1px solid rgba(95,179,137,.6)}
@@ -95,18 +95,18 @@
   </div>
 
   <section class="screen active" id="intro">
-    <div class="intro-seal">🧠</div>
+    <div class="intro-seal">📐</div>
     <div style="text-align:center">
-      <div class="eyebrow">فرز سريع · كتاب «لاعقلانيون بامتياز»</div>
-      <h1>عقلانيٌّ أم فخٌّ متوقَّع؟</h1>
-      <p class="sub">قراراتٌ مالية تمرّ بسرعة… أيّها تقييمٌ عقلانيٌّ سليم وأيّها فخٌّ لاعقلانيٌّ يتكرّر مع الجميع؟</p>
+      <div class="eyebrow">فرز سريع · كتاب «المستثمر السلوكي»</div>
+      <h1>قاعدةٌ سلوكية أم انحيازٌ يتحكّم؟</h1>
+      <p class="sub">سلوكياتٌ استثمارية تمرّ بسرعة… أيّها تطبيقٌ لقواعد كروسبي الخمس وأيّها استسلامٌ لإحدى العائلات الأربع من الانحيازات؟</p>
     </div>
     <div class="card">
       <ul class="intro-list">
-        <li>أمامك <b>60 ثانية</b> و<b>16 سلوكاً</b> مالياً يومياً.</li>
-        <li>اضغط <b>🟢 عقلانيٌّ سليم</b> أو <b>🔴 فخٌّ متوقَّع</b> — بسرعة!</li>
-        <li>القاعدة: لاعقلانيتنا <b>منهجيةٌ ومتكرّرة</b> — تأثير الشَرَك، وسحر المجاني، والملكية، والتسويف.</li>
-        <li>في النهاية: مراجعة كاملة بمنطق أريلي وراء كل بطاقة.</li>
+        <li>أمامك <b>60 ثانية</b> و<b>16 سلوكاً</b> استثمارياً يومياً.</li>
+        <li>اضغط <b>🟢 قاعدةٌ سلوكية سليمة</b> أو <b>🔴 انحيازٌ متحكّم</b> — بسرعة!</li>
+        <li>القاعدة: انحيازاتٌ إيغوية، وعاطفية، وانتباهية، وحفظية — يحاصرها نظام قواعد كروسبي الخمس.</li>
+        <li>في النهاية: مراجعة كاملة بمنطق كروسبي وراء كل بطاقة.</li>
       </ul>
       <button class="btn" onclick="startGame()">ابدأ التحدي ⚡</button>
     </div>
@@ -120,8 +120,8 @@
       <div class="statement" id="st-text"></div>
     </div>
     <div class="sort-btns">
-      <button class="sort fat" onclick="answer(true)"><span class="ic">🟢</span>عقلانيٌّ سليم<small>تقييمٌ بالقيمة المطلقة</small></button>
-      <button class="sort hole" onclick="answer(false)"><span class="ic">🔴</span>فخٌّ متوقَّع<small>انحيازٌ منهجيٌّ معروف</small></button>
+      <button class="sort fat" onclick="answer(true)"><span class="ic">🟢</span>قاعدةٌ سلوكية سليمة<small>نظامٌ آليٌّ يحمي القرار</small></button>
+      <button class="sort hole" onclick="answer(false)"><span class="ic">🔴</span>انحيازٌ متحكّم<small>إحدى العائلات الأربع</small></button>
     </div>
   </section>
 
@@ -138,7 +138,7 @@
       </div>
       <div class="rank" id="r-rank"></div>
       <p class="rank-note" id="r-note"></p>
-      <div class="review-title">🧠 لوح المراجعة — منطق كل بطاقة</div>
+      <div class="review-title">📐 لوح المراجعة — منطق كل بطاقة</div>
       <ul class="review" id="r-review"></ul>
       <button class="btn" onclick="startGame()">أعد التحدي ⚡</button>
       <button class="btn ghost" onclick="backToIntro()">عُد إلى الملخص 📖</button>
@@ -148,24 +148,24 @@
 </div>
 
 <script>
-/* fat:true = عقلانيٌّ سليم (تقييمٌ بالقيمة المطلقة) ، false = فخٌّ متوقَّع (انحيازٌ منهجي) */
+/* fat:true = قاعدةٌ سلوكية سليمة (نظامٌ آليٌّ يحمي القرار) ، false = انحيازٌ متحكّم (إحدى العائلات الأربع) */
 const CARDS = [
-  {s:"السؤال عن القيمة المطلقة لكل خيارٍ بدل الانسياق وراء خيارٍ ثالثٍ «شَرَك» مُصمَّم للمقارنة", fat:true,  l:"تأثير الشَرَك يجعل خياراً يبدو ممتازاً بالمقارنة فقط؛ القيمة المطلقة هي الحَكَم الحقيقي."},
-  {s:"اختيار العرض المشترك فوراً لأنه يبدو «صفقة» بجانب خيارٍ ثالث لا يختاره عاقل", fat:false, l:"هذا هو تأثير الشَرَك تماماً: خيارٌ ثالث وُجد فقط ليجعل خياراً آخر يلمع بالمقارنة."},
-  {s:"البحث عن القيمة السوقية الحقيقية لسلعةٍ من مصدرٍ مستقل قبل أي تفاوض على سعرها", fat:true,  l:"هذا يحميك من «التماسك العشوائي» الذي يجعل أول رقمٍ تراه يثبّت كل تقييماتك اللاحقة."},
-  {s:"قبول السعر الذي يذكره البائع أولاً كمرجعٍ للتفاوض دون بحثٍ مستقل", fat:false, l:"السعر الأول يُسمّى «مرساة» تثبّت تقييمك حتى لو كان عشوائياً أو مقصوداً من البائع."},
-  {s:"حساب التكلفة الحقيقية الكاملة قبل اقتناص عرضٍ يحوي كلمة «مجاني»", fat:true,  l:"كلمة «مجاني» زرٌّ عاطفي يُلغي حساب التكلفة والفائدة؛ التوقّف للحساب يحميك منه."},
-  {s:"شراء منتجٍ لا تحتاجه فقط للحصول على «شحنٍ مجاني» أو «هديةٍ مجانية»", fat:false, l:"الصفر ليس سعراً عادياً، بل مُحفّزٌ عاطفي يدفعنا لشراء ما لا نحتاجه."},
-  {s:"إبقاء العلاقات العائلية والصداقات في إطار المعايير الاجتماعية دون إدخال المال فيها", fat:true,  l:"المال يحوّل المعروف إلى صفقةٍ رخيصة، والولاء تحرّكه المعايير الاجتماعية أكثر من المال."},
-  {s:"عرض أجرٍ مالي رمزي على قريبٍ يساعدك دائماً بصدقٍ ومحبة", fat:false, l:"حتى الأجر الرمزي يكفي لتحويل علاقةٍ من «معروف» إلى «صفقة» يصعب إصلاحها بعد ذلك."},
-  {s:"الالتزام بقواعد استثماريةٍ وُضعت في حالة الهدوء بدل اتخاذ قرارٍ في لحظة ذعرٍ مفاجئ", fat:true,  l:"نتحوّل لأشخاصٍ مختلفين في الحالة «الساخنة»؛ القواعد المسبقة تحميك من نفسك الساخنة."},
-  {s:"بيع كل الاستثمارات فوراً في ذروة انهيارٍ مفاجئ بدافع الذعر اللحظي", fat:false, l:"هذا قرارٌ «ساخن» نموذجي يخالف كل ما كنت ستقرّره بهدوءٍ وروية."},
-  {s:"تقييم استثمارٍ خاسرٍ بسؤال: هل سأشتريه اليوم بسعره الحالي؟ بصرف النظر عن ملكيتي له", fat:true,  l:"هذا يحرّرك من «تأثير الملكية» الذي يجعلنا نبالغ في تقدير ما نملكه لمجرّد أنه لنا."},
-  {s:"التشبّث باستثمارٍ خاسر لأنه «صار جزءاً منك» رغم أن كل التحليل يقول بيعه", fat:false, l:"تأثير الملكية يضخّم قيمة ما تحوزه؛ القرار العقلاني ينظر للمستقبل فقط لا للماضي."},
-  {s:"الادخار التلقائي الذي يُقتطع قبل أن تلمس راتبك، لحماية نفسك من نسختك «الساخنة»", fat:true,  l:"أدوات الإلزام المسبق تحميك من التسويف الذي يخون خططك المستقبلية طلباً للذةٍ آنية."},
-  {s:"التسويف المستمر في الادخار اعتماداً على «قوة الإرادة» وحدها دون أي أداة إلزامٍ", fat:false, l:"نخطّط بحكمة للمستقبل ثم نخون خططنا في الحاضر؛ قوة الإرادة وحدها نادراً ما تكفي."},
-  {s:"تذكير نفسك بمعيارٍ أخلاقي واضح قبل أي قرارٍ مالي قد يحمل فرصة غشٍّ صغير", fat:true,  l:"تذكيرٌ أخلاقيٌّ قُبيل الفرصة يقلّل الغش بشدّة، حتى لو كان رمزياً بلا عقوبةٍ وراءه."},
-  {s:"تجاهل أثر السعر والعلامة التجارية على إدراكك تماماً عند تقييم منتجٍ أو استثمارٍ", fat:false, l:"التوقّعات تغيّر تجربتنا الفعلية حرفياً؛ تجاهل هذا التأثير الكامل غير واقعي ويُبقيك عرضةً له دون وعي."}
+  {s:"تطبيق حدود تنويعٍ صارمة لا تستثني أي أصلٍ مهما بدا «مفهوماً» لك جيداً", fat:true,  l:"التنويع الصارم بلا استثناء هو الترياق المباشر لانحياز الثقة المفرطة الإيغوي."},
+  {s:"تركيز جزءٍ كبير من المحفظة في قطاعٍ تفهمه جيداً لأنك «تعرفه أكثر من أي خبير»", fat:false, l:"انحيازٌ إيغوي: الفهم الشخصي العميق لا يحمي من مخاطر السوق الجماعية."},
+  {s:"الالتزام بقواعد إعادة توازنٍ آلية مجدولة مسبقاً بصرف النظر عن حماسة السوق الحالية", fat:true,  l:"الترياق العاطفي: قواعدٌ مجدولة لا تتطلّب قراراً وقت حماسة أو ذعر السوق اللحظي."},
+  {s:"مضاعفة الاستثمار فوراً لأن «الجميع متحمّسٌ والفرصة لن تتكرّر»", fat:false, l:"انحيازٌ عاطفي: دخولٌ بدافع حماسة السوق هو نمط الشراء غالياً المنهجي."},
+  {s:"تقييم الفرص بمعايير موضوعية ثابتة بصرف النظر عن مدى إثارتها الإعلامية", fat:true,  l:"الترياق الانتباهي: معاييرٌ موضوعية تتجاوز «ضريبة الجاذبية» الإعلامية."},
+  {s:"الاستثمار في سهمٍ فقط لأن «كل الأخبار تتحدّث عنه» وتجاهل شركةٍ هادئة الأداء", fat:false, l:"انحيازٌ انتباهي: توجيه الانتباه لما يصرخ إعلامياً بدل ما يستحق الاهتمام فعلياً."},
+  {s:"سؤال «لو لم أكن أملك هذا الأصل، هل كنت سأشتريه اليوم؟» قبل أي قرار احتفاظٍ أو بيع", fat:true,  l:"الترياق الحفظي: سؤالٌ تحرّري يفصل القرار عن سعر الشراء التاريخي تماماً."},
+  {s:"التشبّث باستثمارٍ خاسر لأن «استثمرتَ فيه كثيراً ولا يمكن الاعتراف بالخطأ الآن»", fat:false, l:"انحيازٌ حفظي: مغالطة التكلفة الغارقة تجعلنا نتشبّث بقرارٍ فاشل خوفاً من الاعتراف بالخطأ."},
+  {s:"الاحتفاظ بسجلٍّ مكتوبٍ صريح لكل توقّعاتك الاستثمارية ومراجعته بصدقٍ دوري", fat:true,  l:"التواضع المعرفي يتطلّب سجلاً موضوعياً يكشف فجوة الثقة الحقيقية لا الشعور الداخلي."},
+  {s:"الثقة بشعورك الداخلي بدقّة توقّعاتك دون أي تتبّعٍ موضوعي لسجلّك الفعلي", fat:false, l:"انحياز التأكيد يجعلك تتذكّر النجاح وتنسى الفشل دون سجلٍّ موضوعي يصحّح هذا."},
+  {s:"تذكّر أن دور المستشار أو النظام الآلي هو حمايتك من نفسك وقت الضغط لا التنبؤ بالأسواق", fat:true,  l:"دور الحارس الحقيقي يُقاس بكوارثَ يمنعها لا بعائدٍ إضافي يحقّقه."},
+  {s:"بيع كل الاستثمارات فوراً بعد يومٍ سيءٍ في السوق دون استشارة أحدٍ أو مراجعة الخطّة المكتوبة", fat:false, l:"تجاهل دور الحارس ونظام القواعد المكتوب مسبقاً يدمّر نظاماً بُني بعنايةٍ على سنوات."},
+  {s:"بناء نظامٍ متكامل يجمع التواضع والمنهجية والتنويع والوعي بالتكلفة والصبر معاً", fat:true,  l:"قوة النظام في تكامل قواعده الخمس معاً، لا في تطبيق قاعدةٍ واحدة منفردة."},
+  {s:"الاعتماد على التنويع الجيد وحده واعتباره كافياً دون أي قواعد منهجية أو صبرٍ إضافي", fat:false, l:"التنويع وحده لا يحميك إن كسرتَه بقرارٍ عاطفي؛ القواعد الخمس يجب أن تعمل معاً."},
+  {s:"تقليل تكاليف الاستثمار بصرامة لأنها العامل الوحيد المضمون تحت سيطرتك وسط عدم يقين العائد", fat:true,  l:"الوعي بالتكلفة قاعدةٌ من القواعد الخمس: التكلفة متحكَّمٌ فيها، والعائد ليس كذلك."},
+  {s:"تغيير تخصيصات المحفظة أسبوعياً بحسب شعورك اللحظي تجاه أداء السوق القصير المدى", fat:false, l:"تغيير التخصيصات بحسب المزاج الأسبوعي هو السلوك العاطفي الذي يفترض النظام الآلي حمايتك منه."}
 ];
 
 const TIME = 60;
@@ -227,13 +227,13 @@ function answer(saidWealth){
   }, 320);
 }
 function rankOf(c){
-  if(c>=14) return {r:"🧠 تميّز العقلاني من الفخّ المتوقَّع بدقّة", n:"تطبّق حكمة أريلي بإتقان — هذا جوهر منهج «لاعقلانيون بامتياز»."};
-  if(c>=10) return {r:"⚖️ وعيك بفخاخك يتطوّر", n:"أساسك جيد. راجع البطاقات التي أخطأت فيها أدناه وأعد التحدي."};
-  if(c>=6)  return {r:"⚠️ بعض الفخاخ المتوقَّعة ما زالت تخدعك", n:"بعض الأنماط ما زالت تخدعك. لوح المراجعة سيعيد ضبط رؤيتك."};
-  return {r:"🌀 لا تزال تقع في الفخاخ المتوقَّعة نفسها", n:"لا تقلق — الوعي أول خطوة. اقرأ لوح المراجعة ثم عُد للتحدي."};
+  if(c>=14) return {r:"📐 تميّز القاعدة السلوكية من الانحياز بدقّة", n:"تطبّق حكمة كروسبي بإتقان — هذا جوهر منهج «المستثمر السلوكي»."};
+  if(c>=10) return {r:"⚖️ نظامك السلوكي يتطوّر", n:"أساسك جيد. راجع البطاقات التي أخطأت فيها أدناه وأعد التحدي."};
+  if(c>=6)  return {r:"⚠️ بعض الانحيازات ما زالت تتحكّم بقراراتك", n:"بعض الأنماط ما زالت تخدعك. لوح المراجعة سيعيد ضبط رؤيتك."};
+  return {r:"🌀 لا يزال غياب النظام يكلّفك معظم قراراتك", n:"لا تقلق — الوعي أول خطوة. اقرأ لوح المراجعة ثم عُد للتحدي."};
 }
 function endGame(){
-/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"pi_sort"},"*");}catch(e){}/*WA_TRACK*/
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"bi_sort"},"*");}catch(e){}/*WA_TRACK*/
   $('ledger').style.display='none';
   const done = answers.filter(a=>a!==null).length;
   const acc = done? Math.round(correct/done*100) : 0;
@@ -247,7 +247,7 @@ function endGame(){
   $('r-review').innerHTML = deck.map((c,k)=>{
     const a = answers[k];
     const mark = a===null ? `<span class="r-mark skip">·</span>` : a ? `<span class="r-mark yes">✓</span>` : `<span class="r-mark no">✗</span>`;
-    const tag = c.fat ? '🟢 عقلانيٌّ سليم' : '🔴 فخٌّ متوقَّع';
+    const tag = c.fat ? '🟢 قاعدةٌ سلوكية سليمة' : '🔴 انحيازٌ متحكّم';
     return `<li><div class="head">${mark}<span>${c.s}</span></div><div class="lesson"><b>${tag}</b> — ${c.l}</div></li>`;
   }).join('');
   show('results');

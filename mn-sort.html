@@ -269,6 +269,7 @@ function rankOf(c){
   return {r:"🎩 المظهر يخدعك", n:"لا تقلق — الوعي أول خطوة. اقرأ لوح المراجعة ثم عُد للتحدي."};
 }
 function endGame(){
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"mn_sort"},"*");}catch(e){}/*WA_TRACK*/
   $('ledger').style.display='none';
   const done = answers.filter(a=>a!==null).length;
   const acc = done? Math.round(correct/done*100) : 0;
