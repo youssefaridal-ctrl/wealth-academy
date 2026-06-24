@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>عقلانيٌّ أم فخٌّ متوقَّع؟ — تحدي الـ60 ثانية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#2A1320; --lapis-deep:#180A12; --lapis-panel:#3D1F2E;
+    --gold:#D9A23B; --gold-bright:#F0C36B; --sand:#F3E6EC; --sand-dim:#C9A8B8;
+    --ember:#D2674E; --reed:#5FB389; --teal:#8A4A6A; --teal-deep:#5C2E46;
+    --shadow:0 12px 32px rgba(10,2,6,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Tajawal',sans-serif;background:radial-gradient(1200px 600px at 50% -10%, #5C2E46 0%, transparent 60%),linear-gradient(180deg, var(--lapis-night) 0%, #0A0207 100%);color:var(--sand);min-height:100vh;line-height:1.7}
+  body::after{content:"";position:fixed;inset:auto 0 0 0;height:3px;z-index:5;background:linear-gradient(90deg, transparent 0, var(--teal) 30%, var(--gold-bright) 50%, var(--teal) 70%, transparent 100%);box-shadow:0 -4px 16px rgba(138,74,106,.35);opacity:.9}
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+  .ledger{position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:12px 18px;background:linear-gradient(180deg, rgba(42,19,32,.97) 70%, rgba(42,19,32,.85));border-bottom:1px solid rgba(138,74,106,.45);backdrop-filter:blur(6px)}
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .stat{text-align:center}
+  .stat-label{font-size:.7rem;color:var(--sand-dim);font-weight:500}
+  .stat-val{font-family:'Cairo',sans-serif;font-weight:800;font-size:1.3rem;color:var(--gold-bright)}
+  .timer-wrap{flex:1;max-width:200px}
+  .timer-bar{height:8px;border-radius:99px;background:rgba(243,230,236,.15);overflow:hidden}
+  .timer-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--teal),var(--gold));transition:width .25s linear}
+  .timer-fill.low{background:linear-gradient(90deg,#F0987C,var(--ember))}
+  .timer-num{text-align:center;font-size:.78rem;color:var(--sand-dim);margin-top:3px;font-weight:700}
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;color:var(--teal);border:1px solid rgba(138,74,106,.55);border-radius:99px;padding:4px 14px;margin-bottom:14px;background:rgba(138,74,106,.1)}
+  h1{font-family:'Cairo',sans-serif;font-size:2.0rem;font-weight:900;line-height:1.3;color:var(--gold-bright);margin-bottom:6px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+  .card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(138,74,106,.32);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow)}
+  .statement-card{min-height:190px;display:flex;align-items:center;justify-content:center;text-align:center;background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(138,74,106,.4);border-radius:18px;padding:28px 22px;box-shadow:var(--shadow);margin-bottom:18px;position:relative;transition:border-color .15s, box-shadow .15s}
+  .statement-card.hit{border-color:var(--reed);box-shadow:0 0 0 3px rgba(95,179,137,.35), var(--shadow)}
+  .statement-card.miss{border-color:var(--ember);box-shadow:0 0 0 3px rgba(210,103,78,.35), var(--shadow)}
+  .statement{font-family:'Cairo',sans-serif;font-size:1.4rem;line-height:1.7;font-weight:700;color:var(--sand)}
+  .flash{position:absolute;top:10px;left:14px;font-size:1.5rem;opacity:0;transform:scale(.5);transition:opacity .15s, transform .15s}
+  .flash.show{opacity:1;transform:scale(1)}
+  .counter{position:absolute;top:12px;right:16px;font-size:.75rem;color:var(--sand-dim);font-weight:700}
+  .streak{position:absolute;bottom:10px;right:16px;font-size:.8rem;color:var(--gold-bright);font-weight:800;opacity:0;transition:opacity .2s}
+  .streak.show{opacity:1}
+  .sort-btns{display:flex;gap:12px}
+  .sort{flex:1;border-radius:16px;padding:18px 10px;cursor:pointer;text-align:center;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.02rem;line-height:1.5;transition:transform .12s, box-shadow .2s;border:1px solid}
+  .sort .ic{display:block;font-size:1.6rem;margin-bottom:4px}
+  .sort small{display:block;font-weight:500;font-size:.74rem;opacity:.85;margin-top:2px}
+  .sort.fat{background:rgba(95,179,137,.16);border-color:rgba(95,179,137,.65);color:#8FE0B6}
+  .sort.hole{background:rgba(210,103,78,.16);border-color:rgba(210,103,78,.65);color:#F0987C}
+  .sort:hover{transform:translateY(-2px)}
+  .sort:active{transform:scale(.97)}
+  .sort:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
+  .btn{display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;color:#2A1320;background:linear-gradient(180deg,#C8769B,var(--teal-deep));border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(92,46,70,.4)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(92,46,70,.5)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(217,162,59,.55);box-shadow:none;margin-top:10px}
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--teal);display:flex;align-items:center;justify-content:center;font-size:2.1rem;background:radial-gradient(circle at 35% 30%, rgba(138,74,106,.3), rgba(217,162,59,.05));box-shadow:0 0 30px rgba(138,74,106,.3)}
+  .intro-list{margin:0 0 26px;list-style:none}
+  .intro-list li{display:block;position:relative;padding-right:22px;color:var(--sand);font-size:.98rem;margin-bottom:10px}
+  .intro-list li::before{content:"◆";color:var(--teal);font-size:.7rem;position:absolute;right:0;top:.5em}
+  .final-amount{font-family:'Cairo',sans-serif;font-size:3rem;font-weight:900;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{text-align:center;font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800;color:var(--sand);margin-bottom:6px}
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:20px}
+  .kpis{display:flex;gap:10px;margin-bottom:22px}
+  .kpi{flex:1;text-align:center;background:rgba(24,10,18,.55);border:1px solid rgba(243,230,236,.16);border-radius:12px;padding:12px 8px}
+  .kpi b{display:block;font-family:'Cairo',sans-serif;font-size:1.4rem;color:var(--gold-bright)}
+  .kpi span{font-size:.75rem;color:var(--sand-dim)}
+  .review-title{font-family:'Cairo',sans-serif;font-size:1.22rem;font-weight:800;color:var(--gold-bright);margin-bottom:12px;text-align:center}
+  .review{list-style:none;margin-bottom:22px}
+  .review li{background:rgba(24,10,18,.55);border:1px solid rgba(243,230,236,.12);border-radius:12px;padding:12px 14px;margin-bottom:9px}
+  .review .head{display:flex;gap:10px;align-items:flex-start;font-size:.95rem;font-weight:700}
+  .r-mark{flex:0 0 auto;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;margin-top:2px}
+  .r-mark.yes{background:rgba(95,179,137,.2);color:#8FE0B6;border:1px solid rgba(95,179,137,.6)}
+  .r-mark.no{background:rgba(210,103,78,.2);color:#F0987C;border:1px solid rgba(210,103,78,.6)}
+  .r-mark.skip{background:rgba(243,230,236,.1);color:var(--sand-dim);border:1px solid rgba(243,230,236,.3)}
+  .review .lesson{font-size:.85rem;color:var(--sand-dim);margin-top:6px;padding-right:34px}
+  .review .lesson b{color:var(--teal)}
+  @media (max-width:420px){h1{font-size:1.6rem}.statement{font-size:1.22rem}.final-amount{font-size:2.4rem}.sort{font-size:.92rem}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div class="stat"><div class="stat-label">النقاط</div><div class="stat-val" id="s-score">0</div></div>
+      <div class="timer-wrap"><div class="timer-bar"><div class="timer-fill" id="t-fill" style="width:100%"></div></div><div class="timer-num" id="t-num">60 ثانية</div></div>
+      <div class="stat"><div class="stat-label">سلسلة 🔥</div><div class="stat-val" id="s-streak">0</div></div>
+    </div>
+  </div>
+
+  <section class="screen active" id="intro">
+    <div class="intro-seal">🧠</div>
+    <div style="text-align:center">
+      <div class="eyebrow">فرز سريع · كتاب «لاعقلانيون بامتياز»</div>
+      <h1>عقلانيٌّ أم فخٌّ متوقَّع؟</h1>
+      <p class="sub">قراراتٌ مالية تمرّ بسرعة… أيّها تقييمٌ عقلانيٌّ سليم وأيّها فخٌّ لاعقلانيٌّ يتكرّر مع الجميع؟</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>أمامك <b>60 ثانية</b> و<b>16 سلوكاً</b> مالياً يومياً.</li>
+        <li>اضغط <b>🟢 عقلانيٌّ سليم</b> أو <b>🔴 فخٌّ متوقَّع</b> — بسرعة!</li>
+        <li>القاعدة: لاعقلانيتنا <b>منهجيةٌ ومتكرّرة</b> — تأثير الشَرَك، وسحر المجاني، والملكية، والتسويف.</li>
+        <li>في النهاية: مراجعة كاملة بمنطق أريلي وراء كل بطاقة.</li>
+      </ul>
+      <button class="btn" onclick="startGame()">ابدأ التحدي ⚡</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="statement-card" id="st-card">
+      <span class="counter" id="st-counter"></span>
+      <span class="flash" id="st-flash">✓</span>
+      <span class="streak" id="st-streak"></span>
+      <div class="statement" id="st-text"></div>
+    </div>
+    <div class="sort-btns">
+      <button class="sort fat" onclick="answer(true)"><span class="ic">🟢</span>عقلانيٌّ سليم<small>تقييمٌ بالقيمة المطلقة</small></button>
+      <button class="sort hole" onclick="answer(false)"><span class="ic">🔴</span>فخٌّ متوقَّع<small>انحيازٌ منهجيٌّ معروف</small></button>
+    </div>
+  </section>
+
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow">انتهى التحدي</div></div>
+    <div class="card">
+      <div class="final-label">رصيدك النهائي</div>
+      <div class="final-amount" id="r-score">0</div>
+      <div class="final-label">نقطة</div>
+      <div class="kpis">
+        <div class="kpi"><b id="r-acc">0%</b><span>دقة التصنيف</span></div>
+        <div class="kpi"><b id="r-best">0</b><span>أطول سلسلة 🔥</span></div>
+        <div class="kpi"><b id="r-done">0/16</b><span>بطاقات صنّفتها</span></div>
+      </div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <div class="review-title">🧠 لوح المراجعة — منطق كل بطاقة</div>
+      <ul class="review" id="r-review"></ul>
+      <button class="btn" onclick="startGame()">أعد التحدي ⚡</button>
+      <button class="btn ghost" onclick="backToIntro()">عُد إلى الملخص 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* fat:true = عقلانيٌّ سليم (تقييمٌ بالقيمة المطلقة) ، false = فخٌّ متوقَّع (انحيازٌ منهجي) */
+const CARDS = [
+  {s:"السؤال عن القيمة المطلقة لكل خيارٍ بدل الانسياق وراء خيارٍ ثالثٍ «شَرَك» مُصمَّم للمقارنة", fat:true,  l:"تأثير الشَرَك يجعل خياراً يبدو ممتازاً بالمقارنة فقط؛ القيمة المطلقة هي الحَكَم الحقيقي."},
+  {s:"اختيار العرض المشترك فوراً لأنه يبدو «صفقة» بجانب خيارٍ ثالث لا يختاره عاقل", fat:false, l:"هذا هو تأثير الشَرَك تماماً: خيارٌ ثالث وُجد فقط ليجعل خياراً آخر يلمع بالمقارنة."},
+  {s:"البحث عن القيمة السوقية الحقيقية لسلعةٍ من مصدرٍ مستقل قبل أي تفاوض على سعرها", fat:true,  l:"هذا يحميك من «التماسك العشوائي» الذي يجعل أول رقمٍ تراه يثبّت كل تقييماتك اللاحقة."},
+  {s:"قبول السعر الذي يذكره البائع أولاً كمرجعٍ للتفاوض دون بحثٍ مستقل", fat:false, l:"السعر الأول يُسمّى «مرساة» تثبّت تقييمك حتى لو كان عشوائياً أو مقصوداً من البائع."},
+  {s:"حساب التكلفة الحقيقية الكاملة قبل اقتناص عرضٍ يحوي كلمة «مجاني»", fat:true,  l:"كلمة «مجاني» زرٌّ عاطفي يُلغي حساب التكلفة والفائدة؛ التوقّف للحساب يحميك منه."},
+  {s:"شراء منتجٍ لا تحتاجه فقط للحصول على «شحنٍ مجاني» أو «هديةٍ مجانية»", fat:false, l:"الصفر ليس سعراً عادياً، بل مُحفّزٌ عاطفي يدفعنا لشراء ما لا نحتاجه."},
+  {s:"إبقاء العلاقات العائلية والصداقات في إطار المعايير الاجتماعية دون إدخال المال فيها", fat:true,  l:"المال يحوّل المعروف إلى صفقةٍ رخيصة، والولاء تحرّكه المعايير الاجتماعية أكثر من المال."},
+  {s:"عرض أجرٍ مالي رمزي على قريبٍ يساعدك دائماً بصدقٍ ومحبة", fat:false, l:"حتى الأجر الرمزي يكفي لتحويل علاقةٍ من «معروف» إلى «صفقة» يصعب إصلاحها بعد ذلك."},
+  {s:"الالتزام بقواعد استثماريةٍ وُضعت في حالة الهدوء بدل اتخاذ قرارٍ في لحظة ذعرٍ مفاجئ", fat:true,  l:"نتحوّل لأشخاصٍ مختلفين في الحالة «الساخنة»؛ القواعد المسبقة تحميك من نفسك الساخنة."},
+  {s:"بيع كل الاستثمارات فوراً في ذروة انهيارٍ مفاجئ بدافع الذعر اللحظي", fat:false, l:"هذا قرارٌ «ساخن» نموذجي يخالف كل ما كنت ستقرّره بهدوءٍ وروية."},
+  {s:"تقييم استثمارٍ خاسرٍ بسؤال: هل سأشتريه اليوم بسعره الحالي؟ بصرف النظر عن ملكيتي له", fat:true,  l:"هذا يحرّرك من «تأثير الملكية» الذي يجعلنا نبالغ في تقدير ما نملكه لمجرّد أنه لنا."},
+  {s:"التشبّث باستثمارٍ خاسر لأنه «صار جزءاً منك» رغم أن كل التحليل يقول بيعه", fat:false, l:"تأثير الملكية يضخّم قيمة ما تحوزه؛ القرار العقلاني ينظر للمستقبل فقط لا للماضي."},
+  {s:"الادخار التلقائي الذي يُقتطع قبل أن تلمس راتبك، لحماية نفسك من نسختك «الساخنة»", fat:true,  l:"أدوات الإلزام المسبق تحميك من التسويف الذي يخون خططك المستقبلية طلباً للذةٍ آنية."},
+  {s:"التسويف المستمر في الادخار اعتماداً على «قوة الإرادة» وحدها دون أي أداة إلزامٍ", fat:false, l:"نخطّط بحكمة للمستقبل ثم نخون خططنا في الحاضر؛ قوة الإرادة وحدها نادراً ما تكفي."},
+  {s:"تذكير نفسك بمعيارٍ أخلاقي واضح قبل أي قرارٍ مالي قد يحمل فرصة غشٍّ صغير", fat:true,  l:"تذكيرٌ أخلاقيٌّ قُبيل الفرصة يقلّل الغش بشدّة، حتى لو كان رمزياً بلا عقوبةٍ وراءه."},
+  {s:"تجاهل أثر السعر والعلامة التجارية على إدراكك تماماً عند تقييم منتجٍ أو استثمارٍ", fat:false, l:"التوقّعات تغيّر تجربتنا الفعلية حرفياً؛ تجاهل هذا التأثير الكامل غير واقعي ويُبقيك عرضةً له دون وعي."}
+];
+
+const TIME = 60;
+let deck=[], i=0, score=0, correct=0, streak=0, best=0, timeLeft=TIME, timerId=null, answers=[], locked=false;
+const $ = id => document.getElementById(id);
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function shuffle(a){
+  const arr=[...a];
+  for(let k=arr.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[arr[k],arr[j]]=[arr[j],arr[k]];}
+  return arr;
+}
+function startGame(){
+  deck = shuffle(CARDS); i=0; score=0; correct=0; streak=0; best=0; timeLeft=TIME;
+  answers = deck.map(()=>null); locked=false;
+  $('ledger').style.display='block';
+  updateHud(); renderCard(); show('game');
+  clearInterval(timerId);
+  timerId = setInterval(()=>{ timeLeft--; updateTimer(); if(timeLeft<=0){ clearInterval(timerId); endGame(); } },1000);
+  updateTimer();
+}
+function updateTimer(){
+  const fill = $('t-fill');
+  fill.style.width = Math.max(timeLeft/TIME*100,0)+'%';
+  fill.classList.toggle('low', timeLeft<=10);
+  $('t-num').textContent = timeLeft+' ثانية';
+}
+function updateHud(){ $('s-score').textContent = score; $('s-streak').textContent = streak; }
+function renderCard(){
+  $('st-counter').textContent = `بطاقة ${i+1} / ${deck.length}`;
+  $('st-text').textContent = deck[i].s;
+  $('st-card').classList.remove('hit','miss');
+}
+function answer(saidWealth){
+  if(locked || i>=deck.length) return;
+  locked = true;
+  const c = deck[i];
+  const ok = (saidWealth === c.fat);
+  answers[i] = ok;
+  const card = $('st-card'), flash = $('st-flash'), stk = $('st-streak');
+  if(ok){
+    correct++; streak++; best=Math.max(best,streak);
+    score += 10 + (streak>=3 ? 5 : 0);
+    card.classList.add('hit'); flash.textContent='✓';
+    if(streak>=3){ stk.textContent='🔥 سلسلة ×'+streak; stk.classList.add('show'); }
+  }else{
+    streak=0; card.classList.add('miss'); flash.textContent='✗'; stk.classList.remove('show');
+  }
+  flash.classList.add('show');
+  updateHud();
+  setTimeout(()=>{
+    flash.classList.remove('show'); i++;
+    if(i>=deck.length){ clearInterval(timerId); endGame(); }
+    else { renderCard(); locked=false; }
+  }, 320);
+}
+function rankOf(c){
+  if(c>=14) return {r:"🧠 تميّز العقلاني من الفخّ المتوقَّع بدقّة", n:"تطبّق حكمة أريلي بإتقان — هذا جوهر منهج «لاعقلانيون بامتياز»."};
+  if(c>=10) return {r:"⚖️ وعيك بفخاخك يتطوّر", n:"أساسك جيد. راجع البطاقات التي أخطأت فيها أدناه وأعد التحدي."};
+  if(c>=6)  return {r:"⚠️ بعض الفخاخ المتوقَّعة ما زالت تخدعك", n:"بعض الأنماط ما زالت تخدعك. لوح المراجعة سيعيد ضبط رؤيتك."};
+  return {r:"🌀 لا تزال تقع في الفخاخ المتوقَّعة نفسها", n:"لا تقلق — الوعي أول خطوة. اقرأ لوح المراجعة ثم عُد للتحدي."};
+}
+function endGame(){
+  $('ledger').style.display='none';
+  const done = answers.filter(a=>a!==null).length;
+  const acc = done? Math.round(correct/done*100) : 0;
+  const rk = rankOf(correct);
+  $('r-score').textContent = score;
+  $('r-acc').textContent = acc+'%';
+  $('r-best').textContent = best;
+  $('r-done').textContent = done+'/'+deck.length;
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n;
+  $('r-review').innerHTML = deck.map((c,k)=>{
+    const a = answers[k];
+    const mark = a===null ? `<span class="r-mark skip">·</span>` : a ? `<span class="r-mark yes">✓</span>` : `<span class="r-mark no">✗</span>`;
+    const tag = c.fat ? '🟢 عقلانيٌّ سليم' : '🔴 فخٌّ متوقَّع';
+    return `<li><div class="head">${mark}<span>${c.s}</span></div><div class="lesson"><b>${tag}</b> — ${c.l}</div></li>`;
+  }).join('');
+  show('results');
+}
+function backToIntro(){ clearInterval(timerId); $('ledger').style.display='none'; show('intro'); }
+</script>
+</body>
+</html>
