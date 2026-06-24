@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>كما هي الحال دائماً — لعبة القرارات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#1a3027; --lapis-deep:#0a1a14; --lapis-panel:#1f3d31;
+    --gold:#D9A23B; --gold-bright:#F0C36B; --sand:#E8F3EC; --sand-dim:#A8C9B8;
+    --ember:#D2674E; --reed:#5FB389; --teal:#2a5a52; --teal-deep:#1a3c37; --teal-bright:#6fc9a8;
+    --shadow:0 12px 32px rgba(2,10,6,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:'Tajawal',sans-serif;background:radial-gradient(1200px 600px at 50% -10%, #1a3c37 0%, transparent 60%),linear-gradient(180deg, var(--lapis-night) 0%, #060f0b 100%);color:var(--sand);min-height:100vh;line-height:1.7}
+  body::after{content:"";position:fixed;inset:auto 0 0 0;height:3px;z-index:5;background:linear-gradient(90deg, transparent 0, var(--teal) 30%, var(--gold-bright) 50%, var(--teal) 70%, transparent 100%);box-shadow:0 -4px 16px rgba(42,90,82,.35);opacity:.9}
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+  .ledger{position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:14px 18px 12px;background:linear-gradient(180deg, rgba(26,48,39,.97) 70%, rgba(26,48,39,.85));border-bottom:1px solid rgba(42,90,82,.45);backdrop-filter:blur(6px)}
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .ledger-label{font-size:.78rem;color:var(--sand-dim);font-weight:500}
+  .ledger-amount{font-family:'Cairo',sans-serif;font-weight:800;font-size:1.4rem;color:var(--gold-bright);letter-spacing:.3px;white-space:nowrap}
+  .ledger-amount small{font-size:.82rem;color:var(--sand-dim);font-family:'Tajawal',sans-serif;font-weight:500;margin-right:4px}
+  .ledger-amount.neg{color:var(--ember)}
+  .dots{display:flex;gap:6px;margin-top:8px;justify-content:center}
+  .dot{width:26px;height:4px;border-radius:99px;background:rgba(232,243,236,.16);transition:background .4s}
+  .dot.on{background:var(--teal)}
+  .dot.now{background:var(--teal-bright);box-shadow:0 0 8px rgba(111,201,168,.8)}
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;color:var(--teal-bright);border:1px solid rgba(42,90,82,.55);border-radius:99px;padding:4px 14px;margin-bottom:14px;letter-spacing:.3px;background:rgba(42,90,82,.1)}
+  h1{font-family:'Cairo',sans-serif;font-size:2.2rem;font-weight:900;line-height:1.3;color:var(--gold-bright);margin-bottom:6px}
+  h2.situation{font-family:'Tajawal',sans-serif;font-size:1.4rem;line-height:1.75;color:var(--sand);font-weight:700;margin-bottom:22px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+  .card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(42,90,82,.32);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow)}
+  .choice{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;background:rgba(10,26,20,.6);border:1px solid rgba(232,243,236,.16);border-radius:14px;padding:15px 16px;margin-bottom:12px;color:var(--sand);font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.65;cursor:pointer;transition:border-color .2s, background .2s, transform .15s}
+  .choice:hover,.choice:focus-visible{border-color:var(--teal);background:rgba(42,90,82,.12);transform:translateY(-1px)}
+  .choice:focus-visible{outline:2px solid var(--teal-bright);outline-offset:2px}
+  .badge{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(42,90,82,.18);border:1px solid rgba(42,90,82,.55);color:var(--teal-bright);font-weight:800;font-size:.95rem;margin-top:2px}
+  .verdict{border-radius:14px;padding:18px;margin-bottom:16px;border:1px solid}
+  .verdict.best{background:rgba(95,179,137,.14);border-color:rgba(95,179,137,.6)}
+  .verdict.ok{background:rgba(217,162,59,.12);border-color:rgba(217,162,59,.55)}
+  .verdict.bad{background:rgba(210,103,78,.14);border-color:rgba(210,103,78,.6)}
+  .verdict-title{font-family:'Cairo',sans-serif;font-size:1.22rem;font-weight:800;margin-bottom:8px}
+  .verdict.best .verdict-title{color:#8FE0B6}
+  .verdict.ok .verdict-title{color:var(--gold-bright)}
+  .verdict.bad .verdict-title{color:#F0987C}
+  .verdict p{font-size:.98rem}
+  .timeline{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+  .t-row{display:flex;gap:12px;align-items:flex-start;background:rgba(10,26,20,.55);border-radius:12px;padding:12px 14px;border:1px solid rgba(232,243,236,.12)}
+  .t-when{flex:0 0 auto;font-weight:800;color:var(--teal-bright);font-size:.85rem;border-left:1px solid rgba(42,90,82,.4);padding-left:12px;min-width:74px}
+  .t-what{font-size:.95rem;color:var(--sand)}
+  .delta{display:inline-flex;align-items:center;gap:8px;font-family:'Cairo',sans-serif;font-weight:800;font-size:1.3rem;border-radius:12px;padding:8px 16px;margin-bottom:18px}
+  .delta.up{background:rgba(95,179,137,.16);color:#8FE0B6;border:1px solid rgba(95,179,137,.5)}
+  .delta.down{background:rgba(210,103,78,.16);color:#F0987C;border:1px solid rgba(210,103,78,.5)}
+  .delta.flat{background:rgba(232,243,236,.08);color:var(--sand-dim);border:1px solid rgba(232,243,236,.22)}
+  .btn{display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;color:#1a3027;background:linear-gradient(180deg,var(--teal-bright),var(--teal-deep));border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(26,60,55,.4)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(26,60,55,.5)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(217,162,59,.55);box-shadow:none;margin-top:10px}
+  .final-amount{font-family:'Cairo',sans-serif;font-size:3rem;font-weight:900;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
+  .final-amount.neg{color:var(--ember)}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{text-align:center;font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800;color:var(--sand);margin-bottom:6px}
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:22px}
+  .principles{list-style:none;margin-bottom:22px}
+  .principles li{display:flex;gap:10px;align-items:center;padding:10px 14px;margin-bottom:8px;background:rgba(10,26,20,.55);border-radius:12px;border:1px solid rgba(232,243,236,.12);font-size:.95rem}
+  .p-mark{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+  .p-mark.yes{background:rgba(95,179,137,.2);color:#8FE0B6;border:1px solid rgba(95,179,137,.6)}
+  .p-mark.no{background:rgba(210,103,78,.2);color:#F0987C;border:1px solid rgba(210,103,78,.6)}
+  .quote{font-family:'Cairo',sans-serif;font-size:1.16rem;font-weight:700;line-height:1.85;text-align:center;color:var(--gold-bright);border-top:1px solid rgba(217,162,59,.35);border-bottom:1px solid rgba(217,162,59,.35);padding:18px 6px;margin-bottom:22px}
+  .quote span{display:block;font-family:'Tajawal',sans-serif;font-size:.85rem;font-weight:500;color:var(--sand-dim);margin-top:8px}
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--teal);display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:radial-gradient(circle at 35% 30%, rgba(42,90,82,.3), rgba(217,162,59,.05));box-shadow:0 0 30px rgba(42,90,82,.3)}
+  .intro-list{margin:0 0 26px;padding:0;list-style:none}
+  .intro-list li{display:block;position:relative;padding-right:22px;color:var(--sand);font-size:.98rem;margin-bottom:10px}
+  .intro-list li::before{content:"◆";color:var(--teal);font-size:.7rem;position:absolute;right:0;top:.5em}
+  @media (max-width:420px){h1{font-size:1.85rem}h2.situation{font-size:1.25rem}.final-amount{font-size:2.4rem}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div>
+        <div class="ledger-label">رصيد الحكمة الثابتة</div>
+        <div class="ledger-amount" id="wealth">0 <small>نقطة</small></div>
+      </div>
+      <div style="font-size:1.6rem">⏳</div>
+    </div>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <section class="screen active" id="intro">
+    <div class="intro-seal">⏳</div>
+    <div style="text-align:center">
+      <div class="eyebrow">لعبة قرارات · كتاب «كما هي الحال دائماً»</div>
+      <h1>ابنِ على ما لا يتغيّر أبداً</h1>
+      <p class="sub">مورغان هاوزل: لا تطارد سؤال «ماذا سيتغيّر؟» المستحيل الإجابة — اسأل «ماذا سيظل كما هو؟» فطبائع البشر ثابتة منذ فجر التاريخ.</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>ستواجه <b>6 مواقف</b> مبنية على ثوابت هاوزل السلوكية.</li>
+        <li>كل قرارٍ يرفع أو يخفض <b>رصيد الحكمة الثابتة</b> لديك.</li>
+        <li>المبدأ: المخاطر هي ما لا تراه، والقصص تغلب الحقائق، والمرونة أهم من الكفاءة المثالية.</li>
+        <li>اجمع أعلى رصيدٍ ممكن… وتعلّم كيف تبني على الصخر لا على الرمل.</li>
+      </ul>
+      <button class="btn" onclick="startGame()">ابدأ الاختبار ▸</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="eyebrow" id="g-eyebrow"></div>
+    <h2 class="situation" id="g-situation"></h2>
+    <div id="g-choices"></div>
+  </section>
+
+  <section class="screen" id="feedback">
+    <div class="card">
+      <div class="verdict" id="f-verdict">
+        <div class="verdict-title" id="f-title"></div>
+        <p id="f-text"></p>
+      </div>
+      <div class="timeline">
+        <div class="t-row"><div class="t-when">أثرٌ فوري</div><div class="t-what" id="f-y1"></div></div>
+        <div class="t-row"><div class="t-when">على المدى البعيد</div><div class="t-what" id="f-y5"></div></div>
+      </div>
+      <div style="text-align:center"><span class="delta" id="f-delta"></span></div>
+      <button class="btn" id="f-next" onclick="nextScenario()">متابعة ←</button>
+    </div>
+  </section>
+
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow">اكتملت الجلسة</div></div>
+    <div class="card">
+      <div class="final-label">رصيد الحكمة الثابتة</div>
+      <div class="final-amount" id="r-amount">0</div>
+      <div class="final-label">نقطة &nbsp;·&nbsp; من أصل 114</div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <ul class="principles" id="r-principles"></ul>
+      <div class="quote">«لا أستطيع أن أبني على ما سيتغيّر، لكنني أبني على ما يظل كما هو دائماً»<span>— مورغان هاوزل</span></div>
+      <button class="btn" onclick="restart()">أعد المحاولة 🔄</button>
+      <button class="btn ghost" onclick="restart()">اقرأ الملخص مرة أخرى 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const SCENARIOS = [
+  {
+    cure:"المبدأ · اسأل عمّا لا يتغيّر",
+    short:"بناء على الثوابت لا على التنبؤ بالمتغيّرات",
+    situation:"تخطط لاستثمارك التقني للسنوات العشر القادمة. زميلٌ يطلب منك التنبؤ الدقيق بأي تقنيةٍ ستهيمن، بينما تشعر أن كل تنبؤٍ تقني سابقٍ تقريباً قد أخطأ.",
+    choices:[
+      {t:"أبني استراتيجيتي على ثوابت سلوك البشر — سيريدون دائماً أسعاراً أقل وخدمةً أسرع وأماناً أكبر — بدل محاولة التنبؤ بالتقنية الفائزة بعينها", q:"best", d:20,
+       fb:"هاوزل يستشهد بجيف بيزوس: لا يمكن بناء استراتيجية على متغيرٍ مجهول، لكن يمكن البناء على ثابتٍ معروف. هذا هو جوهر «اسأل عمّا لا يتغيّر».",
+       y1:"استراتيجيةٌ مرنة لا تنهار مع تغيّر التقنية السائدة", y5:"ميزةٌ تنافسية مستدامة مبنية على طبيعة العميل الثابتة"},
+      {t:"أحاول التنبؤ بدقة بالتقنية الرائجة القادمة وأضع كل خطتي على هذا التوقّع المحدد دون أي مرونة", q:"ok", d:5,
+       fb:"هاوزل يحذّر من هذا الفخ بالضبط: لا أحد توقّع الإنترنت أو كوفيد بدقة، فالتنبؤ بالتغيير لعبةٌ يخسرها الجميع غالباً.",
+       y1:"خطةٌ هشّة معلّقة على تنبؤٍ واحد غير مضمون", y5:"احتمال انهيار الاستراتيجية كاملةً إن أخطأ التوقّع"},
+      {t:"أتجاهل التخطيط طويل المدى كلياً لأن «كل شيء سيتغيّر ولا فائدة من أي خطة»، وأتعامل فقط مع كل لحظة كما تأتي", q:"bad", d:-8,
+       fb:"هذا يفوّت جوهر رسالة هاوزل: التغيّر في السطح لا يلغي وجود ثوابت عميقة يمكن البناء عليها بثقة — التخلي عن التخطيط ليس حكمة بل استسلام.",
+       y1:"غياب أي بوصلةٍ استراتيجية واضحة", y5:"قراراتٌ متفرقة بلا اتجاهٍ تراكمي"}
+    ]
+  },
+  {
+    cure:"المبدأ · المخاطر هي ما لا تراه",
+    short:"أخطر المخاطر هي التي لا يتوقعها أحد",
+    situation:"تراجع ميزانيتك السنوية وتجد أنها مضبوطةٌ بدقة، بلا أي هامش احتياطي، لأن «كل درهمٍ فائض يجب أن يُستثمر فوراً» كما تعتقد. كل النفقات المتوقعة محسوبة بعناية.",
+    choices:[
+      {t:"أخصّص هامش أمانٍ سخياً يتحمّل المجهول غير المتوقَّع، لأن أخطر المخاطر في التاريخ هي دائماً تلك التي لم يحتسبها أحد في نموذجه", q:"best", d:20,
+       fb:"هاوزل يستشهد بحوادث مثل بيرل هاربر وكوفيد: الكارثة الكبرى تأتي من حيث لا يتوقع أحد، فالاستعداد العام للمجهول أنفع من محاولة التنبؤ بخطرٍ بعينه.",
+       y1:"قدرةٌ على تحمّل صدمةٍ غير متوقعة دون انهيار", y5:"استقرارٌ مالي يصمد أمام أزماتٍ لم تكن في الحسبان"},
+      {t:"أستمر في ميزانيتي المضبوطة بدقة دون أي هامش، وأخطط لإضافة احتياطٍ «حين يتحسن وضعي المالي مستقبلاً»", q:"ok", d:5,
+       fb:"تأجيل بناء هامش الأمان يعني العيش بلا حمايةٍ في الوقت الحالي تماماً، بينما المفاجآت — كما يوضح هاوزل — لا تنتظر الوقت المناسب لتقع.",
+       y1:"هشاشةٌ مستمرة أمام أي صدمةٍ مفاجئة", y5:"تأجيلٌ متكررٌ لبناء الحماية حتى تقع الكارثة فعلاً"},
+      {t:"أستدين لزيادة استثماراتي إلى أقصى حد ممكن لأن «المخاطر المعروفة محسوبة ومضمونة النتيجة» في نموذجي المالي الحالي", q:"bad", d:-9,
+       fb:"هذا نقيض درس الكتاب بالضبط: الثقة بأن كل المخاطر «معروفة ومحسوبة» هي ما يجعلك هشّاً تماماً أمام المفاجأة الكبرى الغائبة عن كل النماذج.",
+       y1:"هشاشةٌ ماليةٌ قصوى بلا أي هامش احتياطي", y5:"خطر انهيارٍ كامل عند أول حدثٍ لم يكن في الحسبان"}
+    ]
+  },
+  {
+    cure:"المبدأ · التوقعات والسعادة",
+    short:"السعادة = ما تملك ÷ ما تتوقّع",
+    situation:"حصلت على ترقيةٍ وزيادة دخلٍ كبيرة هذا العام، ومع ذلك تشعر بعدم رضا غريب، وتجد نفسك تقارن وضعك بزملاء يملكون أكثر منك على وسائل التواصل.",
+    choices:[
+      {t:"أتذكّر أن السعادة تتحدد بالفجوة بين ما أملك وما أتوقّع لا بالرقم المطلق، فأعمل عمداً على ضبط توقعاتي وتقليل المقارنة الاجتماعية المستمرة", q:"best", d:19,
+       fb:"هاوزل يوضح أن إدارة التوقعات رافعةٌ للسعادة أقوى من زيادة الدخل: إنسان اليوم يعيش رفاهيةً تفوق ملوك الماضي، ومع ذلك قد يكون أتعس بسبب توقعاتٍ متضخمة.",
+       y1:"رضا أكبر عن إنجازٍ مالي حقيقي تحقق فعلاً", y5:"مناعةٌ من دوامة المقارنة الاجتماعية التي لا تُربح"},
+      {t:"أحاول زيادة دخلي أكثر فأكثر لمطابقة ما يملكه من أقارن نفسي بهم على وسائل التواصل، دون أي إدارةٍ لتوقعاتي نفسها", q:"ok", d:4,
+       fb:"هاوزل يحذّر من هذا السباق: المقارنة لعبةٌ لا تُربح أبداً، لأن كل زيادةٍ في دخلك ترفع سقف توقعك أسرع مما يرفع شعورك بالرضا.",
+       y1:"دخلٌ متزايد لكن رضا لا يتحسن بالمعدل نفسه", y5:"دورانٌ مستمر في سباق مقارنةٍ بلا خط نهاية"},
+      {t:"أتوقف عن العمل بجدية على دخلي كلياً لأن «المال لا يصنع السعادة على أي حال» وأترك كل شيءٍ كما هو دون أي تحسّن", q:"bad", d:-7,
+       fb:"هذا تطرّفٌ في الاتجاه المعاكس يفوّت رسالة هاوزل الدقيقة: الدرس ليس إنكار قيمة المال بل إدارة التوقعات حوله، لا التوقف عن السعي المعقول.",
+       y1:"تراجعٌ غير مدروس عن تحسين وضعك المالي", y5:"فرصٌ ضائعة دون أي تحسّنٍ حقيقي في الرضا أيضاً"}
+    ]
+  },
+  {
+    cure:"المبدأ · أفضل قصة تنتصر",
+    short:"العقل البشري مصمَّم للحكايات لا للجداول",
+    situation:"تجد فرصة استثمارٍ تُروى بقصةٍ مذهلة عن «مستقبلٍ لا محدود» تتحدث عنها كل المنصات، لكن عند فحص الأرقام الفعلية تجدها أضعف بكثير من حماس القصة المحيطة بها.",
+    choices:[
+      {t:"أعي أن القصة الجذابة تُحفّز عقلي بقوةٍ أكبر من الأرقام المجردة، فأفصل عمداً بين سحر السرد والقيمة الحقيقية قبل أي قرار استثماري", q:"best", d:20,
+       fb:"هاوزل يوضح أن أفضل قصة تنتصر لا أصح رقم، لأن العقل البشري مصمَّم للحكايات. الفقاعات تنتفخ على قصصٍ جميلة، والمستثمر الحكيم يعي سلطان السرد على قراراته.",
+       y1:"قرارٌ استثماريٌّ مبنيٌّ على الأرقام لا الحماس السردي", y5:"حصانةٌ من فقاعاتٍ تنفجر حين تنكشف ضحالة القصة"},
+      {t:"أستثمر مبلغاً صغيراً «لأن القصة مقنعة جداً وكل من حولي متحمسٌ لها» دون فحصٍ عميق للأرقام الفعلية", q:"ok", d:5,
+       fb:"حتى الاستثمار الصغير المبني على سحر القصة وحدها هو بالضبط الآلية التي يصفها هاوزل خلف انتفاخ كل فقاعةٍ تاريخية معروفة.",
+       y1:"دخولٌ جزئيٌّ بدافع السرد لا التحليل الموضوعي", y5:"تكرار الانجذاب لكل قصةٍ جذابة مماثلة مستقبلاً"},
+      {t:"أستثمر كل مدّخراتي في الفرصة فوراً لأن القصة «ملهمة جداً» وأشعر بأنني سأفوّت فرصة العمر إن لم أتحرك الآن", q:"bad", d:-9,
+       fb:"هذا تماماً ما يحذّر منه هاوزل: حين تنتصر القصة على الحقائق بالكامل في قرارٍ كبير، فأنت تُموّل فقاعة سردٍ لا فرصةً حقيقية مدروسة.",
+       y1:"تركيزٌ خطيرٌ لكل المدّخرات في قصةٍ غير مؤكَّدة", y5:"خسارةٌ محتملة كبرى حين تنهار القصة على الحقيقة"}
+    ]
+  },
+  {
+    cure:"المبدأ · الكفاءة المثالية فخّ",
+    short:"بعض «الهدر» تأمينٌ لا ضياع",
+    situation:"تراجع نفقاتك وتجد حساب طوارئ يبدو لك «غير منتج» لأن أمواله خاملة ولا تحقق عائداً. تفكر في استثمار كل ذلك المال فوراً لتحقيق أقصى كفاءة ممكنة لرأس مالك.",
+    choices:[
+      {t:"أحتفظ بحساب الطوارئ كما هو، فأدرك أن هذا «الهدر الظاهري» هو بالضبط ما يمنحني المرونة لاستيعاب صدمةٍ مفاجئة دون أن ينهار كل شيء", q:"best", d:19,
+       fb:"هاوزل يحذّر من عبادة الكفاءة: الأنظمة المضغوطة بلا فائضٍ هشّةٌ تنكسر عند أول صدمة، والمال الخامل في حساب الطوارئ هو ما يبقيك واقفاً يوم الأزمة.",
+       y1:"حمايةٌ فعلية أمام أي مفاجأةٍ مالية غير متوقعة", y5:"استقرارٌ يصمد بينما تنهار الأنظمة المضغوطة بالكامل"},
+      {t:"أستثمر نصف حساب الطوارئ فقط للحصول على بعض العائد، مع الإبقاء على نصفه الآخر «احتياطاً جزئياً» غير كافٍ في الواقع", q:"ok", d:5,
+       fb:"الحل الوسط هنا يقلّل الهامش الذي يصفه هاوزل كأساس المرونة: نصف الحماية في وجه صدمةٍ كبرى قد لا يكون كافياً وقت الحاجة الفعلية.",
+       y1:"عائدٌ إضافي محدود بمخاطرةٍ متزايدة جزئياً", y5:"احتمال عجزٍ جزئي عن مواجهة أزمةٍ كبرى مستقبلاً"},
+      {t:"أستثمر كل حساب الطوارئ فوراً في أعلى عائدٍ ممكن لأن «الكفاءة القصوى لرأس المال» هي الهدف الأهم في كل قرارٍ مالي", q:"bad", d:-8,
+       fb:"هذا عكس الدرس الجوهري في الكتاب تماماً: السعي لأقصى كفاءة ممكنة دون أي مساحةٍ للتنفّس هو ما يصنع الهشاشة التي تنهار عند أول صدمة.",
+       y1:"رأس مالٌ يبدو «كفؤاً» لكنه بلا أي حماية", y5:"خطر انهيارٍ كامل عند أول أزمةٍ غير متوقعة"}
+    ]
+  },
+  {
+    cure:"المبدأ · التقدم البطيء والإفراط",
+    short:"اعرف متى يكفي قبل أن يتحول السعي إلى هدم",
+    situation:"استثمارك ينمو بثباتٍ وصبرٍ منذ سنوات، وقد بلغت هدفك المالي الذي وضعته أصلاً. الآن تشعر بإغراء قويٍّ لمضاعفة المخاطرة سعياً لمزيدٍ من النمو رغم أنك بلغت ما يكفيك فعلاً.",
+    choices:[
+      {t:"أتذكّر أن البشر يصعب عليهم التوقف عند «الكافي»، فأضع حدوداً واضحة لطموحي ومخاطرتي الآن قبل أن يتحول السعي من بناءٍ إلى هدمٍ محتمل لما بنيته بصبر", q:"best", d:20,
+       fb:"هاوزل يحذّر من أن الطموح الذي يصنع النجاح قد يتحول، بلا كابح، إلى جشعٍ يدمّره. معرفة نقطة الكفاية تنقذ الثروات التي بُنيت بصبرٍ تراكمي بطيء.",
+       y1:"حمايةٌ لنتائج سنوات من النمو الصبور المتراكم", y5:"استقرارٌ طويل الأمد بدل مقامرةٍ بما تحقق بالفعل"},
+      {t:"أضاعف مخاطرتي جزئياً «لأرى إلى أين يمكن أن أصل» دون أن أضع حدوداً واضحة مسبقة لهذا التوسّع الجديد في الطموح", q:"ok", d:5,
+       fb:"هذا بالضبط ما يصفه هاوزل: التوسع بلا حدودٍ واضحة مسبقة هو الطريق الذي يتحول فيه النمو الصحي تدريجياً إلى مخاطرةٍ غير محسوبة.",
+       y1:"نمو إضافي محتمل مصحوبٌ بمخاطرةٍ متصاعدة", y5:"احتمال تآكل ما بُني بصبرٍ إن استمر التوسع بلا كابح"},
+      {t:"أضاعف مخاطرتي بالكامل وأستدين لزيادة استثماراتي أكثر فأكثر لأن «لا يوجد حدٌّ لما يمكن تحقيقه» من نموٍّ إضافي", q:"bad", d:-9,
+       fb:"هذا تماماً الإفراط الذي يحذّر منه هاوزل: الفشل في معرفة نقطة الكفاية يحوّل نمواً صبوراً استغرق سنواتٍ لبنائه إلى مخاطرةٍ بكل ما تحقق بالفعل.",
+       y1:"مخاطرةٌ متصاعدة بما بُني بصبرٍ طويل الأمد", y5:"خطر تدمير سنوات من التراكم البطيء في لحظةٍ واحدة"}
+    ]
+  }
+];
+
+const VERDICTS = {
+  best:{title:"⏳ حكمةٌ ثابتة — هكذا يفكّر هاوزل", cls:"best"},
+  ok:{title:"⚖️ مقبول… لكن الثابت لم يُستوعب كلياً", cls:"ok"},
+  bad:{title:"🌀 قرارٌ يكشف الانجراف وراء المتغيّر العابر", cls:"bad"}
+};
+
+let idx = 0, wealth = 0, mastered = [];
+const $ = id => document.getElementById(id);
+
+function fmt(n){
+  const s = Math.abs(n).toLocaleString('en-US').replace(/,/g,'٬');
+  return (n<0?'−':'')+s;
+}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function renderDots(){
+  $('dots').innerHTML = SCENARIOS.map((_,i)=>`<div class="dot ${i<idx?'on':''} ${i===idx?'now':''}"></div>`).join('');
+}
+function renderWealth(animateFrom){
+  const el = $('wealth');
+  el.classList.toggle('neg', wealth<0);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(animateFrom===undefined || reduce){ el.innerHTML = fmt(wealth)+' <small>نقطة</small>'; return; }
+  const start = animateFrom, diff = wealth-start, dur = 900, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    el.innerHTML = fmt(Math.round(start+diff*e))+' <small>نقطة</small>';
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function startGame(){
+  idx = 0; wealth = 0; mastered = [];
+  $('ledger').style.display = 'block';
+  renderWealth(); renderDots(); renderScenario(); show('game');
+}
+function renderScenario(){
+  const s = SCENARIOS[idx];
+  $('g-eyebrow').textContent = `الموقف ${idx+1} من ${SCENARIOS.length} · ${s.cure}`;
+  $('g-situation').textContent = s.situation;
+  const letters = ['أ','ب','ج'];
+  $('g-choices').innerHTML = s.choices.map((c,i)=>
+    `<button class="choice" onclick="choose(${i})"><span class="badge">${letters[i]}</span><span>${c.t}</span></button>`).join('');
+  renderDots();
+}
+function choose(ci){
+  const s = SCENARIOS[idx], c = s.choices[ci];
+  const before = wealth;
+  wealth += c.d;
+  mastered.push(c.q === 'best');
+  const v = VERDICTS[c.q];
+  $('f-verdict').className = 'verdict '+v.cls;
+  $('f-title').textContent = v.title;
+  $('f-text').textContent = c.fb;
+  $('f-y1').textContent = c.y1;
+  $('f-y5').textContent = c.y5;
+  const dEl = $('f-delta');
+  dEl.className = 'delta '+(c.d>0?'up':c.d<0?'down':'flat');
+  dEl.textContent = (c.d>0?'📈 +':c.d<0?'📉 −':'⏳ ')+(c.d===0?'لا تغيير':Math.abs(c.d)+' نقطة');
+  $('f-next').textContent = (idx === SCENARIOS.length-1) ? 'اكشف نتيجتك النهائية ⏳' : 'الموقف التالي ←';
+  show('feedback');
+  renderWealth(before);
+}
+function nextScenario(){
+  idx++;
+  if(idx < SCENARIOS.length){ renderScenario(); show('game'); }
+  else showResults();
+}
+function rankOf(w){
+  if(w>=95) return {r:"⏳ تتقن البناء على ما لا يتغيّر", n:"تطبّق حكمة هاوزل بإتقان: الثوابت، وهامش الأمان، والمرونة، ومعرفة الكفاية. طبّقها على حياتك الحقيقية الآن."};
+  if(w>=60) return {r:"⚖️ وعيك بالثوابت السلوكية يتوسّع تدريجياً", n:"تمتلك معظم المبادئ. راجع ما أخطأت فيه أدناه ورسّخه."};
+  if(w>=25) return {r:"⏳ بدأتَ تفرّق بين الثابت والمتغيّر العابر", n:"وضعتَ أولى لبنات الفهم. أعد قراءة الفصول ثم عُد."};
+  return {r:"🌀 لا يزال المتغيّر العابر يستحوذ على قراراتك", n:"لا بأس — الوعي أول خطوة. ابدأ بسؤالٍ واحد: «هل هذا ثابتٌ أبني عليه أم موجةٌ عابرة؟»"};
+}
+function showResults(){
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"sae_decision"},"*");}catch(e){}/*WA_TRACK*/
+  $('ledger').style.display = 'none';
+  const rk = rankOf(wealth);
+  const amountEl = $('r-amount');
+  amountEl.classList.toggle('neg', wealth<0);
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n;
+  $('r-principles').innerHTML = SCENARIOS.map((s,i)=>
+    `<li><span class="p-mark ${mastered[i]?'yes':'no'}">${mastered[i]?'✓':'✗'}</span><span>${s.short}</span></li>`).join('');
+  show('results');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ amountEl.textContent = fmt(wealth); return; }
+  const dur = 1400, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    amountEl.textContent = fmt(Math.round(wealth*e));
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function restart(){ $('ledger').style.display = 'none'; show('intro'); }
+</script>
+</body>
+</html>
