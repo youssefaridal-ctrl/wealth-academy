@@ -175,7 +175,8 @@
   @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
 
   /* ===== شريط الحساب ===== */
-  .acct-bar{display:flex;justify-content:flex-end;align-items:center;gap:10px;padding:10px 0 0;font-size:.85rem}
+  .acct-bar{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0 0;font-size:.85rem}
+  .lib-link{text-decoration:none}
   .acct-pill{
     display:flex;align-items:center;gap:8px;background:rgba(217,169,63,.1);
     border:1px solid rgba(217,169,63,.35);border-radius:99px;padding:6px 14px;color:var(--sand);
@@ -234,7 +235,10 @@
 <!-- ===== صفحة المكتبة ===== -->
 <div class="page active" id="library">
   <div class="wrap">
-    <div class="acct-bar" id="acct-bar"></div>
+    <div class="acct-bar">
+      <a class="acct-btn lib-link" href="https://youssefaridal-ctrl.github.io/wealth-library/index.html" target="_blank" rel="noopener">📚 مكتبة الملخّصات</a>
+      <div id="acct-bar-inner" style="display:flex;gap:10px;align-items:center"></div>
+    </div>
     <div class="hero">
       <div class="seal">𒀭</div>
       <div class="eyebrow">أكاديمية الثروة التفاعلية</div>
@@ -408,7 +412,7 @@ async function recordCompletion(key){
 }
 
 function renderAcctBar(){
-  const bar = $("acct-bar");
+  const bar = $("acct-bar-inner");
   if(currentUser){
     bar.innerHTML = `<div class="acct-pill">👤 <b>${currentUser.username}</b></div><button class="acct-btn ghost" onclick="logout()">خروج</button>`;
   } else {
