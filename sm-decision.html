@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الذكاء لا يحصّنك من الخطأ — لعبة القرارات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#2a2418; --lapis-deep:#140f0a; --lapis-panel:#3c331f;
+    --gold:#D9A23B; --gold-bright:#F0C36B; --sand:#F3EEE3; --sand-dim:#C9BFA8;
+    --ember:#D2674E; --reed:#5FB389; --teal:#5a4a2a; --teal-deep:#3c321a; --teal-bright:#c9a86f;
+    --shadow:0 12px 32px rgba(12,10,2,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:'Tajawal',sans-serif;background:radial-gradient(1200px 600px at 50% -10%, #3c3219 0%, transparent 60%),linear-gradient(180deg, var(--lapis-night) 0%, #100d06 100%);color:var(--sand);min-height:100vh;line-height:1.7}
+  body::after{content:"";position:fixed;inset:auto 0 0 0;height:3px;z-index:5;background:linear-gradient(90deg, transparent 0, var(--teal) 30%, var(--gold-bright) 50%, var(--teal) 70%, transparent 100%);box-shadow:0 -4px 16px rgba(90,74,42,.35);opacity:.9}
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+  .ledger{position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:14px 18px 12px;background:linear-gradient(180deg, rgba(42,36,24,.97) 70%, rgba(42,36,24,.85));border-bottom:1px solid rgba(90,74,42,.45);backdrop-filter:blur(6px)}
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .ledger-label{font-size:.78rem;color:var(--sand-dim);font-weight:500}
+  .ledger-amount{font-family:'Cairo',sans-serif;font-weight:800;font-size:1.4rem;color:var(--gold-bright);letter-spacing:.3px;white-space:nowrap}
+  .ledger-amount small{font-size:.82rem;color:var(--sand-dim);font-family:'Tajawal',sans-serif;font-weight:500;margin-right:4px}
+  .ledger-amount.neg{color:var(--ember)}
+  .dots{display:flex;gap:6px;margin-top:8px;justify-content:center}
+  .dot{width:26px;height:4px;border-radius:99px;background:rgba(243,238,227,.16);transition:background .4s}
+  .dot.on{background:var(--teal)}
+  .dot.now{background:var(--teal-bright);box-shadow:0 0 8px rgba(201,168,111,.8)}
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;color:var(--teal-bright);border:1px solid rgba(90,74,42,.55);border-radius:99px;padding:4px 14px;margin-bottom:14px;letter-spacing:.3px;background:rgba(90,74,42,.1)}
+  h1{font-family:'Cairo',sans-serif;font-size:2.2rem;font-weight:900;line-height:1.3;color:var(--gold-bright);margin-bottom:6px}
+  h2.situation{font-family:'Tajawal',sans-serif;font-size:1.4rem;line-height:1.75;color:var(--sand);font-weight:700;margin-bottom:22px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+  .card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(90,74,42,.32);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow)}
+  .choice{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;background:rgba(20,15,10,.6);border:1px solid rgba(243,238,227,.16);border-radius:14px;padding:15px 16px;margin-bottom:12px;color:var(--sand);font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.65;cursor:pointer;transition:border-color .2s, background .2s, transform .15s}
+  .choice:hover,.choice:focus-visible{border-color:var(--teal);background:rgba(90,74,42,.12);transform:translateY(-1px)}
+  .choice:focus-visible{outline:2px solid var(--teal-bright);outline-offset:2px}
+  .badge{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(90,74,42,.18);border:1px solid rgba(90,74,42,.55);color:var(--teal-bright);font-weight:800;font-size:.95rem;margin-top:2px}
+  .verdict{border-radius:14px;padding:18px;margin-bottom:16px;border:1px solid}
+  .verdict.best{background:rgba(95,179,137,.14);border-color:rgba(95,179,137,.6)}
+  .verdict.ok{background:rgba(217,162,59,.12);border-color:rgba(217,162,59,.55)}
+  .verdict.bad{background:rgba(210,103,78,.14);border-color:rgba(210,103,78,.6)}
+  .verdict-title{font-family:'Cairo',sans-serif;font-size:1.22rem;font-weight:800;margin-bottom:8px}
+  .verdict.best .verdict-title{color:#8FE0B6}
+  .verdict.ok .verdict-title{color:var(--gold-bright)}
+  .verdict.bad .verdict-title{color:#F0987C}
+  .verdict p{font-size:.98rem}
+  .timeline{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+  .t-row{display:flex;gap:12px;align-items:flex-start;background:rgba(20,15,10,.55);border-radius:12px;padding:12px 14px;border:1px solid rgba(243,238,227,.12)}
+  .t-when{flex:0 0 auto;font-weight:800;color:var(--teal-bright);font-size:.85rem;border-left:1px solid rgba(90,74,42,.4);padding-left:12px;min-width:74px}
+  .t-what{font-size:.95rem;color:var(--sand)}
+  .delta{display:inline-flex;align-items:center;gap:8px;font-family:'Cairo',sans-serif;font-weight:800;font-size:1.3rem;border-radius:12px;padding:8px 16px;margin-bottom:18px}
+  .delta.up{background:rgba(95,179,137,.16);color:#8FE0B6;border:1px solid rgba(95,179,137,.5)}
+  .delta.down{background:rgba(210,103,78,.16);color:#F0987C;border:1px solid rgba(210,103,78,.5)}
+  .delta.flat{background:rgba(243,238,227,.08);color:var(--sand-dim);border:1px solid rgba(243,238,227,.22)}
+  .btn{display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;color:#2a2418;background:linear-gradient(180deg,var(--teal-bright),var(--teal-deep));border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(60,50,26,.4)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(60,50,26,.5)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(217,162,59,.55);box-shadow:none;margin-top:10px}
+  .final-amount{font-family:'Cairo',sans-serif;font-size:3rem;font-weight:900;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
+  .final-amount.neg{color:var(--ember)}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{text-align:center;font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800;color:var(--sand);margin-bottom:6px}
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:22px}
+  .principles{list-style:none;margin-bottom:22px}
+  .principles li{display:flex;gap:10px;align-items:center;padding:10px 14px;margin-bottom:8px;background:rgba(20,15,10,.55);border-radius:12px;border:1px solid rgba(243,238,227,.12);font-size:.95rem}
+  .p-mark{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+  .p-mark.yes{background:rgba(95,179,137,.2);color:#8FE0B6;border:1px solid rgba(95,179,137,.6)}
+  .p-mark.no{background:rgba(210,103,78,.2);color:#F0987C;border:1px solid rgba(210,103,78,.6)}
+  .quote{font-family:'Cairo',sans-serif;font-size:1.16rem;font-weight:700;line-height:1.85;text-align:center;color:var(--gold-bright);border-top:1px solid rgba(217,162,59,.35);border-bottom:1px solid rgba(217,162,59,.35);padding:18px 6px;margin-bottom:22px}
+  .quote span{display:block;font-family:'Tajawal',sans-serif;font-size:.85rem;font-weight:500;color:var(--sand-dim);margin-top:8px}
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--teal);display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:radial-gradient(circle at 35% 30%, rgba(90,74,42,.3), rgba(217,162,59,.05));box-shadow:0 0 30px rgba(90,74,42,.3)}
+  .intro-list{margin:0 0 26px;padding:0;list-style:none}
+  .intro-list li{display:block;position:relative;padding-right:22px;color:var(--sand);font-size:.98rem;margin-bottom:10px}
+  .intro-list li::before{content:"◆";color:var(--teal);font-size:.7rem;position:absolute;right:0;top:.5em}
+  @media (max-width:420px){h1{font-size:1.85rem}h2.situation{font-size:1.25rem}.final-amount{font-size:2.4rem}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div>
+        <div class="ledger-label">رصيد الحصانة السلوكية</div>
+        <div class="ledger-amount" id="wealth">0 <small>نقطة</small></div>
+      </div>
+      <div style="font-size:1.6rem">🧩</div>
+    </div>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <section class="screen active" id="intro">
+    <div class="intro-seal">🧩</div>
+    <div style="text-align:center">
+      <div class="eyebrow">لعبة قرارات · كتاب «لماذا يرتكب الأذكياء أخطاء مالية كبيرة»</div>
+      <h1>الذكاء لا يحصّنك من الخطأ</h1>
+      <p class="sub">غاري بلسكي وتوماس غيلوفيتش: المشكلة ليست في نقص ذكائك، بل في أن دماغك مصمَّمٌ ليخطئ بطرقٍ متوقّعة — وذكاؤك قد يجعلك أكثر ثقةً بأنك محصّن.</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>ستواجه <b>6 مواقف</b> مبنية على أشهر الأخطاء المالية المنهجية في الكتاب.</li>
+        <li>كل قرارٍ يرفع أو يخفض <b>رصيد الحصانة السلوكية</b> لديك.</li>
+        <li>المبدأ: التكلفة الغارقة، والخوف من الندم، والمال السهل، والثقة المفرطة تخدع الأذكياء كما تخدع غيرهم.</li>
+        <li>اجمع أعلى رصيدٍ ممكن… وتعلّم كيف تبني أنظمةً تحميك من نفسك.</li>
+      </ul>
+      <button class="btn" onclick="startGame()">ابدأ الاختبار ▸</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="eyebrow" id="g-eyebrow"></div>
+    <h2 class="situation" id="g-situation"></h2>
+    <div id="g-choices"></div>
+  </section>
+
+  <section class="screen" id="feedback">
+    <div class="card">
+      <div class="verdict" id="f-verdict">
+        <div class="verdict-title" id="f-title"></div>
+        <p id="f-text"></p>
+      </div>
+      <div class="timeline">
+        <div class="t-row"><div class="t-when">أثرٌ فوري</div><div class="t-what" id="f-y1"></div></div>
+        <div class="t-row"><div class="t-when">على المدى البعيد</div><div class="t-what" id="f-y5"></div></div>
+      </div>
+      <div style="text-align:center"><span class="delta" id="f-delta"></span></div>
+      <button class="btn" id="f-next" onclick="nextScenario()">متابعة ←</button>
+    </div>
+  </section>
+
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow">اكتملت الجلسة</div></div>
+    <div class="card">
+      <div class="final-label">رصيد الحصانة السلوكية</div>
+      <div class="final-amount" id="r-amount">0</div>
+      <div class="final-label">نقطة &nbsp;·&nbsp; من أصل 114</div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <ul class="principles" id="r-principles"></ul>
+      <div class="quote">«المشكلة ليست في نقص ذكائك، بل في أن دماغك مصمَّمٌ ليخطئ بطرقٍ متوقّعة»<span>— غاري بلسكي وتوماس غيلوفيتش</span></div>
+      <button class="btn" onclick="restart()">أعد المحاولة 🔄</button>
+      <button class="btn ghost" onclick="restart()">اقرأ الملخص مرة أخرى 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const SCENARIOS = [
+  {
+    cure:"المبدأ · الذكاء لا يحصّن من الخطأ",
+    short:"الانحيازات ثابتة في كل التركيب المعرفي البشري",
+    situation:"أنت محللٌ مالي محترف وتشعر بثقةٍ تامة بأن خبرتك ومعرفتك النظرية العميقة تجعلانك محصّناً من الأخطاء السلوكية التي يقع فيها المستثمرون العاديون.",
+    choices:[
+      {t:"أتذكّر أن المحللين المحترفين يرتكبون أخطاء التكلفة الغارقة والثقة المفرطة بمعدلاتٍ مشابهة لغير المتخصصين، فأبني أنظمةً وعاداتٍ خارجية تحميني بصرف النظر عن ثقتي بذكائي", q:"best", d:20,
+       fb:"بلسكي وغيلوفيتش يوضحان أن هذه الانحيازات ثابتة في التركيب المعرفي البشري العام لا في نقص المعرفة، وقد يكون الأذكياء أكثر عرضةً للخطر لأن ثقتهم تجعلهم أقل حذراً.",
+       y1:"وعيٌ متجدّد بأن المعرفة النظرية وحدها غير كافية للحماية", y5:"أنظمةٌ خارجية تعمل بصرف النظر عن مدى ثقتك اللحظية بنفسك"},
+      {t:"أثق بأن قراءتي لكتابٍ واحد عن التمويل السلوكي كافية لحصانتي الكاملة من أي انحيازٍ مستقبلي، فلا أبني أي نظامٍ إضافي للحماية", q:"ok", d:5,
+       fb:"الكتاب يحذّر بالضبط من هذا الوهم: المعرفة النظرية خطوةٌ أولى ضرورية لكنها غير كافية وحدها؛ الحصانة الحقيقية تأتي من أنظمةٍ عملية ملموسة.",
+       y1:"شعورٌ زائفٌ بالحصانة الكاملة بعد القراءة فقط", y5:"تكرار الوقوع في الانحيازات نفسها عند أول لحظة ضغطٍ فعلية"},
+      {t:"أعتبر أن ثقتي العالية بقدرتي على التفكير بعقلانية دليلٌ كافٍ على أنني لا أحتاج أي مراجعةٍ خارجية لقراراتي المالية الكبرى", q:"bad", d:-8,
+       fb:"هذا تماماً ما يحذّر منه الكتاب: الثقة بالقدرة على «التفكير بعقلانية» هي ما يجعل الأذكياء أكثر عرضةً للخطر، لأنها تقلّل حذرهم من انحيازاتهم الخاصة.",
+       y1:"غيابٌ تام لأي آلية مراجعةٍ خارجية لقراراتك", y5:"تراكم أخطاءٍ سلوكية غير مكتشفة بسبب الثقة الزائدة بالذكاء"}
+    ]
+  },
+  {
+    cure:"المبدأ · التكلفة الغارقة في كل مكان",
+    short:"الماضي غير قابلٍ للاسترجاع — قيّم من الصفر",
+    situation:"تحتفظ بسهمٍ خاسر منذ سنتين بشدة، رغم أن كل التحليلات الحديثة تشير إلى أن المال سيكون أفضل حالاً في فرصةٍ أخرى. تشعر أنك لا يمكن أن تبيعه «بعد كل ما استثمرته فيه».",
+    choices:[
+      {t:"أسأل نفسي: لو بدأت اليوم من الصفر بلا أي تاريخٍ سابق مع هذا السهم، هل سأختار شراءه الآن؟ وأقرر بناءً على الجواب فقط بصرف النظر عن خسارتي السابقة", q:"best", d:20,
+       fb:"يوضح الكتاب أن ما أُنفق من مالٍ أو وقتٍ في الماضي غير قابلٍ للاسترجاع بصرف النظر عن القرار الحالي، فيجب تجاهله تماماً والتركيز فقط على القيمة المتوقعة للمستقبل.",
+       y1:"قرارٌ استثماريٌّ متحرّرٌ من قيد الماضي غير القابل للتغيير", y5:"تخصيصٌ أفضل لرأس المال في فرصٍ ذات قيمةٍ مستقبلية أعلى"},
+      {t:"أبيع نصف حصتي فقط في السهم الخاسر للتخفيف من الشعور بالخسارة، مع الاحتفاظ بالنصف الآخر «حتى يتعادل» في وقتٍ غير محدد", q:"ok", d:4,
+       fb:"هذا حلٌّ وسط لا يحل المشكلة الجوهرية: جزءٌ من قرارك ما زال محكوماً بمغالطة التكلفة الغارقة، فالاحتفاظ بأي حصةٍ «حتى التعادل» منطقٌ غير عقلاني بحسب الكتاب.",
+       y1:"تخفيفٌ جزئي للخسارة مع استمرار التحيّز للماضي", y5:"تكرار النمط نفسه في قراراتٍ استثمارية مستقبلية مشابهة"},
+      {t:"أستمر بالاحتفاظ بالسهم كاملاً وأشتري المزيد منه «لأنني استثمرتُ الكثير فيه فعلاً ولا يمكن أن أتخلى عنه الآن بعد كل هذه الخسارة»", q:"bad", d:-9,
+       fb:"هذا مثالٌ كلاسيكي لمغالطة التكلفة الغارقة يصفه الكتاب بدقة: زيادة الاستثمار في قرارٍ خاسر بسبب ما أُنفق سابقاً يزيد الخسارة المحتملة لا يقلّلها.",
+       y1:"مضاعفة الخسارة المحتملة في فرصةٍ ضعيفة الأداء بالفعل", y5:"تكرار النمط في كل قرارٍ مالي وشخصي ومهني مستقبلي"}
+    ]
+  },
+  {
+    cure:"المبدأ · الخوف من الندم",
+    short:"التقاعس قرارٌ له تكلفته أيضاً",
+    situation:"تؤجل اتخاذ قرار التأمين على حياتك منذ سنتين، رغم أنك تعلم أنه ضروري لأسرتك، لأنك تخشى الندم على اختيار بوليصةٍ غير مناسبة أكثر مما تخشى تكلفة التأجيل المستمر.",
+    choices:[
+      {t:"أقيّم خيار «عدم الفعل» بالمعيار نفسه الذي أقيّم به أي فعلٍ نشط، فأدرك أن التأجيل المستمر قرارٌ فعلي له تكلفته المتراكمة الخاصة، وأتخذ قراراً مدروساً الآن", q:"best", d:19,
+       fb:"يوضح الكتاب أن الخوف من الندم على فعلٍ خاطئ يبدو أكثر حدّة نفسياً من ندم التقاعس، رغم أن التقاعس نفسه قد يقود لنتيجةٍ أسوأ — ولا يوجد «حياد» حقيقي في إدارة المال.",
+       y1:"حمايةٌ فعلية لأسرتي بدل تأجيلٍ مستمر يبدو آمناً زائفاً", y5:"عادةٌ في اتخاذ القرارات الكبرى في وقتها لا بعد تراكم تكلفة التأجيل"},
+      {t:"أتخذ قراراً جزئياً بشراء بوليصةٍ بسيطة جداً بأقل تغطية ممكنة فقط لتخفيف شعور الذنب، دون دراسةٍ حقيقية لحاجة أسرتي الفعلية", q:"ok", d:4,
+       fb:"هذا قرارٌ يخفّف الشعور بالذنب دون حل المشكلة الجوهرية فعلياً، فالخوف من الندم على اختيارٍ «خاطئ» ما زال يحكم القرار بدل التقييم الموضوعي للحاجة.",
+       y1:"تغطيةٌ غير كافية لا تحل الاحتياج الفعلي للأسرة", y5:"احتمال الحاجة لمراجعة القرار وتكاليف إضافية مستقبلاً"},
+      {t:"أستمر في التأجيل لأن «عدم اتخاذ القرار أفضل من اتخاذ قرارٍ خاطئ قد أندم عليه»، وأترك الموضوع كما هو إلى أجلٍ غير محدد", q:"bad", d:-8,
+       fb:"هذا تماماً شلل القرار الذي يحذّر منه الكتاب: التأجيل يبدو «أماناً» مؤقتاً، وهو في الحقيقة قرارٌ بعدم الفعل له تكلفته الخاصة المتراكمة على أسرتك.",
+       y1:"استمرار التعرّض لمخاطر غير محمية لأسرتك", y5:"تراكم تكلفة التأجيل التي قد تتجاوز أي خطأٍ في اختيار بوليصة"}
+    ]
+  },
+  {
+    cure:"المبدأ · المال السهل ومعاملته بتساهل",
+    short:"عامل كل مكسبٍ مفاجئ بجدّية راتبك",
+    situation:"حصلت على استردادٍ ضريبي مفاجئ بمبلغٍ كبير. تشعر برغبةٍ فورية في إنفاقه على أشياء كمالية لم تكن في خططك، بطريقةٍ لا تتخيل نفسك تتصرف بها مع راتبك العادي.",
+    choices:[
+      {t:"أعامل هذا المكسب المفاجئ بالجدية نفسها التي أعامل بها راتبي، فأنتظر فترة تهدّؤ قبل أي قرار إنفاقٍ كبير وأضعه ضمن خطةٍ مدروسة مسبقاً", q:"best", d:20,
+       fb:"يستكشف الكتاب «تأثير المال السهل»: نتعامل مع المكاسب المفاجئة بتساهلٍ يتناقض مع حرصنا على الراتب المكتسب، رغم أن المال نفسه ذو القوة الشرائية نفسها بالضبط.",
+       y1:"استخدامٌ مدروس للمبلغ ضمن أهدافٍ مالية حقيقية", y5:"نموٌّ في ثروتك بدل تبذيرٍ سريع كما يحدث لكثيرٍ من فائزي اليانصيب"},
+      {t:"أنفق نصف المبلغ على أشياء كمالية فوراً «لأنه مال إضافي لم أكن أحتسبه»، وأدّخر النصف الآخر دون خطةٍ واضحة له", q:"ok", d:5,
+       fb:"هذا التصنيف الذهني — اعتبار المال «إضافياً» — هو بالضبط ما يحذّر منه الكتاب، حتى لو كان الإنفاق جزئياً فقط: المال السهل يأتي بلا سياق التعب فيُصنَّف في فئة أقل جدية.",
+       y1:"إنفاقٌ جزئي بدافع التصنيف الذهني لا الحاجة الفعلية", y5:"تكرار هذا النمط مع كل مكسبٍ مفاجئ مستقبلي مماثل"},
+      {t:"أنفق المبلغ كاملاً فوراً على رحلةٍ ومشترياتٍ فاخرة لأن «المال السهل يجب أن يُستمتَع به فوراً ولا قيمة لتأجيل المتعة»", q:"bad", d:-9,
+       fb:"هذا تماماً ما يحذّره الكتاب بأمثلة فائزي اليانصيب: المال «السهل» يُصنَّف ذهنياً في فئة منفصلة عن الميزانية الجادة، فنخاطر به وننفقه بسهولةٍ أكبر من المال المكتسب بالعمل.",
+       y1:"تبذيرٌ كامل لمكسبٍ كان يمكن أن يبني ثروةً حقيقية", y5:"فرصة ضائعة لتحسين وضعك المالي طويل الأمد"}
+    ]
+  },
+  {
+    cure:"المبدأ · الثقة المفرطة في الحكم المالي",
+    short:"سجلٌّ موضوعي يصحّح ما لا تصحّحه الذاكرة",
+    situation:"تشعر بثقةٍ عالية بأن أداء محفظتك الاستثمارية «فوق المتوسط» وأنك تتداول بمهارةٍ أعلى من أغلب المستثمرين، بناءً على تذكّرك لانتصاراتك المالية الواضحة في ذهنك.",
+    choices:[
+      {t:"أحتفظ بسجلٍّ موضوعي مكتوب لكل قراراتي المالية الكبرى وتواريخها ونتائجها الفعلية، وأراجعه دورياً بصدقٍ لأصحّح ما لا تستطيع الذاكرة الانتقائية تصحيحه", q:"best", d:20,
+       fb:"يكشف الكتاب أن معظم المستثمرين يقيّمون أداءهم أعلى من الواقع الإحصائي الفعلي، بسبب انحياز «الاسترجاع الانتقائي» الذي يغذّي ثقةً متزايدة لا تطابق الواقع.",
+       y1:"رؤيةٌ موضوعية دقيقة لأدائك الاستثماري الفعلي", y5:"قراراتٌ استثمارية مبنية على بياناتٍ حقيقية لا ذكرياتٍ منتقاة"},
+      {t:"أراجع أداء محفظتي بالاعتماد فقط على شعوري العام و«حدسي» حول كيف كانت الأمور تسير، دون أي سجلٍّ مكتوبٍ دقيق", q:"ok", d:5,
+       fb:"الاعتماد على الذاكرة وحدها هو بالضبط ما يحذّر منه الكتاب: نتذكّر الانتصارات المالية بوضوحٍ أكبر من الخسارات، فتتضخّم ثقتنا دون أي أساسٍ موضوعي حقيقي.",
+       y1:"تقييمٌ غير دقيق لأداءك الاستثماري الفعلي", y5:"احتمال زيادة المخاطرة بناءً على ثقةٍ غير مبررة بالبيانات"},
+      {t:"أزيد تركيز استثماراتي في أصلٍ واحد وأقلّل التنويع وأزيد التداول النشط، لأن ثقتي بمهاراتي الاستثمارية «فوق المتوسط بوضوح»", q:"bad", d:-9,
+       fb:"هذا الخطر العملي الذي يصفه الكتاب بالضبط: الثقة المفرطة تدفع لتركيز المخاطرة وتقليل التنويع وزيادة التداول النشط، الذي يُثبت إحصائياً أنه يقلّل العائد فعلياً.",
+       y1:"مخاطرةٌ متصاعدة غير مبرَّرة بأي بياناتٍ موضوعية", y5:"احتمال خسائر كبيرة ناتجة عن ثقةٍ زائفة بالمهارة الشخصية"}
+    ]
+  },
+  {
+    cure:"المبدأ · المقارنة الاجتماعية ولعبة الخاسرين",
+    short:"حدّد أهدافك الشخصية بمعزلٍ عن الآخرين",
+    situation:"تحقق تقدّماً حقيقياً نحو أهدافك المالية الشخصية هذا العام، لكنك تشعر بتعاسةٍ غريبة لأن جاراً يبدو أكثر ثراءً ظاهرياً، فتجد نفسك تقيس نجاحك بمقارنته به لا بمعيارك الخاص.",
+    choices:[
+      {t:"أحدّد أهدافي المالية بأرقامٍ ملموسة مستقلة تماماً عن أي مقارنة خارجية، وأتتبّع تقدّمي نحوها فقط، متذكّراً أن المقارنة الاجتماعية في المال لعبةٌ لا نهاية لها", q:"best", d:20,
+       fb:"يوضح الكتاب أن الرضا المالي يرتبط أكثر بمعدل التحسّن الشخصي وبالقرب من الأهداف الذاتية، أكثر من ارتباطه بالمستوى المطلق للثروة مقارنةً بالغير — فمهما ارتفع الثراء يوجد من يملك أكثر.",
+       y1:"رضا حقيقي عن تقدّمٍ فعلي نحو أهدافك الخاصة", y5:"مناعةٌ من دوامة المقارنة الاجتماعية التي لا يربحها أحد"},
+      {t:"أحاول زيادة إنفاقي على مظاهر يراها الجيران لأشعر بأنني «في مستواهم»، دون أي تغيّرٍ حقيقي في أهدافي المالية الفعلية أو تقدّمي نحوها", q:"ok", d:4,
+       fb:"هذا يقع تماماً في الفخ الذي يصفه الكتاب: قياس النجاح بمقارنته بالآخرين بدل الأهداف الشخصية الموضوعية يقودك إلى إنفاقٍ مظهري لا يخدم أهدافك الحقيقية.",
+       y1:"إنفاقٌ إضافي لا يخدم أي هدفٍ مالي شخصي حقيقي", y5:"استمرار الشعور بالتعاسة المالية رغم التقدّم الفعلي المستمر"},
+      {t:"أتخلى عن أهدافي المالية المدروسة سابقاً وأبدأ بمطاردة كل ما يملكه من أقارن نفسي بهم، مهما كانت أهدافي السابقة معقولة وقابلة للتحقيق", q:"bad", d:-9,
+       fb:"هذا أخطر ما يحذّر منه الكتاب: المقارنة الاجتماعية لعبةٌ بلا نهاية حقيقية، ومن يقيس نجاحه بهذا المعيار يبقى أبداً في حالة شعورٍ بالنقص بصرف النظر عن تقدّمه الفعلي.",
+       y1:"التخلي عن خطةٍ مالية معقولة لمطاردة معيارٍ متحرّك بلا نهاية", y5:"استثمارٌ مضمون في التعاسة المالية بصرف النظر عن أرقامك الفعلية"}
+    ]
+  }
+];
+
+const VERDICTS = {
+  best:{title:"🧩 حصانةٌ سلوكية — هكذا يفكّر بلسكي وغيلوفيتش", cls:"best"},
+  ok:{title:"⚖️ مقبول… لكن الانحياز لم يُكشَف كلياً", cls:"ok"},
+  bad:{title:"🌀 قرارٌ يكشف استسلامك لخطأٍ مالي منهجي شائع", cls:"bad"}
+};
+
+let idx = 0, wealth = 0, mastered = [];
+const $ = id => document.getElementById(id);
+
+function fmt(n){
+  const s = Math.abs(n).toLocaleString('en-US').replace(/,/g,'٬');
+  return (n<0?'−':'')+s;
+}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function renderDots(){
+  $('dots').innerHTML = SCENARIOS.map((_,i)=>`<div class="dot ${i<idx?'on':''} ${i===idx?'now':''}"></div>`).join('');
+}
+function renderWealth(animateFrom){
+  const el = $('wealth');
+  el.classList.toggle('neg', wealth<0);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(animateFrom===undefined || reduce){ el.innerHTML = fmt(wealth)+' <small>نقطة</small>'; return; }
+  const start = animateFrom, diff = wealth-start, dur = 900, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    el.innerHTML = fmt(Math.round(start+diff*e))+' <small>نقطة</small>';
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function startGame(){
+  idx = 0; wealth = 0; mastered = [];
+  $('ledger').style.display = 'block';
+  renderWealth(); renderDots(); renderScenario(); show('game');
+}
+function renderScenario(){
+  const s = SCENARIOS[idx];
+  $('g-eyebrow').textContent = `الموقف ${idx+1} من ${SCENARIOS.length} · ${s.cure}`;
+  $('g-situation').textContent = s.situation;
+  const letters = ['أ','ب','ج'];
+  $('g-choices').innerHTML = s.choices.map((c,i)=>
+    `<button class="choice" onclick="choose(${i})"><span class="badge">${letters[i]}</span><span>${c.t}</span></button>`).join('');
+  renderDots();
+}
+function choose(ci){
+  const s = SCENARIOS[idx], c = s.choices[ci];
+  const before = wealth;
+  wealth += c.d;
+  mastered.push(c.q === 'best');
+  const v = VERDICTS[c.q];
+  $('f-verdict').className = 'verdict '+v.cls;
+  $('f-title').textContent = v.title;
+  $('f-text').textContent = c.fb;
+  $('f-y1').textContent = c.y1;
+  $('f-y5').textContent = c.y5;
+  const dEl = $('f-delta');
+  dEl.className = 'delta '+(c.d>0?'up':c.d<0?'down':'flat');
+  dEl.textContent = (c.d>0?'📈 +':c.d<0?'📉 −':'🧩 ')+(c.d===0?'لا تغيير':Math.abs(c.d)+' نقطة');
+  $('f-next').textContent = (idx === SCENARIOS.length-1) ? 'اكشف نتيجتك النهائية 🧩' : 'الموقف التالي ←';
+  show('feedback');
+  renderWealth(before);
+}
+function nextScenario(){
+  idx++;
+  if(idx < SCENARIOS.length){ renderScenario(); show('game'); }
+  else showResults();
+}
+function rankOf(w){
+  if(w>=95) return {r:"🧩 تتقن الحصانة السلوكية المالية", n:"تطبّق حكمة بلسكي وغيلوفيتش بإتقان: تجاوز التكلفة الغارقة، وإدارة الخوف من الندم، والمال السهل، والثقة المفرطة. طبّقها على حياتك الحقيقية الآن."};
+  if(w>=60) return {r:"⚖️ وعيك بالأخطاء المالية المنهجية يتوسّع تدريجياً", n:"تمتلك معظم المبادئ. راجع ما أخطأت فيه أدناه ورسّخه."};
+  if(w>=25) return {r:"🧩 بدأتَ تفرّق بين الحكم السليم والانحياز الخفي", n:"وضعتَ أولى لبنات الفهم. أعد قراءة الفصول ثم عُد."};
+  return {r:"🌀 لا يزال الانحياز المالي يستحوذ على قراراتك", n:"لا بأس — الوعي أول خطوة. ابدأ بسؤالٍ واحد: «هل أبني هذا القرار على نظامٍ أم على ثقتي اللحظية؟»"};
+}
+function showResults(){
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"sm_decision"},"*");}catch(e){}/*WA_TRACK*/
+  $('ledger').style.display = 'none';
+  const rk = rankOf(wealth);
+  const amountEl = $('r-amount');
+  amountEl.classList.toggle('neg', wealth<0);
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n;
+  $('r-principles').innerHTML = SCENARIOS.map((s,i)=>
+    `<li><span class="p-mark ${mastered[i]?'yes':'no'}">${mastered[i]?'✓':'✗'}</span><span>${s.short}</span></li>`).join('');
+  show('results');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ amountEl.textContent = fmt(wealth); return; }
+  const dur = 1400, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    amountEl.textContent = fmt(Math.round(wealth*e));
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function restart(){ $('ledger').style.display = 'none'; show('intro'); }
+</script>
+</body>
+</html>
