@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>المحلل الصارم — لعبة القرارات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#1f3a52; --lapis-deep:#0a141c; --lapis-panel:#142838;
+    --gold:#d4b06a; --gold-bright:#e8c98a; --sand:#E8F0F3; --sand-dim:#A8BFC9;
+    --ember:#dd7a68; --reed:#5fb88a; --teal:#2a5468; --teal-deep:#142838; --teal-bright:#6ac0d4;
+    --shadow:0 12px 32px rgba(2,10,12,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:'Tajawal',sans-serif;background:radial-gradient(1200px 600px at 50% -10%, #1f3a52 0%, transparent 60%),linear-gradient(180deg, var(--lapis-night) 0%, #06100f 100%);color:var(--sand);min-height:100vh;line-height:1.7}
+  body::after{content:"";position:fixed;inset:auto 0 0 0;height:3px;z-index:5;background:linear-gradient(90deg, transparent 0, var(--teal) 30%, var(--gold-bright) 50%, var(--teal) 70%, transparent 100%);box-shadow:0 -4px 16px rgba(42,84,104,.35);opacity:.9}
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+  .ledger{position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:14px 18px 12px;background:linear-gradient(180deg, rgba(31,58,82,.97) 70%, rgba(31,58,82,.85));border-bottom:1px solid rgba(42,84,104,.45);backdrop-filter:blur(6px)}
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .ledger-label{font-size:.78rem;color:var(--sand-dim);font-weight:500}
+  .ledger-amount{font-family:'Cairo',sans-serif;font-weight:800;font-size:1.4rem;color:var(--gold-bright);letter-spacing:.3px;white-space:nowrap}
+  .ledger-amount small{font-size:.82rem;color:var(--sand-dim);font-family:'Tajawal',sans-serif;font-weight:500;margin-right:4px}
+  .ledger-amount.neg{color:var(--ember)}
+  .dots{display:flex;gap:6px;margin-top:8px;justify-content:center}
+  .dot{width:26px;height:4px;border-radius:99px;background:rgba(232,240,243,.16);transition:background .4s}
+  .dot.on{background:var(--teal)}
+  .dot.now{background:var(--teal-bright);box-shadow:0 0 8px rgba(106,192,212,.8)}
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;color:var(--teal-bright);border:1px solid rgba(42,84,104,.55);border-radius:99px;padding:4px 14px;margin-bottom:14px;letter-spacing:.3px;background:rgba(42,84,104,.1)}
+  h1{font-family:'Cairo',sans-serif;font-size:2.2rem;font-weight:900;line-height:1.3;color:var(--gold-bright);margin-bottom:6px}
+  h2.situation{font-family:'Tajawal',sans-serif;font-size:1.4rem;line-height:1.75;color:var(--sand);font-weight:700;margin-bottom:22px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+  .card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(42,84,104,.32);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow)}
+  .choice{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;background:rgba(10,20,28,.6);border:1px solid rgba(232,240,243,.16);border-radius:14px;padding:15px 16px;margin-bottom:12px;color:var(--sand);font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.65;cursor:pointer;transition:border-color .2s, background .2s, transform .15s}
+  .choice:hover,.choice:focus-visible{border-color:var(--teal);background:rgba(42,84,104,.12);transform:translateY(-1px)}
+  .choice:focus-visible{outline:2px solid var(--teal-bright);outline-offset:2px}
+  .badge{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(42,84,104,.18);border:1px solid rgba(42,84,104,.55);color:var(--teal-bright);font-weight:800;font-size:.95rem;margin-top:2px}
+  .verdict{border-radius:14px;padding:18px;margin-bottom:16px;border:1px solid}
+  .verdict.best{background:rgba(95,184,138,.14);border-color:rgba(95,184,138,.6)}
+  .verdict.ok{background:rgba(212,176,106,.12);border-color:rgba(212,176,106,.55)}
+  .verdict.bad{background:rgba(221,122,104,.14);border-color:rgba(221,122,104,.6)}
+  .verdict-title{font-family:'Cairo',sans-serif;font-size:1.22rem;font-weight:800;margin-bottom:8px}
+  .verdict.best .verdict-title{color:#8FE0B6}
+  .verdict.ok .verdict-title{color:var(--gold-bright)}
+  .verdict.bad .verdict-title{color:#F0987C}
+  .verdict p{font-size:.98rem}
+  .timeline{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+  .t-row{display:flex;gap:12px;align-items:flex-start;background:rgba(10,20,28,.55);border-radius:12px;padding:12px 14px;border:1px solid rgba(232,240,243,.12)}
+  .t-when{flex:0 0 auto;font-weight:800;color:var(--teal-bright);font-size:.85rem;border-left:1px solid rgba(42,84,104,.4);padding-left:12px;min-width:74px}
+  .t-what{font-size:.95rem;color:var(--sand)}
+  .delta{display:inline-flex;align-items:center;gap:8px;font-family:'Cairo',sans-serif;font-weight:800;font-size:1.3rem;border-radius:12px;padding:8px 16px;margin-bottom:18px}
+  .delta.up{background:rgba(95,184,138,.16);color:#8FE0B6;border:1px solid rgba(95,184,138,.5)}
+  .delta.down{background:rgba(221,122,104,.16);color:#F0987C;border:1px solid rgba(221,122,104,.5)}
+  .delta.flat{background:rgba(232,240,243,.08);color:var(--sand-dim);border:1px solid rgba(232,240,243,.22)}
+  .btn{display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;color:#1f3a52;background:linear-gradient(180deg,var(--teal-bright),var(--teal-deep));border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(20,40,56,.4)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(20,40,56,.5)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(212,176,106,.55);box-shadow:none;margin-top:10px}
+  .final-amount{font-family:'Cairo',sans-serif;font-size:3rem;font-weight:900;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
+  .final-amount.neg{color:var(--ember)}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{text-align:center;font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800;color:var(--sand);margin-bottom:6px}
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:22px}
+  .principles{list-style:none;margin-bottom:22px}
+  .principles li{display:flex;gap:10px;align-items:center;padding:10px 14px;margin-bottom:8px;background:rgba(10,20,28,.55);border-radius:12px;border:1px solid rgba(232,240,243,.12);font-size:.95rem}
+  .p-mark{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+  .p-mark.yes{background:rgba(95,184,138,.2);color:#8FE0B6;border:1px solid rgba(95,184,138,.6)}
+  .p-mark.no{background:rgba(221,122,104,.2);color:#F0987C;border:1px solid rgba(221,122,104,.6)}
+  .quote{font-family:'Cairo',sans-serif;font-size:1.16rem;font-weight:700;line-height:1.85;text-align:center;color:var(--gold-bright);border-top:1px solid rgba(212,176,106,.35);border-bottom:1px solid rgba(212,176,106,.35);padding:18px 6px;margin-bottom:22px}
+  .quote span{display:block;font-family:'Tajawal',sans-serif;font-size:.85rem;font-weight:500;color:var(--sand-dim);margin-top:8px}
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--teal);display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:radial-gradient(circle at 35% 30%, rgba(42,84,104,.3), rgba(212,176,106,.05));box-shadow:0 0 30px rgba(42,84,104,.3)}
+  .intro-list{margin:0 0 26px;padding:0;list-style:none}
+  .intro-list li{display:block;position:relative;padding-right:22px;color:var(--sand);font-size:.98rem;margin-bottom:10px}
+  .intro-list li::before{content:"◆";color:var(--teal);font-size:.7rem;position:absolute;right:0;top:.5em}
+  @media (max-width:420px){h1{font-size:1.85rem}h2.situation{font-size:1.25rem}.final-amount{font-size:2.4rem}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div>
+        <div class="ledger-label">رصيد الصرامة التحليلية</div>
+        <div class="ledger-amount" id="wealth">0 <small>نقطة</small></div>
+      </div>
+      <div style="font-size:1.6rem">📊</div>
+    </div>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <section class="screen active" id="intro">
+    <div class="intro-seal">📊</div>
+    <div style="text-align:center">
+      <div class="eyebrow">لعبة قرارات · كتاب «تحليل الأوراق المالية»</div>
+      <h1>كن المحلل الصارم</h1>
+      <p class="sub">غراهام ودود: استثمارٌ، مضاربةٌ، أم مقامرة؟ التحليل الشامل وحده يفرّق بينها.</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>ستواجه <b>6 مواقف</b> مبنية على منهجية غراهام ودود التحليلية.</li>
+        <li>كل قرارٍ يرفع أو يخفض <b>رصيد الصرامة التحليلية</b> لديك.</li>
+        <li>المبدأ: التمييز الثلاثي، القيمة الجوهرية كنطاقٍ لا رقم، وهامش الأمان.</li>
+        <li>اجمع أعلى رصيدٍ ممكن… وتعلّم كيف تحلّل كمحلّلٍ صارم لا كمضارب.</li>
+      </ul>
+      <button class="btn" onclick="startGame()">ابدأ الاختبار ▸</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="eyebrow" id="g-eyebrow"></div>
+    <h2 class="situation" id="g-situation"></h2>
+    <div id="g-choices"></div>
+  </section>
+
+  <section class="screen" id="feedback">
+    <div class="card">
+      <div class="verdict" id="f-verdict">
+        <div class="verdict-title" id="f-title"></div>
+        <p id="f-text"></p>
+      </div>
+      <div class="timeline">
+        <div class="t-row"><div class="t-when">أثرٌ فوري</div><div class="t-what" id="f-y1"></div></div>
+        <div class="t-row"><div class="t-when">على المدى البعيد</div><div class="t-what" id="f-y5"></div></div>
+      </div>
+      <div style="text-align:center"><span class="delta" id="f-delta"></span></div>
+      <button class="btn" id="f-next" onclick="nextScenario()">متابعة ←</button>
+    </div>
+  </section>
+
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow">اكتملت الجلسة</div></div>
+    <div class="card">
+      <div class="final-label">رصيد الصرامة التحليلية</div>
+      <div class="final-amount" id="r-amount">0</div>
+      <div class="final-label">نقطة &nbsp;·&nbsp; من أصل 114</div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <ul class="principles" id="r-principles"></ul>
+      <div class="quote">«قيمة الورقة المالية لا تُقاس بسعرها اليوم، بل بقدرة الشركة على توليد الأرباح غداً وبعد غدٍ ولسنين قادمة»<span>— بنجامين غراهام وديفيد دود</span></div>
+      <button class="btn" onclick="restart()">أعد المحاولة 🔄</button>
+      <button class="btn ghost" onclick="restart()">اقرأ الملخص مرة أخرى 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const SCENARIOS = [
+  {
+    cure:"المبدأ · التمييز الثلاثي",
+    short:"استثمارٌ يتطلّب تحليلاً شاملاً، لا حظاً ولا توصية",
+    situation:"سمعتَ من صديقٍ توصيةً بشراء سهمٍ معيّن لأن سعره «صاعدٌ بقوة» هذا الأسبوع. لم تقرأ تقريراً مالياً واحداً عن الشركة، لكنك تشعر بإلحاح ألا تفوّت الفرصة.",
+    choices:[
+      {t:"أتذكّر تعريف غراهام ودود الدقيق: الاستثمار يتطلّب تحليلاً شاملاً موثّقاً، فأؤجّل القرار وأفحص القوائم المالية عبر سنواتٍ متعددة قبل أي التزام", q:"best", d:20,
+       fb:"غراهام ودود يميّزان بدقة بين الاستثمار الذي يتطلّب تحليلاً شاملاً، والمضاربة التي تقبل مخاطرةً أعلى بتحليلٍ أقل، والمقامرة التي تعتمد على الحظ كلياً — شراؤك بناءً على توصيةٍ وسعرٍ صاعد فقط هو الفئة الثالثة بالضبط.",
+       y1:"قرارٌ مؤجَّلٌ حتى يكتمل التحليل الفعلي للشركة", y5:"عادة تحقّقٍ مستقلة تحميك من كل توصيةٍ غير موثَّقة مستقبلاً"},
+      {t:"أشتري كميةً صغيرة «لتجربة الأمر» معتبراً أن المخاطرة المحدودة تجعل غياب التحليل مقبولاً", q:"ok", d:5,
+       fb:"حتى المخاطرة الصغيرة دون تحليلٍ شاملٍ تبقى مضاربة بحسب التعريف الدقيق — الحجم لا يغيّر طبيعة القرار، فالمضاربة تبقى مضاربة وإن كانت صغيرة.",
+       y1:"شعورٌ زائفٌ بأنك «احتطتَ» بتقليل الحجم", y5:"تطبيع تكرار الشراء بلا تحليلٍ كلما بدا الحجم صغيراً"},
+      {t:"أشتري بكل ما أملك فوراً لأن السعر الصاعد «دليلٌ كافٍ» على أن السوق يعرف شيئاً لا أعرفه", q:"bad", d:-8,
+       fb:"هذا تماماً ما يسمّيه غراهام ودود مقامرة: الاعتماد الكامل على حركة السعر والشائعات دون أي تحليلٍ شخصي موثّق هو جوهر التعريف الثالث الذي يحذّران منه.",
+       y1:"تعرّضٌ كاملٌ لمخاطرةٍ غير محسوبة", y5:"تكرار نمط القرارات المقامِرة كلما ظهرت «فرصةٌ» مشابهة"}
+    ]
+  },
+  {
+    cure:"المبدأ · القيمة الجوهرية كنطاقٍ تقريبي",
+    short:"لا تبحث عن رقمٍ دقيق، بل عن نطاقٍ متحفظ",
+    situation:"تحاول تقدير القيمة الجوهرية لشركةٍ تفكّر بشرائها. بنيتَ نموذجاً معقّداً يعطيك رقماً واحداً دقيقاً حتى الدرهم، وتشعر بثقةٍ كاملة في دقّته.",
+    choices:[
+      {t:"أتذكّر تحذير غراهام ودود من وهم الدقة: أعيد تقديري كنطاقٍ تقريبي متحفظ يعتمد على تطبيع الأرباح عبر دورةٍ اقتصادية كاملة، لا رقمٍ واحدٍ زائف الدقة", q:"best", d:20,
+       fb:"يحذّر غراهام ودود بصراحةٍ من وهم الدقة المطلقة: القيمة الجوهرية ليست معادلةً تعطي رقماً واحداً نهائياً، بل نطاقٌ تقريبي معقول يمنحك هامش أمانٍ كافياً.",
+       y1:"تقديرٌ متحفظٌ يحميك من المبالغة في الثقة", y5:"قراراتٌ استثمارية مبنية على هامش أمانٍ حقيقي لا دقةٍ زائفة"},
+      {t:"أثق بالرقم الدقيق الذي توصّلت إليه وأبني قراري الشرائي كاملاً على هذا الرقم الواحد دون أي هامش تحفّظ", q:"ok", d:4,
+       fb:"غراهام ودود يحذّران بالضبط من هذا: من يبحث عن «الرقم الدقيق» يطلب ما لا يقدّمه العلم، والمحلل الحكيم يبحث عن نطاقٍ متحفظ لا يقيناً وهمياً.",
+       y1:"ثقةٌ زائدة في رقمٍ هش الأساس", y5:"خسائر محتملة عند انكشاف هشاشة الافتراضات الدقيقة الزائفة"},
+      {t:"أستخدم أرباح أفضل سنةٍ حقّقتها الشركة في تاريخها كأساسٍ لحساب القيمة الجوهرية لأنها «الأكثر تفاؤلاً وواقعية لمستقبل الشركة»", q:"bad", d:-9,
+       fb:"هذا عكس منهجية غراهام ودود تماماً: يجب تطبيع الأرباح عبر دورة اقتصادية كاملة لا الاعتماد على سنةٍ استثنائية واحدة، فهذا يضخّم القيمة المقدَّرة بشكلٍ خطير.",
+       y1:"قيمةٌ جوهرية مقدَّرة بتضخّمٍ خطير", y5:"دفع سعرٍ أعلى بكثير من القيمة الحقيقية للشركة"}
+    ]
+  },
+  {
+    cure:"المبدأ · تحليل السندات وهامش الأمان",
+    short:"اشكّ في العائد المرتفع المريح",
+    situation:"تجد سنداً يعرض عائداً مرتفعاً بشكلٍ لافت مقارنةً بسندات مشابهة في القطاع نفسه. الجهة المصدرة تبدو مستقرة في تقريرها السنوي الأخير، وتفكّر بشراء كمية كبيرة لأن العائد «فرصةٌ نادرة».",
+    choices:[
+      {t:"أتحقق من قدرة تغطية الفائدة عبر سنواتٍ متعددة لا سنةٍ واحدة، وأبحث عن سبب العائد المرتفع قبل أي شراء — فالعائد السخي غالباً تعويضٌ عن مخاطرةٍ حقيقية", q:"best", d:20,
+       fb:"غراهام ودود يحذّران بشدة من سندات «العائد المرتفع» التي تجذب بفائدتها السخية بينما تخفي ضعفاً جوهرياً — يجب فحص قدرة تغطية الفائدة عبر سنواتٍ متتالية لا سنةٍ واحدة قوية قد تكون استثنائية.",
+       y1:"قرارٌ مبنيٌّ على تحليل تغطية فائدةٍ حقيقي عبر الزمن", y5:"حمايةٌ من مفاجآت التعثّر التي تصيب سندات العائد المرتفع المموَّه"},
+      {t:"أشتري كميةً متوسطة بناءً على التقرير السنوي الأخير وحده، دون فحص سجل تغطية الفائدة عبر سنواتٍ سابقة متعددة", q:"ok", d:4,
+       fb:"تقريرٌ واحد لا يكفي بحسب منهجية غراهام ودود — يجب فحص الاستقرار عبر سنواتٍ متعددة، فالسنة الأخيرة القوية قد تكون استثناءً لا قاعدة.",
+       y1:"تحليلٌ سطحي ناقص لقدرة السداد الحقيقية", y5:"تعرّضٌ محتمل لمخاطرةٍ غير مكتشفة لاحقاً"},
+      {t:"أشتري بكل ما أملك من السند فوراً لأن العائد المرتفع «صفقة مجانية لا تتكرر»، دون أي فحصٍ لقدرة الشركة على السداد", q:"bad", d:-9,
+       fb:"هذا التحذير المحدد الذي يقدّمه غراهام ودود: العائد المرتفع تعويضٌ عن مخاطرةٍ حقيقية لا صفقة مجانية، ومحلل السندات الجيد يفترض الأسوأ المعقول لا الأفضل.",
+       y1:"تعرّضٌ كاملٌ لمخاطرة تعثّرٍ غير محسوبة", y5:"خسارةٌ محتملة لرأس المال إن تعثّرت الجهة المصدرة"}
+    ]
+  },
+  {
+    cure:"المبدأ · تصنيف الأسهم: استثمارية ضد مضاربية",
+    short:"اعرف حدود قدرتك التحليلية بصدق",
+    situation:"شركةٌ صغيرة جديدة في قطاعٍ ناشئٍ تتقلّب أسهمها بشدة، ولا تملك سجلاً طويلاً من الأرباح المستقرة. تفكّر بوضع جزءٍ كبيرٍ من مدخراتك فيها بمنطق «الاستثمار الآمن طويل الأمد».",
+    choices:[
+      {t:"أعترف بأن هذا النوع من الشركات يتطلّب تحليلاً أعمق وحذراً أكبر بحسب تصنيف غراهام ودود، وأقصر استثماري الكبير على الشركات الاستثمارية الراسخة ذات السجل المستقر", q:"best", d:20,
+       fb:"غراهام ودود يميّزان بدقة بين أسهم الشركات الاستثمارية الراسخة، وأسهم الشركات الأصغر التي تتطلّب تحليلاً أعمق — ويؤكدان أن أغلب المستثمرين يجب أن يقصروا اهتمامهم على الفئة الأولى.",
+       y1:"قرارٌ متّسقٌ مع حدود قدرتك التحليلية الفعلية", y5:"حمايةٌ من تقلّبات شركاتٍ تتجاوز قدرتك على تحليلها بعمق"},
+      {t:"أستثمر مبلغاً متوسطاً في الشركة معتمداً على «شعورٍ عام بالتفاؤل» تجاه القطاع الناشئ دون تحليلٍ عميق لأساسيات الشركة نفسها", q:"ok", d:4,
+       fb:"الشعور العام تجاه قطاعٍ بأكمله لا يعوّض التحليل الفردي العميق الذي يتطلّبه هذا النوع من الشركات بحسب غراهام ودود — كل شركةٍ تحتاج فحصها الخاص.",
+       y1:"استثمارٌ مبنيٌّ على تفاؤلٍ قطاعي عام لا تحليلٍ فردي", y5:"تعرّضٌ لمخاطرةٍ خاصة بالشركة لم تُكتشف لعدم التحليل الفردي"},
+      {t:"أضع جزءاً كبيراً من مدخراتي في هذه الشركة المضاربية بمنطق «الاستثمار الآمن طويل الأمد» لأنني أحب فكرة القطاع الناشئ", q:"bad", d:-9,
+       fb:"هذا الخلط الذي يحذّر منه غراهام ودود تحديداً: لا تنخدع بتسمية قرارك «استثماراً آمناً» فقط لأنك تستخدم الكلمة، بينما طبيعة الشركة الفعلية مضاربيةٌ بامتياز.",
+       y1:"تعرّضٌ كبيرٌ لتقلباتٍ تتجاوز ما يحتمله جزءٌ كبير من مدخراتك", y5:"خسارةٌ محتملة جوهرية إن تعثّرت الشركة الناشئة"}
+    ]
+  },
+  {
+    cure:"المبدأ · الحالات الخاصة",
+    short:"الذهب المُهمَل يكمن في التعقيد المنفِّر",
+    situation:"تجد شركةً تخضع لإجراءات تصفيةٍ معقّدة قانونياً، وتُباع أسهمها بأقل بكثير من قيمة أصولها الفعلية بسبب تشاؤم السوق من تعقيد الوضع القانوني. أغلب المستثمرين يتجنّبونها تماماً.",
+    choices:[
+      {t:"أدرس الإجراءات القانونية والمحاسبية للتصفية بعمقٍ، وأقدّر القيمة الفعلية المتوقَّعة للحاملين بعد اكتمال العملية قبل أي قرار، صابراً على التعقيد", q:"best", d:19,
+       fb:"غراهام ودود يوضحان أن «الحالات الخاصة» تتطلّب مهارةً تحليلية مختلفة — فهم إجراءات التصفية وتقدير القيمة الفعلية للحاملين — لكنها تقدّم فرصاً يتجنّبها أغلب المستثمرين بسبب تعقيدها الظاهري فقط.",
+       y1:"فرصةٌ مدروسةٌ بعمق في مكانٍ يتجنّبه أغلب المستثمرين", y5:"قيمةٌ حقيقية تتحقق حين يكتمل وضوح الإجراء القانوني للآخرين"},
+      {t:"أتجاهل الفرصة كلياً مثل أغلب المستثمرين لأن التعقيد القانوني «يبدو مخيفاً جداً» دون أي محاولة فهمٍ حقيقية", q:"ok", d:4,
+       fb:"هذا يفوّت تماماً الدرس المركزي للفصل: أكبر الفرص غالباً مدفونة في التعقيد الذي ينفر منه الآخرون، ومن يملك الصبر لدراسته يجد قيمةً حيث لا يبحث أحد.",
+       y1:"تفويتٌ لفرصةٍ كان يمكن دراستها بجهدٍ معقول", y5:"استمرار تجنّب فئة كاملة من الفرص المهملة بسبب تعقيدها الظاهري"},
+      {t:"أشتري كميةً كبيرة فوراً معتمداً فقط على «انخفاض السعر الظاهر» دون أي دراسةٍ فعلية لإجراءات التصفية القانونية أو القيمة المتوقَّعة الفعلية", q:"bad", d:-8,
+       fb:"السعر المنخفض وحده ليس كافياً بحسب غراهام ودود — يجب فهم الإجراءات القانونية والمحاسبية فعلياً لتقدير القيمة المتوقَّعة، وإلا فهذا مقامرةٌ بثوب «حالة خاصة».",
+       y1:"تعرّضٌ لمخاطرة قانونية غير مفهومة فعلياً", y5:"خسارةٌ محتملة إن كانت نتيجة التصفية أسوأ من المتوقَّع بلا تحليل"}
+    ]
+  },
+  {
+    cure:"المبدأ · ألاعيب المحاسبة وتضخيم الأرباح",
+    short:"عُد للتدفقات النقدية الفعلية دوماً",
+    situation:"تراجع تقرير شركةٍ فتجد أرباحها المعلَنة قد ارتفعت بشكلٍ لافت هذا العام، لكنك تلاحظ أن جزءاً كبيراً من هذا الارتفاع يأتي من بيع أصلٍ غير متكرر واحتياطاتٍ محاسبية معدَّلة حديثاً.",
+    choices:[
+      {t:"أعود للتدفقات النقدية الفعلية الموثَّقة وأقارنها بالأرباح المحاسبية المعلَنة، فالفجوة الكبيرة بينهما علامة خطرٍ تستدعي تحقيقاً أعمق لا تجاهلاً", q:"best", d:20,
+       fb:"غراهام ودود يُلزمان المحلل الجاد بالعودة دوماً إلى التدفقات النقدية الفعلية ومقارنتها بالأرباح المحاسبية — فالأرباح غير المتكررة والاحتياطات المعدَّلة من أكثر طرق تضخيم الأرباح المعلَنة دون تحسّنٍ تشغيلي حقيقي.",
+       y1:"كشفٌ دقيقٌ لمصدر الارتفاع المضلِّل في الأرباح المعلَنة", y5:"حمايةٌ من شراء شركةٍ بناءً على أرباحٍ مضخَّمة غير مستدامة"},
+      {t:"ألاحظ وجود البند غير المتكرر لكنني أقبل الرقم المعلَن كما هو لأن التقرير «مدقَّق رسمياً» ولا أبحث أعمق في مصدر الارتفاع", q:"ok", d:4,
+       fb:"التدقيق الرسمي لا يعني غياب التلاعب في توقيت الاحتياطات أو تصنيف الأرباح — غراهام ودود يحذّران تحديداً من هذا النوع من الثقة السطحية في الأرقام المعلَنة فقط.",
+       y1:"تقييمٌ مبنيٌّ على أرقامٍ معلَنة دون تفكيكها فعلياً", y5:"احتمال المفاجأة لاحقاً عند تصحيح السوق لتقييم الشركة الحقيقي"},
+      {t:"أعتبر الارتفاع في الأرباح المعلَنة دليلاً قاطعاً على تحسّنٍ تشغيلي حقيقي وأزيد استثماري في الشركة فوراً بناءً على هذا الرقم وحده", q:"bad", d:-9,
+       fb:"هذا تماماً ما حذّر منه غراهام ودود قبل عقودٍ من فضائح إنرون وغيرها: الفجوة بين الأرباح المحاسبية المعلَنة والتدفقات النقدية الفعلية علامة خطرٍ، لا إنجازٍ يستدعي زيادة الاستثمار.",
+       y1:"زيادة تعرّضٍ لشركةٍ أرباحها مضخَّمة محاسبياً", y5:"خسارةٌ محتملة جوهرية عند انكشاف حقيقة الأداء التشغيلي"}
+    ]
+  }
+];
+
+const VERDICTS = {
+  best:{title:"📊 صرامةٌ تحليلية تامة — هكذا يفكّر غراهام ودود", cls:"best"},
+  ok:{title:"⚖️ مقبول… لكن التحليل الشامل لم يكتمل كلياً", cls:"ok"},
+  bad:{title:"🌀 قرارٌ يكشف استسلامك للمضاربة أو المقامرة", cls:"bad"}
+};
+
+let idx = 0, wealth = 0, mastered = [];
+const $ = id => document.getElementById(id);
+
+function fmt(n){
+  const s = Math.abs(n).toLocaleString('en-US').replace(/,/g,'٬');
+  return (n<0?'−':'')+s;
+}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function renderDots(){
+  $('dots').innerHTML = SCENARIOS.map((_,i)=>`<div class="dot ${i<idx?'on':''} ${i===idx?'now':''}"></div>`).join('');
+}
+function renderWealth(animateFrom){
+  const el = $('wealth');
+  el.classList.toggle('neg', wealth<0);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(animateFrom===undefined || reduce){ el.innerHTML = fmt(wealth)+' <small>نقطة</small>'; return; }
+  const start = animateFrom, diff = wealth-start, dur = 900, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    el.innerHTML = fmt(Math.round(start+diff*e))+' <small>نقطة</small>';
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function startGame(){
+  idx = 0; wealth = 0; mastered = [];
+  $('ledger').style.display = 'block';
+  renderWealth(); renderDots(); renderScenario(); show('game');
+}
+function renderScenario(){
+  const s = SCENARIOS[idx];
+  $('g-eyebrow').textContent = `الموقف ${idx+1} من ${SCENARIOS.length} · ${s.cure}`;
+  $('g-situation').textContent = s.situation;
+  const letters = ['أ','ب','ج'];
+  $('g-choices').innerHTML = s.choices.map((c,i)=>
+    `<button class="choice" onclick="choose(${i})"><span class="badge">${letters[i]}</span><span>${c.t}</span></button>`).join('');
+  renderDots();
+}
+function choose(ci){
+  const s = SCENARIOS[idx], c = s.choices[ci];
+  const before = wealth;
+  wealth += c.d;
+  mastered.push(c.q === 'best');
+  const v = VERDICTS[c.q];
+  $('f-verdict').className = 'verdict '+v.cls;
+  $('f-title').textContent = v.title;
+  $('f-text').textContent = c.fb;
+  $('f-y1').textContent = c.y1;
+  $('f-y5').textContent = c.y5;
+  const dEl = $('f-delta');
+  dEl.className = 'delta '+(c.d>0?'up':c.d<0?'down':'flat');
+  dEl.textContent = (c.d>0?'📈 +':c.d<0?'📉 −':'⏳ ')+(c.d===0?'لا تغيير':Math.abs(c.d)+' نقطة');
+  $('f-next').textContent = (idx === SCENARIOS.length-1) ? 'اكشف نتيجتك النهائية 📊' : 'الموقف التالي ←';
+  show('feedback');
+  renderWealth(before);
+}
+function nextScenario(){
+  idx++;
+  if(idx < SCENARIOS.length){ renderScenario(); show('game'); }
+  else showResults();
+}
+function rankOf(w){
+  if(w>=95) return {r:"📊 تتقن تحليل الأوراق المالية بصرامةٍ أكاديمية", n:"تطبّق حكمة غراهام ودود بإتقان: التمييز الثلاثي، والقيمة الجوهرية كنطاق، وهامش الأمان. طبّقها على تحليلاتك الحقيقية الآن."};
+  if(w>=60) return {r:"⚖️ صرامتك التحليلية تتوسّع تدريجياً", n:"تمتلك معظم المبادئ. راجع ما أخطأت فيه أدناه ورسّخه."};
+  if(w>=25) return {r:"📊 بدأتَ تفرّق بين الاستثمار الصارم والمضاربة", n:"وضعتَ أولى لبنات الفهم. أعد قراءة الفصول ثم عُد."};
+  return {r:"🌀 لا يزال المنطق المضاربي يستحوذ على قراراتك", n:"لا بأس — الوعي أول خطوة. ابدأ بسؤالٍ واحد: «هل أجريتُ تحليلاً شاملاً موثّقاً قبل هذا القرار؟»"};
+}
+function showResults(){
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"sa_decision"},"*");}catch(e){}/*WA_TRACK*/
+  $('ledger').style.display = 'none';
+  const rk = rankOf(wealth);
+  const amountEl = $('r-amount');
+  amountEl.classList.toggle('neg', wealth<0);
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n;
+  $('r-principles').innerHTML = SCENARIOS.map((s,i)=>
+    `<li><span class="p-mark ${mastered[i]?'yes':'no'}">${mastered[i]?'✓':'✗'}</span><span>${s.short}</span></li>`).join('');
+  show('results');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ amountEl.textContent = fmt(wealth); return; }
+  const dur = 1400, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    amountEl.textContent = fmt(Math.round(wealth*e));
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function restart(){ $('ledger').style.display = 'none'; show('intro'); }
+</script>
+</body>
+</html>

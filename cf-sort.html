@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نموٌّ مستدامٌ أم ربحٌ عابر؟ — تحدي الـ60 ثانية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#3a5a2a; --lapis-deep:#131f0a; --lapis-panel:#263c1a;
+    --gold:#cdb35a; --gold-bright:#e3cf80; --sand:#EFF3E8; --sand-dim:#B7C2A8;
+    --ember:#d2784e; --reed:#6fbb6a; --teal:#4a7536; --teal-deep:#263c1a;
+    --shadow:0 12px 32px rgba(2,10,12,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Tajawal',sans-serif;background:radial-gradient(1200px 600px at 50% -10%, #3a5a2a 0%, transparent 60%),linear-gradient(180deg, var(--lapis-night) 0%, #0a1006 100%);color:var(--sand);min-height:100vh;line-height:1.7}
+  body::after{content:"";position:fixed;inset:auto 0 0 0;height:3px;z-index:5;background:linear-gradient(90deg, transparent 0, var(--teal) 30%, var(--gold-bright) 50%, var(--teal) 70%, transparent 100%);box-shadow:0 -4px 16px rgba(74,117,54,.35);opacity:.9}
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+  .ledger{position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:12px 18px;background:linear-gradient(180deg, rgba(58,90,42,.97) 70%, rgba(58,90,42,.85));border-bottom:1px solid rgba(74,117,54,.45);backdrop-filter:blur(6px)}
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .stat{text-align:center}
+  .stat-label{font-size:.7rem;color:var(--sand-dim);font-weight:500}
+  .stat-val{font-family:'Cairo',sans-serif;font-weight:800;font-size:1.3rem;color:var(--gold-bright)}
+  .timer-wrap{flex:1;max-width:200px}
+  .timer-bar{height:8px;border-radius:99px;background:rgba(239,243,232,.15);overflow:hidden}
+  .timer-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--teal),var(--gold));transition:width .25s linear}
+  .timer-fill.low{background:linear-gradient(90deg,#F0A57C,var(--ember))}
+  .timer-num{text-align:center;font-size:.78rem;color:var(--sand-dim);margin-top:3px;font-weight:700}
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;color:var(--teal);border:1px solid rgba(74,117,54,.55);border-radius:99px;padding:4px 14px;margin-bottom:14px;background:rgba(74,117,54,.1)}
+  h1{font-family:'Cairo',sans-serif;font-size:2.0rem;font-weight:900;line-height:1.3;color:var(--gold-bright);margin-bottom:6px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+  .card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(74,117,54,.32);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow)}
+  .statement-card{min-height:190px;display:flex;align-items:center;justify-content:center;text-align:center;background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(74,117,54,.4);border-radius:18px;padding:28px 22px;box-shadow:var(--shadow);margin-bottom:18px;position:relative;transition:border-color .15s, box-shadow .15s}
+  .statement-card.hit{border-color:var(--reed);box-shadow:0 0 0 3px rgba(111,187,106,.35), var(--shadow)}
+  .statement-card.miss{border-color:var(--ember);box-shadow:0 0 0 3px rgba(210,120,78,.35), var(--shadow)}
+  .statement{font-family:'Cairo',sans-serif;font-size:1.4rem;line-height:1.7;font-weight:700;color:var(--sand)}
+  .flash{position:absolute;top:10px;left:14px;font-size:1.5rem;opacity:0;transform:scale(.5);transition:opacity .15s, transform .15s}
+  .flash.show{opacity:1;transform:scale(1)}
+  .counter{position:absolute;top:12px;right:16px;font-size:.75rem;color:var(--sand-dim);font-weight:700}
+  .streak{position:absolute;bottom:10px;right:16px;font-size:.8rem;color:var(--gold-bright);font-weight:800;opacity:0;transition:opacity .2s}
+  .streak.show{opacity:1}
+  .sort-btns{display:flex;gap:12px}
+  .sort{flex:1;border-radius:16px;padding:18px 10px;cursor:pointer;text-align:center;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.02rem;line-height:1.5;transition:transform .12s, box-shadow .2s;border:1px solid}
+  .sort .ic{display:block;font-size:1.6rem;margin-bottom:4px}
+  .sort small{display:block;font-weight:500;font-size:.74rem;opacity:.85;margin-top:2px}
+  .sort.fat{background:rgba(111,187,106,.16);border-color:rgba(111,187,106,.65);color:#A7E69E}
+  .sort.hole{background:rgba(210,120,78,.16);border-color:rgba(210,120,78,.65);color:#F0A57C}
+  .sort:hover{transform:translateY(-2px)}
+  .sort:active{transform:scale(.97)}
+  .sort:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
+  .btn{display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;color:#1c2a12;background:linear-gradient(180deg,#8fd16a,var(--teal-deep));border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(19,31,10,.4)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(19,31,10,.5)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(205,179,90,.55);box-shadow:none;margin-top:10px}
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--teal);display:flex;align-items:center;justify-content:center;font-size:2.1rem;background:radial-gradient(circle at 35% 30%, rgba(74,117,54,.3), rgba(205,179,90,.05));box-shadow:0 0 30px rgba(74,117,54,.3)}
+  .intro-list{margin:0 0 26px;list-style:none}
+  .intro-list li{display:block;position:relative;padding-right:22px;color:var(--sand);font-size:.98rem;margin-bottom:10px}
+  .intro-list li::before{content:"◆";color:var(--teal);font-size:.7rem;position:absolute;right:0;top:.5em}
+  .final-amount{font-family:'Cairo',sans-serif;font-size:3rem;font-weight:900;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{text-align:center;font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800;color:var(--sand);margin-bottom:6px}
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:20px}
+  .kpis{display:flex;gap:10px;margin-bottom:22px}
+  .kpi{flex:1;text-align:center;background:rgba(10,16,6,.55);border:1px solid rgba(239,243,232,.16);border-radius:12px;padding:12px 8px}
+  .kpi b{display:block;font-family:'Cairo',sans-serif;font-size:1.4rem;color:var(--gold-bright)}
+  .kpi span{font-size:.75rem;color:var(--sand-dim)}
+  .review-title{font-family:'Cairo',sans-serif;font-size:1.22rem;font-weight:800;color:var(--gold-bright);margin-bottom:12px;text-align:center}
+  .review{list-style:none;margin-bottom:22px}
+  .review li{background:rgba(10,16,6,.55);border:1px solid rgba(239,243,232,.12);border-radius:12px;padding:12px 14px;margin-bottom:9px}
+  .review .head{display:flex;gap:10px;align-items:flex-start;font-size:.95rem;font-weight:700}
+  .r-mark{flex:0 0 auto;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;margin-top:2px}
+  .r-mark.yes{background:rgba(111,187,106,.2);color:#A7E69E;border:1px solid rgba(111,187,106,.6)}
+  .r-mark.no{background:rgba(210,120,78,.2);color:#F0A57C;border:1px solid rgba(210,120,78,.6)}
+  .r-mark.skip{background:rgba(239,243,232,.1);color:var(--sand-dim);border:1px solid rgba(239,243,232,.3)}
+  .review .lesson{font-size:.85rem;color:var(--sand-dim);margin-top:6px;padding-right:34px}
+  .review .lesson b{color:var(--teal)}
+  @media (max-width:420px){h1{font-size:1.6rem}.statement{font-size:1.22rem}.final-amount{font-size:2.4rem}.sort{font-size:.92rem}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div class="stat"><div class="stat-label">النقاط</div><div class="stat-val" id="s-score">0</div></div>
+      <div class="timer-wrap"><div class="timer-bar"><div class="timer-fill" id="t-fill" style="width:100%"></div></div><div class="timer-num" id="t-num">60 ثانية</div></div>
+      <div class="stat"><div class="stat-label">سلسلة 🔥</div><div class="stat-val" id="s-streak">0</div></div>
+    </div>
+  </div>
+
+  <section class="screen active" id="intro">
+    <div class="intro-seal">🔍</div>
+    <div style="text-align:center">
+      <div class="eyebrow">فرز سريع · كتاب «الأسهم العادية والأرباح غير العادية»</div>
+      <h1>نموٌّ مستدامٌ أم ربحٌ عابر؟</h1>
+      <p class="sub">أفكارٌ عن استثمار النمو تمرّ بسرعة… أيّها مبدأٌ يشرحه فيليب فيشر، وأيّها وهمٌ يخالف منطق الكتاب؟</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>أمامك <b>60 ثانية</b> و<b>16 فكرة</b> عن استثمار النمو الكيفي.</li>
+        <li>اضغط <b>🟢 مبدأ فيشر</b> أو <b>🔴 وهمٌ مخالف</b> — بسرعة!</li>
+        <li>القاعدة: الكلام الشفهي، الخمس عشرة نقطة، متى تبيع نادراً، والتنويع المحدود.</li>
+        <li>في النهاية: مراجعة كاملة بمنطق الكتاب وراء كل بطاقة.</li>
+      </ul>
+      <button class="btn" onclick="startGame()">ابدأ التحدي ⚡</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="statement-card" id="st-card">
+      <span class="counter" id="st-counter"></span>
+      <span class="flash" id="st-flash">✓</span>
+      <span class="streak" id="st-streak"></span>
+      <div class="statement" id="st-text"></div>
+    </div>
+    <div class="sort-btns">
+      <button class="sort fat" onclick="answer(true)"><span class="ic">🟢</span>مبدأ فيشر<small>منطقٌ يشرحه الكتاب</small></button>
+      <button class="sort hole" onclick="answer(false)"><span class="ic">🔴</span>وهمٌ مخالف<small>يناقض منطق الكتاب</small></button>
+    </div>
+  </section>
+
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow">انتهى التحدي</div></div>
+    <div class="card">
+      <div class="final-label">رصيدك النهائي</div>
+      <div class="final-amount" id="r-score">0</div>
+      <div class="final-label">نقطة</div>
+      <div class="kpis">
+        <div class="kpi"><b id="r-acc">0%</b><span>دقة التصنيف</span></div>
+        <div class="kpi"><b id="r-best">0</b><span>أطول سلسلة 🔥</span></div>
+        <div class="kpi"><b id="r-done">0/16</b><span>بطاقات صنّفتها</span></div>
+      </div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <div class="review-title">🔍 لوح المراجعة — منطق كل بطاقة</div>
+      <ul class="review" id="r-review"></ul>
+      <button class="btn" onclick="startGame()">أعد التحدي ⚡</button>
+      <button class="btn ghost" onclick="backToIntro()">عُد إلى الملخص 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* fat:true = مبدأٌ يشرحه فيشر، false = وهمٌ يخالف منطق الكتاب */
+const CARDS = [
+  {s:"القوائم المالية تخبرك بما حدث في الماضي، لكنها لا تخبرك بقدرة الشركة على النمو في المستقبل", fat:true,  l:"هذا الأساس الذي ينطلق منه فيشر: التحليل الكيفي يتجاوز الأرقام إلى جوهر العمل لفهم النمو المستقبلي."},
+  {s:"شركتان متطابقتان في كل المؤشرات المالية الحالية تملكان بالضرورة نفس فرص النمو المستقبلية تماماً", fat:false, l:"عكس ما يوضحه فيشر: شركتان متطابقتان مالياً قد تختلفان جذرياً في مستقبل منتجهما، فرقٌ لا تكشفه الأرقام الحالية."},
+  {s:"تقنية «الكلام الشفهي» تعني التحدث مع موظفي الشركة وعملائها ومنافسيها لجمع صورةٍ لا تظهر في أي تقريرٍ رسمي", fat:true,  l:"هذه تقنية فيشر الشهيرة (scuttlebutt) التي أصبحت جزءاً أساسياً من منهجية البحث الاستثماري الجاد."},
+  {s:"يكفي الاعتماد على مصدرٍ واحد موثوق — كموظفٍ تعرفه شخصياً — للحصول على صورةٍ كاملة ودقيقة عن الشركة", fat:false, l:"فيشر يحذّر تحديداً من الاعتماد على مصدرٍ واحد، ويوصي بجمع صورةٍ متكاملة من زوايا متعددة متقاطعة."},
+  {s:"الخمس عشرة نقطة تشمل أسئلةً عن نمو المبيعات، وفعالية البحث والتطوير، ونزاهة الإدارة مع المساهمين في الأوقات الصعبة", fat:true,  l:"هذه قائمة الفحص الشهيرة التي يقترحها فيشر كأسئلةٍ يجب طرحها قبل شراء أي سهم."},
+  {s:"شركةٌ تعاني توتراً عمالياً مزمناً بين الإدارة والعاملين لا تحمل أي خطرٍ خفي على قرار الاستثمار فيها", fat:false, l:"فيشر يضع جودة العلاقات الإدارية مع العاملين كأحد معايير الخمس عشرة نقطة، فالتوتر المزمن يحمل خطراً خفياً حقيقياً."},
+  {s:"السهم ارتفع كثيراً سببٌ كافٍ ومشروع للبيع بحسب فيشر، بصرف النظر عن استمرار قوة أساسيات الشركة", fat:false, l:"عكس ما يقوله فيشر تماماً: ارتفاع السعر ليس سبباً للبيع عنده، فالشركة الاستثنائية تستمر في النمو وسعرها المرتفع اليوم قد يبدو رخيصاً بعد عقد."},
+  {s:"الأسباب المشروعة الوحيدة للبيع بحسب فيشر هي خطأٌ في التحليل الأصلي، أو تغيّرٌ جوهري سلبي في الأساسيات، أو فرصةٌ أفضل واضحة", fat:true,  l:"هذه إجابة فيشر الثورية على سؤال «متى تبيع؟» — نادراً جداً، وفقط لهذه الأسباب المحددة الثلاثة."},
+  {s:"معرفة عميقة بعشرين شركة أو أقل قد تتفوّق غالباً على معرفة سطحية بمئات الأسهم المتفرقة", fat:true,  l:"هذا مبدأ «التنويع المحدود» الذي يقترحه فيشر، وأصبح أساس فلسفة الاستثمار المركَّز عند مونغر وبافيت لاحقاً."},
+  {s:"التنويع الواسع جداً في مئات الأسهم استراتيجيةٌ متفوّقة دوماً بذاتها بصرف النظر عن عمق البحث في كل شركة", fat:false, l:"فيشر يحذّر من أن التنويع المفرط قد يكون تعويضاً غير مُعلَن عن نقص البحث العميق لا استراتيجيةً متفوّقة بذاتها."},
+  {s:"الميزة التنافسية المستدامة تتضمن قدرة بحثٍ وتطويرٍ تتفوّق على المنافسين باستمرارٍ منهجي لا في منتجٍ واحدٍ ناجح فقط", fat:true,  l:"هذا وصف فيشر لما يجعل ميزة شركةٍ مستدامة لا عابرة، سابقاً لمصطلح «الخندق الاقتصادي» الشائع لاحقاً."},
+  {s:"أرباحٌ عاليةٌ مؤقتة بسبب منتجٍ واحد رائج أو دورةٍ اقتصادية مواتية دليلٌ كافٍ على ميزةٍ تنافسية مستدامة", fat:false, l:"فيشر يحذّر تحديداً من الانخداع بهذا النمط: الربح المؤقت ليس دليلاً على آليةٍ مستدامة لتكرار النجاح أو حمايته من المنافسين."},
+  {s:"تكاليف التبديل العالية للعملاء — أي صعوبة تحوّلهم لمنافسٍ آخر — تُعدّ جزءاً من الميزة التنافسية المستدامة للشركة", fat:true,  l:"هذا أحد عناصر الميزة المستدامة التي يصفها فيشر: علاقات عملاءٍ عميقة تجعل التبديل مكلفاً أو غير مريح."},
+  {s:"منهجية فيشر الكيفية تنافس منهجية غراهام الكمية وتجعلها غير ضرورية للمستثمر الجاد بعد ظهور فيشر", fat:false, l:"عكس خاتمة الكتاب: منهجية فيشر تكمّل لا تنافس منهجية غراهام، والمستثمر الناجح يجمع بينهما كما فعل بافيت."},
+  {s:"المستثمر الذي يجمع الصرامة الكمية لغراهام مع البصيرة الكيفية لفيشر يحصل على إطارٍ تحليلي أكثر اكتمالاً", fat:true,  l:"هذا الدرس الجامع لخاتمة الكتاب — تجنّب الدفع الزائد بصرامة غراهام، مع تمييز فرص النمو المستدام ببصيرة فيشر."},
+  {s:"شراء سهمٍ لمجرد أنه «رخيصٌ جداً» بمعايير غراهام التقليدية كافٍ دوماً دون أي فحصٍ لنموه الكيفي بحسب فيشر", fat:false, l:"فيشر يحذّر بشدة من هذا تحديداً: بعض الأسهم رخيصة لأنها تستحق ذلك، والمهارة في التمييز تتطلّب فحص النمو الكيفي أيضاً."}
+];
+
+const TIME = 60;
+let deck=[], i=0, score=0, correct=0, streak=0, best=0, timeLeft=TIME, timerId=null, answers=[], locked=false;
+const $ = id => document.getElementById(id);
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function shuffle(a){
+  const arr=[...a];
+  for(let k=arr.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[arr[k],arr[j]]=[arr[j],arr[k]];}
+  return arr;
+}
+function startGame(){
+  deck = shuffle(CARDS); i=0; score=0; correct=0; streak=0; best=0; timeLeft=TIME;
+  answers = deck.map(()=>null); locked=false;
+  $('ledger').style.display='block';
+  updateHud(); renderCard(); show('game');
+  clearInterval(timerId);
+  timerId = setInterval(()=>{ timeLeft--; updateTimer(); if(timeLeft<=0){ clearInterval(timerId); endGame(); } },1000);
+  updateTimer();
+}
+function updateTimer(){
+  const fill = $('t-fill');
+  fill.style.width = Math.max(timeLeft/TIME*100,0)+'%';
+  fill.classList.toggle('low', timeLeft<=10);
+  $('t-num').textContent = timeLeft+' ثانية';
+}
+function updateHud(){ $('s-score').textContent = score; $('s-streak').textContent = streak; }
+function renderCard(){
+  $('st-counter').textContent = `بطاقة ${i+1} / ${deck.length}`;
+  $('st-text').textContent = deck[i].s;
+  $('st-card').classList.remove('hit','miss');
+}
+function answer(saidWealth){
+  if(locked || i>=deck.length) return;
+  locked = true;
+  const c = deck[i];
+  const ok = (saidWealth === c.fat);
+  answers[i] = ok;
+  const card = $('st-card'), flash = $('st-flash'), stk = $('st-streak');
+  if(ok){
+    correct++; streak++; best=Math.max(best,streak);
+    score += 10 + (streak>=3 ? 5 : 0);
+    card.classList.add('hit'); flash.textContent='✓';
+    if(streak>=3){ stk.textContent='🔥 سلسلة ×'+streak; stk.classList.add('show'); }
+  }else{
+    streak=0; card.classList.add('miss'); flash.textContent='✗'; stk.classList.remove('show');
+  }
+  flash.classList.add('show');
+  updateHud();
+  setTimeout(()=>{
+    flash.classList.remove('show'); i++;
+    if(i>=deck.length){ clearInterval(timerId); endGame(); }
+    else { renderCard(); locked=false; }
+  }, 320);
+}
+function rankOf(c){
+  if(c>=14) return {r:"🔍 تميّز النمو المستدام من الربح العابر بدقّة", n:"تطبّق حكمة فيليب فيشر بإتقان — هذا جوهر منهج «الأسهم العادية والأرباح غير العادية»."};
+  if(c>=10) return {r:"⚖️ بحثك الكيفي يتطوّر", n:"أساسك جيد. راجع البطاقات التي أخطأت فيها أدناه وأعد التحدي."};
+  if(c>=6)  return {r:"⚠️ بعض الأوهام حول الربح المؤقت ما زالت تخدعك", n:"بعض الأنماط ما زالت تخدعك. لوح المراجعة سيعيد ضبط رؤيتك."};
+  return {r:"🌀 لا يزال الاعتماد على الأرقام السطحية يستحوذ على أغلب فهمك", n:"لا تقلق — الوعي أول خطوة. اقرأ لوح المراجعة ثم عُد للتحدي."};
+}
+function endGame(){
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"cf_sort"},"*");}catch(e){}/*WA_TRACK*/
+  $('ledger').style.display='none';
+  const done = answers.filter(a=>a!==null).length;
+  const acc = done? Math.round(correct/done*100) : 0;
+  const rk = rankOf(correct);
+  $('r-score').textContent = score;
+  $('r-acc').textContent = acc+'%';
+  $('r-best').textContent = best;
+  $('r-done').textContent = done+'/'+deck.length;
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n;
+  $('r-review').innerHTML = deck.map((c,k)=>{
+    const a = answers[k];
+    const mark = a===null ? `<span class="r-mark skip">·</span>` : a ? `<span class="r-mark yes">✓</span>` : `<span class="r-mark no">✗</span>`;
+    const tag = c.fat ? '🟢 مبدأ فيشر' : '🔴 وهمٌ مخالف';
+    return `<li><div class="head">${mark}<span>${c.s}</span></div><div class="lesson"><b>${tag}</b> — ${c.l}</div></li>`;
+  }).join('');
+  show('results');
+}
+function backToIntro(){ clearInterval(timerId); $('ledger').style.display='none'; show('intro'); }
+</script>
+</body>
+</html>

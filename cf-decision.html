@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الكلام الشفهي — لعبة القرارات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --lapis-night:#3a5a2a; --lapis-deep:#131f0a; --lapis-panel:#263c1a;
+    --gold:#cdb35a; --gold-bright:#e3cf80; --sand:#EFF3E8; --sand-dim:#B7C2A8;
+    --ember:#d2784e; --reed:#6fbb6a; --teal:#4a7536; --teal-deep:#263c1a; --teal-bright:#8fd16a;
+    --shadow:0 12px 32px rgba(2,10,12,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:'Tajawal',sans-serif;background:radial-gradient(1200px 600px at 50% -10%, #3a5a2a 0%, transparent 60%),linear-gradient(180deg, var(--lapis-night) 0%, #0a1006 100%);color:var(--sand);min-height:100vh;line-height:1.7}
+  body::after{content:"";position:fixed;inset:auto 0 0 0;height:3px;z-index:5;background:linear-gradient(90deg, transparent 0, var(--teal) 30%, var(--gold-bright) 50%, var(--teal) 70%, transparent 100%);box-shadow:0 -4px 16px rgba(74,117,54,.35);opacity:.9}
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 64px}
+  .ledger{position:sticky;top:0;z-index:10;margin:0 -18px 18px;padding:14px 18px 12px;background:linear-gradient(180deg, rgba(58,90,42,.97) 70%, rgba(58,90,42,.85));border-bottom:1px solid rgba(74,117,54,.45);backdrop-filter:blur(6px)}
+  .ledger-inner{max-width:524px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .ledger-label{font-size:.78rem;color:var(--sand-dim);font-weight:500}
+  .ledger-amount{font-family:'Cairo',sans-serif;font-weight:800;font-size:1.4rem;color:var(--gold-bright);letter-spacing:.3px;white-space:nowrap}
+  .ledger-amount small{font-size:.82rem;color:var(--sand-dim);font-family:'Tajawal',sans-serif;font-weight:500;margin-right:4px}
+  .ledger-amount.neg{color:var(--ember)}
+  .dots{display:flex;gap:6px;margin-top:8px;justify-content:center}
+  .dot{width:26px;height:4px;border-radius:99px;background:rgba(239,243,232,.16);transition:background .4s}
+  .dot.on{background:var(--teal)}
+  .dot.now{background:var(--teal-bright);box-shadow:0 0 8px rgba(143,209,106,.8)}
+  .screen{display:none;animation:fadeUp .45s ease both}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;color:var(--teal-bright);border:1px solid rgba(74,117,54,.55);border-radius:99px;padding:4px 14px;margin-bottom:14px;letter-spacing:.3px;background:rgba(74,117,54,.1)}
+  h1{font-family:'Cairo',sans-serif;font-size:2.2rem;font-weight:900;line-height:1.3;color:var(--gold-bright);margin-bottom:6px}
+  h2.situation{font-family:'Tajawal',sans-serif;font-size:1.4rem;line-height:1.75;color:var(--sand);font-weight:700;margin-bottom:22px}
+  .sub{color:var(--sand-dim);font-size:1.02rem;margin-bottom:26px}
+  .card{background:linear-gradient(180deg, var(--lapis-panel), var(--lapis-deep));border:1px solid rgba(74,117,54,.32);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow)}
+  .choice{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:right;background:rgba(10,16,6,.6);border:1px solid rgba(239,243,232,.16);border-radius:14px;padding:15px 16px;margin-bottom:12px;color:var(--sand);font-family:'Tajawal',sans-serif;font-size:1rem;line-height:1.65;cursor:pointer;transition:border-color .2s, background .2s, transform .15s}
+  .choice:hover,.choice:focus-visible{border-color:var(--teal);background:rgba(74,117,54,.12);transform:translateY(-1px)}
+  .choice:focus-visible{outline:2px solid var(--teal-bright);outline-offset:2px}
+  .badge{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(74,117,54,.18);border:1px solid rgba(74,117,54,.55);color:var(--teal-bright);font-weight:800;font-size:.95rem;margin-top:2px}
+  .verdict{border-radius:14px;padding:18px;margin-bottom:16px;border:1px solid}
+  .verdict.best{background:rgba(111,187,106,.14);border-color:rgba(111,187,106,.6)}
+  .verdict.ok{background:rgba(205,179,90,.12);border-color:rgba(205,179,90,.55)}
+  .verdict.bad{background:rgba(210,120,78,.14);border-color:rgba(210,120,78,.6)}
+  .verdict-title{font-family:'Cairo',sans-serif;font-size:1.22rem;font-weight:800;margin-bottom:8px}
+  .verdict.best .verdict-title{color:#A7E69E}
+  .verdict.ok .verdict-title{color:var(--gold-bright)}
+  .verdict.bad .verdict-title{color:#F0A57C}
+  .verdict p{font-size:.98rem}
+  .timeline{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+  .t-row{display:flex;gap:12px;align-items:flex-start;background:rgba(10,16,6,.55);border-radius:12px;padding:12px 14px;border:1px solid rgba(239,243,232,.12)}
+  .t-when{flex:0 0 auto;font-weight:800;color:var(--teal-bright);font-size:.85rem;border-left:1px solid rgba(74,117,54,.4);padding-left:12px;min-width:74px}
+  .t-what{font-size:.95rem;color:var(--sand)}
+  .delta{display:inline-flex;align-items:center;gap:8px;font-family:'Cairo',sans-serif;font-weight:800;font-size:1.3rem;border-radius:12px;padding:8px 16px;margin-bottom:18px}
+  .delta.up{background:rgba(111,187,106,.16);color:#A7E69E;border:1px solid rgba(111,187,106,.5)}
+  .delta.down{background:rgba(210,120,78,.16);color:#F0A57C;border:1px solid rgba(210,120,78,.5)}
+  .delta.flat{background:rgba(239,243,232,.08);color:var(--sand-dim);border:1px solid rgba(239,243,232,.22)}
+  .btn{display:block;width:100%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:1.1rem;color:#1c2a12;background:linear-gradient(180deg,var(--teal-bright),var(--teal-deep));border-radius:14px;padding:15px;transition:transform .15s, box-shadow .2s;box-shadow:0 6px 18px rgba(19,31,10,.4)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(19,31,10,.5)}
+  .btn:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--gold-bright);border:1px solid rgba(205,179,90,.55);box-shadow:none;margin-top:10px}
+  .final-amount{font-family:'Cairo',sans-serif;font-size:3rem;font-weight:900;color:var(--gold-bright);text-align:center;line-height:1.3;margin:6px 0 2px}
+  .final-amount.neg{color:var(--ember)}
+  .final-label{text-align:center;color:var(--sand-dim);font-size:.9rem;margin-bottom:14px}
+  .rank{text-align:center;font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800;color:var(--sand);margin-bottom:6px}
+  .rank-note{text-align:center;color:var(--sand-dim);font-size:.98rem;margin-bottom:22px}
+  .principles{list-style:none;margin-bottom:22px}
+  .principles li{display:flex;gap:10px;align-items:center;padding:10px 14px;margin-bottom:8px;background:rgba(10,16,6,.55);border-radius:12px;border:1px solid rgba(239,243,232,.12);font-size:.95rem}
+  .p-mark{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+  .p-mark.yes{background:rgba(111,187,106,.2);color:#A7E69E;border:1px solid rgba(111,187,106,.6)}
+  .p-mark.no{background:rgba(210,120,78,.2);color:#F0A57C;border:1px solid rgba(210,120,78,.6)}
+  .quote{font-family:'Cairo',sans-serif;font-size:1.16rem;font-weight:700;line-height:1.85;text-align:center;color:var(--gold-bright);border-top:1px solid rgba(205,179,90,.35);border-bottom:1px solid rgba(205,179,90,.35);padding:18px 6px;margin-bottom:22px}
+  .quote span{display:block;font-family:'Tajawal',sans-serif;font-size:.85rem;font-weight:500;color:var(--sand-dim);margin-top:8px}
+  .intro-seal{width:84px;height:84px;margin:26px auto 18px;border-radius:50%;border:2px solid var(--teal);display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:radial-gradient(circle at 35% 30%, rgba(74,117,54,.3), rgba(205,179,90,.05));box-shadow:0 0 30px rgba(74,117,54,.3)}
+  .intro-list{margin:0 0 26px;padding:0;list-style:none}
+  .intro-list li{display:block;position:relative;padding-right:22px;color:var(--sand);font-size:.98rem;margin-bottom:10px}
+  .intro-list li::before{content:"◆";color:var(--teal);font-size:.7rem;position:absolute;right:0;top:.5em}
+  @media (max-width:420px){h1{font-size:1.85rem}h2.situation{font-size:1.25rem}.final-amount{font-size:2.4rem}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger" id="ledger" style="display:none">
+    <div class="ledger-inner">
+      <div>
+        <div class="ledger-label">رصيد البحث الكيفي</div>
+        <div class="ledger-amount" id="wealth">0 <small>نقطة</small></div>
+      </div>
+      <div style="font-size:1.6rem">🔍</div>
+    </div>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <section class="screen active" id="intro">
+    <div class="intro-seal">🔍</div>
+    <div style="text-align:center">
+      <div class="eyebrow">لعبة قرارات · كتاب «الأسهم العادية والأرباح غير العادية»</div>
+      <h1>ابحث كما يبحث فيشر</h1>
+      <p class="sub">فيليب فيشر: الأرقام تخبرك بالماضي، لكن «الكلام الشفهي» وحده يكشف مستقبل الشركة الحقيقي.</p>
+    </div>
+    <div class="card">
+      <ul class="intro-list">
+        <li>ستواجه <b>6 مواقف</b> مبنية على منهجية فيشر الكيفية.</li>
+        <li>كل قرارٍ يرفع أو يخفض <b>رصيد البحث الكيفي</b> لديك.</li>
+        <li>المبدأ: الخمس عشرة نقطة، الكلام الشفهي، متى تبيع نادراً، والتنويع المحدود.</li>
+        <li>اجمع أعلى رصيدٍ ممكن… وتعلّم كيف تبحث عن النمو المستدام لا الأرقام السطحية فقط.</li>
+      </ul>
+      <button class="btn" onclick="startGame()">ابدأ الاختبار ▸</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="eyebrow" id="g-eyebrow"></div>
+    <h2 class="situation" id="g-situation"></h2>
+    <div id="g-choices"></div>
+  </section>
+
+  <section class="screen" id="feedback">
+    <div class="card">
+      <div class="verdict" id="f-verdict">
+        <div class="verdict-title" id="f-title"></div>
+        <p id="f-text"></p>
+      </div>
+      <div class="timeline">
+        <div class="t-row"><div class="t-when">أثرٌ فوري</div><div class="t-what" id="f-y1"></div></div>
+        <div class="t-row"><div class="t-when">على المدى البعيد</div><div class="t-what" id="f-y5"></div></div>
+      </div>
+      <div style="text-align:center"><span class="delta" id="f-delta"></span></div>
+      <button class="btn" id="f-next" onclick="nextScenario()">متابعة ←</button>
+    </div>
+  </section>
+
+  <section class="screen" id="results">
+    <div style="text-align:center"><div class="eyebrow">اكتملت الجلسة</div></div>
+    <div class="card">
+      <div class="final-label">رصيد البحث الكيفي</div>
+      <div class="final-amount" id="r-amount">0</div>
+      <div class="final-label">نقطة &nbsp;·&nbsp; من أصل 114</div>
+      <div class="rank" id="r-rank"></div>
+      <p class="rank-note" id="r-note"></p>
+      <ul class="principles" id="r-principles"></ul>
+      <div class="quote">«إن فعلت عملك الاستثماري بشكلٍ صحيح حين تشتري سهماً، فإن وقت بيعه هو تقريباً... أبداً»<span>— فيليب فيشر</span></div>
+      <button class="btn" onclick="restart()">أعد المحاولة 🔄</button>
+      <button class="btn ghost" onclick="restart()">اقرأ الملخص مرة أخرى 📖</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const SCENARIOS = [
+  {
+    cure:"المبدأ · التحليل الكيفي",
+    short:"الأرقام تخبرك بالماضي لا بقدرة النمو المستقبلية",
+    situation:"تجد شركتين متطابقتين تماماً في كل المؤشرات المالية الحالية: نفس الإيرادات، نفس هامش الربح، نفس نسب الديون. تفكّر بأن التحليل المالي وحده كافٍ لاختيار إحداهما.",
+    choices:[
+      {t:"أتذكّر أن فيشر يحذّر من أن القوائم المالية تخبرني بما حدث في الماضي لا بقدرة النمو المستقبلية، فأبحث في طبيعة منتج كل شركة وسوقها ومنافسيها قبل أي قرار", q:"best", d:20,
+       fb:"فيشر يوضح أن شركتين قد تتطابقان في كل المؤشرات المالية الحالية بينما تملك واحدةً منتجاً يتلاشى تدريجياً وأخرى منتجاً ينمو بقوة — فرقٌ لا تكشفه القوائم المالية بل البحث الكيفي في طبيعة المنتج والسوق.",
+       y1:"قرارٌ مبنيٌّ على فهمٍ حقيقي لمستقبل كل شركة لا تطابقها المالي الحالي", y5:"اختيار الشركة ذات النمو المستدام الفعلي بدل التعادل الظاهري"},
+      {t:"أختار الشركة ذات السعر الأرخص نسبياً بين الاثنتين معتمداً فقط على المؤشرات المالية الحالية المتطابقة دون أي بحثٍ إضافي", q:"ok", d:5,
+       fb:"التحليل المالي الصرف ضروري لكنه غير كافٍ بحسب فيشر — يجب بذل جهدٍ بحثي يتجاوز الأرقام إلى فهم العمل من الداخل قبل أي مفاضلة.",
+       y1:"قرارٌ سريعٌ مبنيٌّ على معيارٍ سطحي واحد", y5:"احتمال اختيار الشركة الأضعف نمواً رغم تطابق أرقامها الحالية"},
+      {t:"أقلب عملة معدنية لاختيار إحدى الشركتين لأن «الأرقام متطابقة تماماً فلا فرق فعلي بينهما»", q:"bad", d:-8,
+       fb:"هذا تجاهلٌ كامل لجوهر منهجية فيشر: التطابق المالي الظاهري لا يعني تطابق المستقبل، والفرق الحقيقي يكمن في جوانب كيفية لا تظهر في الأرقام الحالية إطلاقاً.",
+       y1:"قرارٌ عشوائيٌّ كاملٌ بلا أي تحليل", y5:"خسارةٌ محتملة كبيرة إن كانت الشركة المختارة عشوائياً الأضعف نمواً"}
+    ]
+  },
+  {
+    cure:"المبدأ · الكلام الشفهي",
+    short:"تحدّث مع موظفين وعملاء ومنافسين، لا تقرأ التقرير فقط",
+    situation:"تفكّر بالاستثمار في شركةٍ تصنيعية. التقرير السنوي يبدو ممتازاً على الورق، وتشعر بأنك جاهز لاتخاذ القرار فوراً دون أي خطوةٍ إضافية.",
+    choices:[
+      {t:"أطبّق تقنية فيشر «الكلام الشفهي»: أتحدّث مع موظفين سابقين وحاليين وعملاء ومنافسين لجمع صورةٍ متكاملة لا تظهر في أي تقريرٍ رسمي قبل القرار النهائي", q:"best", d:20,
+       fb:"فيشر يوضح أن كل مجموعةٍ تملك معلوماتٍ لا تظهر في أي تقريرٍ مالي: الموظفون يعرفون الروح الداخلية الحقيقية، والعملاء يعرفون جودة المنتج الفعلية، والمنافسون يعرفون نقاط ضعفٍ لا تعترف بها الشركة بنفسها.",
+       y1:"فهمٌ عميقٌ للشركة من الداخل يتجاوز التقرير الرسمي", y5:"قراراتٌ استثمارية مبنية على معرفةٍ حقيقية لا واجهةٍ تسويقية فقط"},
+      {t:"أتحدّث مع موظفٍ واحدٍ فقط أعرفه شخصياً في الشركة وأعتبر رأيه كافياً لتمثيل الصورة الكاملة دون أي مصدرٍ آخر", q:"ok", d:4,
+       fb:"فيشر يحذّر تحديداً من الاعتماد على مصدرٍ واحد فقط — يجب جمع صورةٍ متكاملة من زوايا متعددة متقاطعة: موظفون، عملاء، منافسون، موردّون.",
+       y1:"معلوماتٌ جزئية قد تكون منحازة لمصدرٍ واحد", y5:"احتمال تكوين صورةٍ غير دقيقة عن الشركة بسبب ضيق المصادر"},
+      {t:"أعتبر أن التقرير السنوي الرسمي كافٍ تماماً، وأن البحث الميداني الإضافي «مضيعةٌ للوقت» لا قيمة حقيقية له", q:"bad", d:-9,
+       fb:"هذا تجاهلٌ مباشر لما يعتبره فيشر جوهر منهجيته البحثية: التقرير الرسمي لا يكشف الروح الداخلية للإدارة أو جودة المنتج الفعلية كما يراها العملاء والمنافسون.",
+       y1:"قرارٌ مبنيٌّ على واجهةٍ رسمية فقط دون فهمٍ حقيقي للعمل", y5:"تعرّضٌ لمفاجآت لم تكشفها الوثائق الرسمية وحدها"}
+    ]
+  },
+  {
+    cure:"المبدأ · متى تبيع: نادراً جداً",
+    short:"ارتفاع السعر ليس سبباً للبيع عند فيشر",
+    situation:"سهمٌ تملكه منذ سنواتٍ ارتفع بشكلٍ كبير وتجاوز هدفك السعري الأصلي بكثير. الشركة لا تزال قوية الأساسيات وتنمو بثبات، لكنك تفكّر بالبيع لأن «السعر ارتفع كثيراً».",
+    choices:[
+      {t:"أتذكّر مبدأ فيشر: السعر المرتفع ليس سبباً مشروعاً للبيع — إن كانت الشركة استثنائية حقاً، فاستمرارها في النمو يعني أن سعرها اليوم قد يبدو رخيصاً بعد عقد، فأحتفظ بها", q:"best", d:20,
+       fb:"فيشر يحدّد ثلاثة أسباب مشروعة فقط للبيع: خطأٌ في التحليل الأصلي، تغيّرٌ جوهري سلبي في الأساسيات، أو فرصةٌ أفضل واضحة — أما «ارتفع السعر كثيراً» فليس سبباً عنده إطلاقاً.",
+       y1:"احتفاظٌ بشركةٍ استثنائية تستمر في تركيب أرباحها", y5:"استفادةٌ من التراكم المركَّب طويل الأمد كما فعل بافيت لاحقاً"},
+      {t:"أبيع نصف مركزي فقط «لتأمين بعض الأرباح» مع الاحتفاظ بالنصف الآخر، رغم عدم وجود أي تغيّرٍ جوهري سلبي في أساسيات الشركة", q:"ok", d:4,
+       fb:"هذا حلٌّ وسط ينبع من قلقٍ غير مبرر بحسب فيشر — إن لم تتغيّر أساسيات الشركة سلباً ولم تجد فرصةً أفضل واضحة، فالبيع الجزئي يقطع جزءاً من التراكم المركَّب المستقبلي بلا سببٍ مشروع.",
+       y1:"تأمينٌ جزئي للأرباح يقلّل التعرّض للنمو المستقبلي أيضاً", y5:"فرصةٌ ضائعة جزئياً من استمرار نمو الشركة الاستثنائية"},
+      {t:"أبيع المركز بالكامل فوراً لأن «السهم ارتفع كثيراً ولا بد أنه سيصحَّح قريباً»، رغم استمرار قوة أساسيات الشركة ونموها", q:"bad", d:-9,
+       fb:"هذا تماماً الخطأ الذي يحذّر منه فيشر: البيع بدافع ارتفاع السعر فقط، دون أي خطأٍ تحليلي أو تغيّرٍ جوهري سلبي، يضيّع أعظم مصدر للثروة في الاستثمار — التراكم المركَّب طويل الأمد.",
+       y1:"تفويتٌ لاستمرار نمو شركةٍ استثنائية لا يزال أمامها مستقبلٌ طويل", y5:"خسارة فرصة تضاعف القيمة مرات عديدة عبر السنين القادمة"}
+    ]
+  },
+  {
+    cure:"المبدأ · التنويع المحدود",
+    short:"عمقٌ في قليل من الشركات أفضل من تشتّتٍ في الكثير",
+    situation:"تملك مدخراتٍ تريد استثمارها، وتتجاذبك فكرتان: توزيعها على أكثر من خمسين شركة مختلفة لتقليل المخاطرة، أو التركيز على عشرين شركة فقط تفهمها بعمقٍ حقيقي بعد بحثٍ مكثف.",
+    choices:[
+      {t:"أتبنّى مبدأ فيشر في التنويع المحدود: أركّز على عشرين شركة أو أقل أفهمها بعمقٍ حقيقي بعد بحثٍ جاد، بدل التشتّت السطحي في عشراتٍ لا أعرف عنها إلا القليل", q:"best", d:19,
+       fb:"فيشر يخالف النصيحة الشائعة بالتنويع الواسع: معرفة قليلٍ من الشركات الاستثنائية معرفةً عميقة جداً أفضل من معرفة سطحية بعشراتٍ منها — بشرط أن يكون التركيز مبنياً على بحثٍ استثنائي العمق.",
+       y1:"محفظةٌ مركَّزة في شركاتٍ تفهمها فعلياً تفهماً عميقاً", y5:"تفوّقٌ محتمل على محفظةٍ مبعثرة بمعرفةٍ سطحية كما يوضح فيشر ومونغر وبافيت لاحقاً"},
+      {t:"أوزّع مدخراتي على خمسين شركة دون بحثٍ عميق في أي منها، معتمداً فقط على فكرة أن «التنويع الواسع يحمي من كل المخاطر تلقائياً»", q:"ok", d:4,
+       fb:"فيشر يحذّر من أن التنويع المفرط قد يكون تعويضاً غير مُعلَن عن نقص البحث العميق، لا استراتيجيةً متفوّقة بذاتها — التنويع وحده دون فهمٍ حقيقي لا يضمن الأمان الذي تتوقعه.",
+       y1:"تشتّتٌ في معرفةٍ سطحية بعدد كبير من الشركات", y5:"احتمال تفويت فرص النمو الكبرى التي يحتاج اكتشافها بحثاً عميقاً"},
+      {t:"أضع كل مدخراتي في شركةٍ واحدة فقط أعجبتني دون بحثٍ كافٍ، معتبراً أن «التركيز الشديد دائماً أفضل من التنويع» بحسب فهمي لمبدأ فيشر", q:"bad", d:-8,
+       fb:"هذا تطبيقٌ خاطئ لمبدأ فيشر: التركيز المحدود عنده مشروطٌ ببحثٍ استثنائي العمق في كل شركةٍ تختارها، لا تركيزاً أعمى في شركةٍ واحدة دون بحثٍ كافٍ يبرّر هذا التركيز الشديد.",
+       y1:"تعرّضٌ كاملٌ لمخاطرة شركةٍ واحدة بلا بحثٍ يبرّر هذا التركيز", y5:"خسارةٌ محتملة جوهرية إن كانت الشركة المختارة بلا بحثٍ عميق ضعيفة فعلياً"}
+    ]
+  },
+  {
+    cure:"المبدأ · الميزة التنافسية المستدامة",
+    short:"ميّز الربح المؤقت من الميزة المستدامة",
+    situation:"شركةٌ حقّقت أرباحاً استثنائية هذا العام بفضل منتجٍ واحد رائج جداً ودورةٍ اقتصادية مواتية، وتتساءل إن كانت فرصة استثمارٍ كبرى أم نجاحاً عابراً.",
+    choices:[
+      {t:"أفحص هل تملك الشركة قدرة بحثٍ وتطويرٍ مستمرة، وعلاقات عملاءٍ عميقة، وكفاءة إنتاجٍ يصعب تكرارها — أم أن النجاح مرتبطٌ فقط بمنتجٍ واحدٍ ودورةٍ عابرة", q:"best", d:20,
+       fb:"فيشر يقدّم وصفاً مفصّلاً لما يجعل ميزة شركةٍ مستدامة لا عابرة — قدرة بحثٍ وتطويرٍ تتفوّق باستمرارٍ منهجي، وتكاليف تبديلٍ تحمي العملاء، لا ربحٍ مؤقتٍ من منتجٍ واحد أو دورةٍ مواتية.",
+       y1:"تمييزٌ دقيقٌ بين فرصة نموٍّ حقيقية ونجاحٍ عابر", y5:"استثمارٌ في شركاتٍ تحافظ على نموها عبر عقود لا سنواتٍ قليلة فقط"},
+      {t:"أستثمر بمبلغٍ متوسط معتمداً على نجاح المنتج الواحد الحالي وحده، دون فحص آلية الشركة في تكرار هذا النجاح مستقبلاً", q:"ok", d:4,
+       fb:"فيشر يحذّر تحديداً من الانخداع بشركاتٍ تحقّق أرباحاً عالية مؤقتاً بسبب منتجٍ واحد، دون آليةٍ مستدامة لتكرار النجاح أو حمايته من منافسين جدد.",
+       y1:"استثمارٌ مبنيٌّ على نجاحٍ حالي دون ضمان استمراره", y5:"احتمال تلاشي الأرباح إن لم تملك الشركة آليةً مستدامة للنمو"},
+      {t:"أستثمر بكل ما أملك في الشركة فوراً لأن أرباحها هذا العام «استثنائية» بصرف النظر عن مصدرها أو استدامتها المستقبلية", q:"bad", d:-9,
+       fb:"هذا الانخداع بالضبط الذي يحذّر منه فيشر: الربح المؤقت من منتجٍ واحد أو دورةٍ اقتصادية مواتية ليس دليلاً على ميزةٍ مستدامة، وقد يتلاشى بسرعة أمام منافسةٍ لم تكن الشركة مستعدة لها.",
+       y1:"تعرّضٌ كاملٌ لشركةٍ قد ينهار نجاحها بسرعة", y5:"خسارةٌ محتملة جوهرية عند تلاشي الربح المؤقت وعدم تكراره"}
+    ]
+  },
+  {
+    cure:"المبدأ · دمج فيشر مع غراهام",
+    short:"الصرامة الكمية والبصيرة الكيفية يكمّلان لا يتناقضان",
+    situation:"تجد شركةً رخيصة جداً بمعايير غراهام التقليدية (سعرٌ منخفض نسبةً للأصول)، لكن بحثك الكيفي بطريقة فيشر يكشف أن منتجها يتلاشى تدريجياً ولا تملك خطة نموٍّ واضحة.",
+    choices:[
+      {t:"أدمج الصرامة الكمية لغراهام مع البصيرة الكيفية لفيشر: أتجنّب الشركة رغم رخصها الظاهري لأن التحليل الكيفي يكشف غياب النمو المستدام الحقيقي", q:"best", d:20,
+       fb:"الكتاب يوضح أن منهجية فيشر الكيفية تكمّل لا تنافس منهجية غراهام الكمية — بعض الأسهم رخيصة لأنها تستحق ذلك فعلاً، والمهارة في التمييز بين الرخص المبرَّر والرخص العابر تتطلّب الجمع بين الكمّي والكيفي.",
+       y1:"تجنّبٌ لفرصةٍ رخيصة ظاهرياً لكنها ضعيفة النمو فعلياً", y5:"إطارٌ تحليلي أكثر اكتمالاً يحميك من فخّ «الرخيص لأنه يستحق»"},
+      {t:"أشتري السهم فقط لأنه رخيصٌ جداً بمعايير غراهام، متجاهلاً ما كشفه بحثي الكيفي عن تلاشي المنتج تدريجياً", q:"ok", d:4,
+       fb:"الاعتماد على المعيار الكمي وحده دون البصيرة الكيفية يفوّت تحذيراً مهماً — فيشر يحذّر بشدة من شراء الشركة لمجرد أنها «رخيصة» دون فحص نموها الكيفي الحقيقي.",
+       y1:"شراءٌ مبنيٌّ على معيارٍ واحد متجاهلاً إشارات تحذيرية واضحة", y5:"احتمال تآكل القيمة إن استمر تلاشي المنتج كما كشف البحث الكيفي"},
+      {t:"أتجاهل كل التحليل الكمي لغراهام وأعتمد فقط على انطباعي الكيفي العام، معتبراً أن الأرقام «لا قيمة لها إطلاقاً» في قرار الاستثمار", q:"bad", d:-8,
+       fb:"هذا تطرّفٌ في الاتجاه المعاكس يخالف خاتمة الكتاب: المستثمر الناجح يجمع صرامة غراهام في تجنّب الدفع الزائد مع رؤية فيشر الكيفية، لا يستبدل أحدهما بالآخر كلياً.",
+       y1:"قرارٌ مبنيٌّ على انطباعٍ كيفي وحده دون أي تحققٍ رقمي", y5:"تعرّضٌ لمخاطرة دفع سعرٍ غير مبرَّر بسبب تجاهل الانضباط الكمي"}
+    ]
+  }
+];
+
+const VERDICTS = {
+  best:{title:"🔍 بحثٌ كيفيٌّ تام — هكذا يفكّر فيليب فيشر", cls:"best"},
+  ok:{title:"⚖️ مقبول… لكن البحث الكيفي لم يكتمل كلياً", cls:"ok"},
+  bad:{title:"🌀 قرارٌ يكشف اعتمادك على الأرقام السطحية فقط", cls:"bad"}
+};
+
+let idx = 0, wealth = 0, mastered = [];
+const $ = id => document.getElementById(id);
+
+function fmt(n){
+  const s = Math.abs(n).toLocaleString('en-US').replace(/,/g,'٬');
+  return (n<0?'−':'')+s;
+}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function renderDots(){
+  $('dots').innerHTML = SCENARIOS.map((_,i)=>`<div class="dot ${i<idx?'on':''} ${i===idx?'now':''}"></div>`).join('');
+}
+function renderWealth(animateFrom){
+  const el = $('wealth');
+  el.classList.toggle('neg', wealth<0);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(animateFrom===undefined || reduce){ el.innerHTML = fmt(wealth)+' <small>نقطة</small>'; return; }
+  const start = animateFrom, diff = wealth-start, dur = 900, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    el.innerHTML = fmt(Math.round(start+diff*e))+' <small>نقطة</small>';
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function startGame(){
+  idx = 0; wealth = 0; mastered = [];
+  $('ledger').style.display = 'block';
+  renderWealth(); renderDots(); renderScenario(); show('game');
+}
+function renderScenario(){
+  const s = SCENARIOS[idx];
+  $('g-eyebrow').textContent = `الموقف ${idx+1} من ${SCENARIOS.length} · ${s.cure}`;
+  $('g-situation').textContent = s.situation;
+  const letters = ['أ','ب','ج'];
+  $('g-choices').innerHTML = s.choices.map((c,i)=>
+    `<button class="choice" onclick="choose(${i})"><span class="badge">${letters[i]}</span><span>${c.t}</span></button>`).join('');
+  renderDots();
+}
+function choose(ci){
+  const s = SCENARIOS[idx], c = s.choices[ci];
+  const before = wealth;
+  wealth += c.d;
+  mastered.push(c.q === 'best');
+  const v = VERDICTS[c.q];
+  $('f-verdict').className = 'verdict '+v.cls;
+  $('f-title').textContent = v.title;
+  $('f-text').textContent = c.fb;
+  $('f-y1').textContent = c.y1;
+  $('f-y5').textContent = c.y5;
+  const dEl = $('f-delta');
+  dEl.className = 'delta '+(c.d>0?'up':c.d<0?'down':'flat');
+  dEl.textContent = (c.d>0?'📈 +':c.d<0?'📉 −':'⏳ ')+(c.d===0?'لا تغيير':Math.abs(c.d)+' نقطة');
+  $('f-next').textContent = (idx === SCENARIOS.length-1) ? 'اكشف نتيجتك النهائية 🔍' : 'الموقف التالي ←';
+  show('feedback');
+  renderWealth(before);
+}
+function nextScenario(){
+  idx++;
+  if(idx < SCENARIOS.length){ renderScenario(); show('game'); }
+  else showResults();
+}
+function rankOf(w){
+  if(w>=95) return {r:"🔍 تتقن البحث الكيفي بطريقة فيليب فيشر", n:"تطبّق حكمة فيشر بإتقان: الكلام الشفهي، ومتى تبيع نادراً، والتنويع المحدود، والميزة المستدامة. طبّقها على بحثك الحقيقي الآن."};
+  if(w>=60) return {r:"⚖️ بحثك الكيفي يتوسّع تدريجياً", n:"تمتلك معظم المبادئ. راجع ما أخطأت فيه أدناه ورسّخه."};
+  if(w>=25) return {r:"🔍 بدأتَ تفرّق بين النمو المستدام والربح المؤقت", n:"وضعتَ أولى لبنات الفهم. أعد قراءة الفصول ثم عُد."};
+  return {r:"🌀 لا يزال الاعتماد على الأرقام السطحية يحكم قراراتك", n:"لا بأس — الوعي أول خطوة. ابدأ بسؤالٍ واحد: «ماذا يخبرني البحث الكيفي عمّا لا تكشفه الأرقام؟»"};
+}
+function showResults(){
+/*WA_TRACK*/try{window.parent.postMessage({type:"wa_complete",key:"cf_decision"},"*");}catch(e){}/*WA_TRACK*/
+  $('ledger').style.display = 'none';
+  const rk = rankOf(wealth);
+  const amountEl = $('r-amount');
+  amountEl.classList.toggle('neg', wealth<0);
+  $('r-rank').textContent = rk.r;
+  $('r-note').textContent = rk.n;
+  $('r-principles').innerHTML = SCENARIOS.map((s,i)=>
+    `<li><span class="p-mark ${mastered[i]?'yes':'no'}">${mastered[i]?'✓':'✗'}</span><span>${s.short}</span></li>`).join('');
+  show('results');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ amountEl.textContent = fmt(wealth); return; }
+  const dur = 1400, t0 = performance.now();
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    amountEl.textContent = fmt(Math.round(wealth*e));
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+}
+function restart(){ $('ledger').style.display = 'none'; show('intro'); }
+</script>
+</body>
+</html>
